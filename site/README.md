@@ -2,6 +2,13 @@
 
 한자 드롭을 자유롭게 이동해 오행 콤보를 만들고, 모은 글자로 사자성어를 연성하는 정적 HTML5 퍼즐 로그라이크입니다. 별도 빌드 도구나 서버 프로그램을 게임에 포함하지 않으며, 정적 파일 서버에서 바로 실행됩니다.
 
+## 공개 실행
+
+- 게임 URL: https://meowthologysaga.github.io/sajayeonseong-play/
+- 공개 배포 저장소: https://github.com/MeowthologySaga/sajayeonseong-play
+
+2026-08-07 기준 GitHub Pages 배포가 성공했으며, 원격 매니페스트의 실행 파일 146개와 한자 1,135자·훈음 1,135건·사자성어 75개를 다시 검증했습니다. 공개 URL의 브라우저 첫 화면도 콘솔 오류 없이 렌더링됩니다.
+
 ## 실행
 
 이 폴더에서 다음 명령을 실행합니다.
@@ -54,19 +61,19 @@ npm run build:submission
 
 공개 URL과 지정 서류가 준비된 뒤에는 `scripts/finalize-submission.py`를 사용해 URL 원격 검증, 최종 기획안 재생성, 서류 PDF 검사, 체크섬과 최종 ZIP 생성을 한 번에 수행합니다. 인자와 권리 확인 게이트는 `docs/submission/FINALIZATION.md`에 정리되어 있습니다.
 
-## GitHub Pages 배포 준비
+## GitHub Pages 배포
 
-공식 GitHub Pages Actions 워크플로는 `.github/workflows/deploy-pages.yml`에 있습니다. `master` 푸시 시 전체 검사와 정적 제출 빌드를 다시 수행한 뒤 실행 파일만 배포합니다. 실제 공개 전에는 저장소 공개 범위·요금제·Pages 소스를 확인해야 하며, 공개 전환이나 푸시는 자동으로 수행하지 않습니다.
+기존 개발 저장소의 이력은 공개하지 않습니다. `npm run build:pages-export`로 만든 실행 전용 정제본을 별도 공개 저장소 `MeowthologySaga/sajayeonseong-play`의 단일 첫 커밋으로 배포합니다. 공개 저장소의 `main` 브랜치에는 정적 사이트와 Pages 워크플로만 있습니다.
 
 배포된 주소의 manifest와 모든 실행 파일을 검사하려면 다음처럼 실행합니다.
 
 ```powershell
-npm run verify:pages -- https://meowthologysaga.github.io/hanjaPND/
+npm run verify:pages -- https://meowthologysaga.github.io/sajayeonseong-play/
 ```
 
 최초 배포 절차와 공개 전 안전 점검은 `docs/submission/DEPLOYMENT.md`를 따릅니다.
 
-기존 저장소를 공개하지 않고 실행 파일만 새 저장소에 배포해야 할 때는 `npm run build:pages-export`를 실행합니다. 생성되는 `output/public-pages-export`는 과거 개발 이력을 포함하지 않는 새 공개 저장소용 원본입니다.
+생성되는 `output/public-pages-export`는 과거 개발 이력을 포함하지 않는 새 공개 저장소용 원본입니다. 공개 감사와 재배포 절차는 `docs/submission/DEPLOYMENT.md`에 기록되어 있습니다.
 
 ## 데이터 구조
 

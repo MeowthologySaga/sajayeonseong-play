@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=20260807-competition-10" />
+    <link rel="stylesheet" href="styles.css?v=20260807-competition-11" />
   </head>
   <body>
     <div class="grain" aria-hidden="true"></div>
@@ -32,7 +32,10 @@
         <div class="enemy-copy">
           <div class="wave-line"><span id="wave-label">제1파</span><span id="turn-label">첫 번째 연성</span></div>
           <h2 id="enemy-name">야생 목령</h2>
-          <div class="enemy-kind-label" id="enemy-kind-label">야생 자령 · 木 목</div>
+          <div class="enemy-kind-label" id="enemy-kind-label" aria-label="야생 자령 한자 정보">
+            <b id="enemy-study-hanja">木</b>
+            <span><strong id="enemy-study-reading">나무 목</strong><small id="enemy-study-meaning">성장 · 야생 자령</small></span>
+          </div>
           <div class="enemy-phase-label" id="enemy-phase-label">1단계 · 먹구름</div>
           <div class="enemy-intent-card threat-medium" id="enemy-intent" aria-describedby="enemy-intent-live">
             <div class="intent-kicker">
@@ -60,6 +63,9 @@
           </div>
           <div id="damage-float" class="damage-float" aria-live="polite"></div>
         </div>
+        <div id="battle-feedback" class="battle-feedback" role="status" aria-live="assertive">
+          <b id="battle-feedback-kicker">내 공격</b><strong id="battle-feedback-title">연성 결과</strong><span id="battle-feedback-detail">피해와 방어 결과가 여기에 표시됩니다.</span>
+        </div>
         <div class="enemy-vitals">
           <div class="vital-row"><span>자령 기운 · 진정 게이지</span><span class="vital-value"><strong id="enemy-hp-text">120 / 120</strong><small id="enemy-hp-percent">100%</small></span></div>
           <div class="bar enemy-bar"><i id="enemy-hp-bar"></i></div>
@@ -78,6 +84,7 @@
             <div class="jaryeong-heading"><span>字</span><div><small>JARYEONG PARTY</small><strong>자령 편성</strong></div><b id="jaryeong-party-label">0/5 편성</b></div>
             <div id="jaryeong-party" class="jaryeong-party"></div>
           </section>
+          <div id="idiom-focus" class="idiom-focus" aria-label="현재 크게 보는 연성식" aria-live="polite"></div>
           <div id="idiom-cards" class="idiom-cards"></div>
           <div class="tip-card">
             <span class="tip-icon">◎</span>
@@ -85,7 +92,7 @@
           </div>
         </aside>
 
-        <section class="puzzle-panel panel">
+        <section id="puzzle-panel" class="puzzle-panel panel">
           <div id="pang-hud" class="pang-hud" aria-label="팡팡 모드 점수와 남은 시간">
             <div class="pang-score"><small>SCORE</small><strong id="pang-score">0</strong></div>
             <div class="pang-time">
@@ -109,6 +116,7 @@
               <div id="shield-badge" class="shield-badge" aria-label="보호막">◇ <b>0</b></div>
             </div>
             <div class="move-timer" id="move-timer"><span>이동</span><strong>4.0</strong><i></i></div>
+            <div id="player-damage-float" class="player-damage-float" aria-live="assertive"></div>
           </div>
 
           <div class="board-wrap">
@@ -136,6 +144,14 @@
         </aside>
 
         <aside class="chronicle-panel panel">
+          <section id="roguelike-rotating-panel" class="roguelike-rotating-panel" aria-label="순환 연성식">
+            <div class="roguelike-rotating-heading">
+              <div><span class="section-number">循</span><h2>순환 연성식</h2></div>
+              <small id="roguelike-rotating-status">3턴 후 교체</small>
+            </div>
+            <p>전투 중 3~7턴마다 바뀌는 학습 성어입니다.</p>
+            <div id="roguelike-rotating-cards" class="roguelike-rotating-cards"></div>
+          </section>
           <div class="section-heading compact">
             <div><span class="section-number">貳</span><h2>전투 기록</h2></div>
           </div>
@@ -247,6 +263,7 @@
           <button id="debug-player-heal" class="debug-action-button" data-debug-combat type="button">플레이어 HP 회복</button>
           <button id="debug-shield" class="debug-action-button" data-debug-combat type="button">보호막 +50</button>
           <button id="debug-clear-queue" class="debug-action-button" data-debug-combat type="button">문자 큐 비우기</button>
+          <button id="debug-force-match" class="debug-action-button" data-debug-combat type="button">3매치 · 공격 연출 QA</button>
           <button id="debug-rotate-idioms" class="debug-action-button" data-debug-combat type="button">순환 성어 즉시 교체</button>
           <button id="debug-fill-party" class="debug-action-button" data-debug-combat type="button">팀 5명 채우기 · 계약 QA</button>
           <button id="debug-grant-relics" class="debug-action-button" data-debug-rogue type="button">유물 18종 지급 · 효과 QA</button>
@@ -401,10 +418,10 @@
     <div id="revive-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="revive-title">
       <div class="modal-card revive-card">
         <p class="eyebrow">한 번뿐인 자형 재연성</p>
-        <h2 id="revive-title">福을 따라 다시 빚으세요</h2>
+        <h2 id="revive-title">한자를 따라 다시 빚으세요</h2>
         <p>반투명한 글자 위를 천천히 따라 그어 보세요. 획이 조금 달라도 대강의 유사도로 판정합니다.</p>
-        <div class="trace-stage" aria-label="반투명한 복 복 자를 따라 그리기">
-          <canvas id="revive-canvas" class="revive-canvas" width="720" height="460" aria-label="福 자 따라쓰기"></canvas>
+        <div id="trace-stage" class="trace-stage" aria-label="반투명한 한자를 따라 그리기">
+          <canvas id="revive-canvas" class="revive-canvas" width="720" height="460" aria-label="한자 따라쓰기"></canvas>
         </div>
         <p id="trace-progress" class="trace-progress">반투명 글자를 따라 써 주세요 · 모두 쓴 뒤 제출하세요.</p>
         <div class="trace-actions">
@@ -465,6 +482,6 @@
 
     <script src="data/sajayeonseong-hanja-v2.js?v=20260807-data-2"></script>
     <script src="data/hanja-hun-eum.js?v=20260807-hun-1"></script>
-    <script type="module" src="game.js?v=20260807-competition-17"></script>
+    <script type="module" src="game.js?v=20260807-competition-18"></script>
   </body>
 </html>

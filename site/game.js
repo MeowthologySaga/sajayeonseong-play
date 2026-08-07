@@ -3,7 +3,7 @@ import { ASSET_MANIFEST } from "./src/assets.js";
 import { AudioDirector } from "./src/audio.js";
 import { buildCharacterVolumes, buildRunCharacterPool, chooseRotatingRecipes, createRunRoute, createSeededRng, pickWithRng, randomFrom, RUN_LIMITS, shuffleWithRng, validateGameCatalog } from "./src/run-engine.js?v=20260807-recipes-1";
 import { decodeRunSave, describeRunSaveStage, encodeRunSave, RUN_SAVE_KEY } from "./src/save.js?v=20260807-save-2";
-import { passesReviveTrace, scoreReviveTrace } from "./src/revive.js?v=20260807-revive-1";
+import { buildReviveCharacterPool, passesReviveTrace, scoreReviveTrace } from "./src/revive.js?v=20260807-revive-2";
 import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELIC_EFFECT_TYPES } from "./src/relics.js?v=20260807-relics-1";
 
 (function () {
@@ -198,6 +198,7 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
   const ACTIVE_CHARACTERS = orderedCharacters.filter((entry) => activeCharacterSet.has(entry.hanja));
   const CHARACTER_POOL = ACTIVE_CHARACTERS.length ? ACTIVE_CHARACTERS.map((entry) => entry.hanja) : [...new Set([...IDIOMS.flatMap((idiom) => idiom.chars), ...LEGACY_EXTRA_CHARS])];
   const CHARACTER_VOLUMES = buildCharacterVolumes(DATASET_CHARACTERS);
+  const REVIVE_CHARACTER_POOL = buildReviveCharacterPool(DATASET_CHARACTERS, HANJA_READINGS);
   const JARYEONG_LIBRARY = Object.freeze([
     { id: "wood-mok", hanja: "木", reading: "나무 목", meaning: "성장", element: "wood", attack: 8, skillName: "덩굴 자람", skillDesc: "체력 12 회복 · 다음 목 회복 강화", leaderSkill: "목 회복량 +25%", bodyType: "semi-humanoid", personality: "느긋하고 다정한 숲의 수호자" },
     { id: "wood-tree", hanja: "樹", reading: "나무 수", meaning: "숲과 생명", element: "wood", attack: 7, skillName: "생명의 그늘", skillDesc: "보호막 10 획득 · 체력 8 회복", leaderSkill: "목 매치마다 보호막 +1", bodyType: "semi-humanoid", personality: "작은 생명을 돌보는 나무 정령" },
@@ -670,7 +671,7 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     pangLastTick: 0, pangOrigin: null, pangTarget: null, pangMoved: false,
     pangEndPending: false, dragPreview: null, readingMode: "compact", swapAnimationUntil: 0, audioContext: null,
     enemyPlan: createEnemyPlan(), stageIdiomIds: [], usedStageIdiomIds: new Set(), rotatingIdiomIds: [], usedRotatingIdiomIds: new Set(), readyIdiomIds: new Set(), run: null,
-    nextIdiomRecipeTurn: 0, idiomRecipeInterval: 0, recipeSupplyUntilTurn: 0, idiomDetailId: null,
+    nextIdiomRecipeTurn: 0, idiomRecipeInterval: 0, recipeSupplyUntilTurn: 0, idiomDetailId: null, focusedIdiomId: null,
     nextMoveBonus: 0, enemyMovePenalty: 0, currentChargeBonus: 0, nextChargeBonus: 0, nextPlayerDamageBonus: 0, nextWeaknessDamageBonus: 0,
     enemyVulnerableTurns: 0, enemyVulnerableRatio: 0, enemySilenced: 0, healReductionTurns: 0, healReductionRatio: 0,
     reflectNextEnemyAttack: null, nextEnemyDamageReduction: 0, enemyDamageMultiplier: 1, enemyShield: 0,
@@ -1535,6 +1536,19 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     debugMessage("문자 큐를 비웠습니다.");
   }
 
+  function debugForceMatch() {
+    if (!debugCombatAllowed() || state.resolving || state.gameOver) return;
+    const matchElement = ELEMENTS.find((element) => element.id === "fire") || ELEMENTS[0];
+    for (let col = 0; col < 3; col++) {
+      state.board[0][col].element = matchElement.id;
+      state.board[0][col].symbol = matchElement.symbol;
+    }
+    renderBoard();
+    closeDebug();
+    addLog("<strong>공격 연출 QA</strong> · 첫 줄에 화 3매치를 만들었습니다.", "fire");
+    window.setTimeout(() => { if (!state.resolving && !state.gameOver) void resolveTurn(); }, 120);
+  }
+
   function debugRotateIdioms() {
     if (!debugCombatAllowed()) { debugMessage("퍼즐·로그라이크 전투에서만 사용할 수 있습니다."); return; }
     const fixedIds = getFixedIdioms().map((idiom) => idiom.id);
@@ -1900,12 +1914,45 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     const ready = preview?.ready ?? availability.every(Boolean);
     const effectText = idiomEffectText(idiom);
     const meaningText = idiomMeaningText(idiom);
+    const missingChars = idiom.chars.filter((char, index) => !availability[index]);
+    const requirementText = ready ? "발동 준비" : `필요 ${missingChars.join("·")}`;
     const tooltip = `${idiom.sourceHanja} · ${idiom.pronunciation || idiom.name}\n뜻: ${meaningText}\n효과: ${effectText}`;
-    return `<button type="button" class="idiom-card ${setKind} ${ready ? "ready" : ""}" data-idiom-detail="${escapeHtml(idiom.id)}" title="${escapeHtml(tooltip)}" aria-label="${escapeHtml(`${idiom.name}. 효과: ${effectText}. 눌러서 뜻 보기`)}">
-      <div class="idiom-title"><strong>${escapeHtml(idiom.name)}</strong><em>${ready ? "연성 가능" : "대기 중"}</em></div>
+    return `<button type="button" class="idiom-card ${setKind} ${ready ? "ready" : ""}" data-idiom-detail="${escapeHtml(idiom.id)}" title="${escapeHtml(tooltip)}" aria-label="${escapeHtml(`${idiom.name}. ${requirementText}. 효과: ${effectText}. 눌러서 뜻 보기`)}">
+      <div class="idiom-title"><strong>${escapeHtml(idiom.name)}</strong><em class="idiom-requirement">${escapeHtml(requirementText)}</em></div>
       <div class="idiom-slots">${idiom.chars.map((char, i) => `<span class="idiom-slot ${availability[i] ? "collected" : ""}" title="${escapeHtml(`${char} · ${HANJA_READINGS[char]}`)}"><b>${char}</b><small>${escapeHtml(HANJA_READINGS[char])}</small></span>`).join("")}</div>
       <p class="idiom-effect"><b>효과</b> ${escapeHtml(effectText)}</p>
     </button>`;
+  }
+
+  function renderIdiomFocus(idiom, setKind, preview) {
+    const wrap = $("#idiom-focus");
+    if (!wrap || !idiom) {
+      if (wrap) wrap.innerHTML = "";
+      return;
+    }
+    const availability = preview?.availability || idiomAvailability(idiom);
+    const collected = availability.filter(Boolean).length;
+    const ready = preview?.ready ?? collected === idiom.chars.length;
+    const effectText = idiomEffectText(idiom);
+    const meaningText = idiomMeaningText(idiom);
+    wrap.innerHTML = `<button type="button" class="idiom-focus-card ${setKind} ${ready ? "ready" : ""}" data-idiom-detail="${escapeHtml(idiom.id)}" title="${escapeHtml(`뜻: ${meaningText}`)}" aria-label="${escapeHtml(`${idiom.name}, ${collected}글자 수집. 효과: ${effectText}. 눌러서 뜻 보기`)}">
+      <span class="idiom-focus-heading"><em>${setKind === "rotating" ? "순환 학습" : "고정 학습"}</em><strong>${escapeHtml(idiom.name)}</strong><b>${ready ? "연성 가능" : `${collected}/4`}</b></span>
+      <span class="idiom-focus-glyphs">${idiom.chars.map((char, index) => `<span class="${availability[index] ? "collected" : ""}"><b>${escapeHtml(char)}</b><small>${escapeHtml(HANJA_READINGS[char])}</small></span>`).join("")}</span>
+      <span class="idiom-focus-effect"><b>효과</b>${escapeHtml(effectText)}</span>
+    </button>`;
+  }
+
+  function chooseIdiomFocus(fixed, rotating, activationPreview) {
+    const candidates = [...fixed.map((idiom) => ({ idiom, kind: "fixed" })), ...rotating.map((idiom) => ({ idiom, kind: "rotating" }))];
+    return candidates.sort((left, right) => {
+      const leftPreview = activationPreview.get(left.idiom.id);
+      const rightPreview = activationPreview.get(right.idiom.id);
+      const leftCount = (leftPreview?.availability || idiomAvailability(left.idiom)).filter(Boolean).length;
+      const rightCount = (rightPreview?.availability || idiomAvailability(right.idiom)).filter(Boolean).length;
+      const leftReady = leftPreview?.ready ?? leftCount === 4;
+      const rightReady = rightPreview?.ready ?? rightCount === 4;
+      return Number(rightReady) - Number(leftReady) || rightCount - leftCount || (left.kind === right.kind ? 0 : left.kind === "fixed" ? -1 : 1);
+    })[0] || null;
   }
 
   function renderIdioms() {
@@ -1926,6 +1973,17 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
       <div class="idiom-set-heading"><b>순환</b><span>${remaining}턴 후 무작위 3개 교체</span></div>
       <div class="idiom-card-grid">${rotating.map((idiom) => renderIdiomCard(idiom, "rotating", activationPreview.get(idiom.id))).join("")}</div>
     </section>`;
+    const rogueRotatingWrap = $("#roguelike-rotating-cards");
+    if (rogueRotatingWrap) {
+      rogueRotatingWrap.innerHTML = rotating.map((idiom) => renderIdiomCard(idiom, "rotating", activationPreview.get(idiom.id))).join("");
+    }
+    const rogueRotatingStatus = $("#roguelike-rotating-status");
+    if (rogueRotatingStatus) rogueRotatingStatus.textContent = `${remaining}턴 후 3개 교체`;
+    const focused = chooseIdiomFocus(fixed, rotating, activationPreview);
+    if (focused) {
+      state.focusedIdiomId = focused.idiom.id;
+      renderIdiomFocus(focused.idiom, focused.kind, activationPreview.get(focused.idiom.id));
+    } else renderIdiomFocus(null);
     const cycle = $("#idiom-cycle-status");
     if (cycle && state.mode !== "pang") {
       cycle.textContent = `고정 ${fixed.length} + 순환 ${rotating.length} · 클릭하면 뜻 보기`;
@@ -1942,8 +2000,14 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     const enemyJaryeong = getJaryeong(enemy.jaryeongId);
     const enemyKind = $("#enemy-kind-label");
     if (enemyKind) {
-      enemyKind.textContent = `${enemy.wildLabel || "야생 자령"} · ${enemy.glyph || enemyJaryeong?.hanja || "字"} ${enemyJaryeong?.name || "자령"}`;
-      enemyKind.title = enemyJaryeong ? `${enemyJaryeong.hanja} · ${enemyJaryeong.reading} · ${enemyJaryeong.meaning}` : "";
+      const studyHanja = enemy.glyph || enemyJaryeong?.hanja || "字";
+      const studyReading = enemyJaryeong?.reading || HANJA_READINGS[studyHanja] || "글자 자";
+      const studyMeaning = enemyJaryeong?.meaning || CHARACTER_BY_HANJA.get(studyHanja)?.meaning || "한자 자령";
+      $("#enemy-study-hanja").textContent = studyHanja;
+      $("#enemy-study-reading").textContent = studyReading;
+      $("#enemy-study-meaning").textContent = `${studyMeaning} · ${enemy.wildLabel || "야생 자령"}`;
+      enemyKind.title = `${studyHanja} · ${studyReading} · ${studyMeaning}`;
+      enemyKind.setAttribute("aria-label", `${enemy.wildLabel || "야생 자령"}, ${studyHanja}, ${studyReading}, 뜻 ${studyMeaning}. 야생 상태라 부적은 없습니다.`);
     }
     $("#enemy-hp-text").textContent = `${Math.max(0, Math.ceil(state.enemyHp))} / ${enemy.hp}`;
     const hpPercent = clamp(state.enemyHp / enemy.hp * 100, 0, 100);
@@ -2010,7 +2074,14 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     return state.audioContext;
   }
 
+  let lastPuzzleSwapSoundAt = 0;
+
   function playSwapSound(step = 1) {
+    if (state.mode !== "pang") {
+      const now = performance.now();
+      if (now - lastPuzzleSwapSoundAt < 160) return;
+      lastPuzzleSwapSoundAt = now;
+    }
     audioDirector.playSfx(step > 1 ? "combo-low" : "tile-swap");
   }
 
@@ -2267,12 +2338,50 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     badge.classList.remove("show"); void badge.offsetWidth; badge.classList.add("show");
   }
 
-  function floatDamage(amount, label = "") {
+  function floatDamage(amount, label = "", kind = "player") {
     const el = $("#damage-float");
     el.textContent = `${label}${Math.round(amount)}`;
+    el.classList.toggle("from-player", kind === "player");
+    el.classList.toggle("from-effect", kind !== "player");
     el.classList.remove("show"); void el.offsetWidth; el.classList.add("show");
     const sprite = $("#enemy-sprite");
     sprite.classList.remove("enemy-hit"); void sprite.offsetWidth; sprite.classList.add("enemy-hit");
+    const bar = document.querySelector(".enemy-bar");
+    bar?.classList.remove("damage-pulse");
+    if (bar) { void bar.offsetWidth; bar.classList.add("damage-pulse"); }
+  }
+
+  let battleFeedbackTimer = null;
+
+  function showBattleFeedback(kind, title, detail) {
+    const feedback = $("#battle-feedback");
+    if (!feedback) return;
+    window.clearTimeout(battleFeedbackTimer);
+    $("#battle-feedback-kicker").textContent = kind === "enemy" ? "적 공격" : "내 공격";
+    $("#battle-feedback-title").textContent = title;
+    $("#battle-feedback-detail").textContent = detail;
+    feedback.classList.remove("player", "enemy", "show");
+    void feedback.offsetWidth;
+    feedback.classList.add(kind === "enemy" ? "enemy" : "player", "show");
+    battleFeedbackTimer = window.setTimeout(() => feedback.classList.remove("show"), 1500);
+  }
+
+  function showPlayerHitFeedback(damage, absorbed = 0) {
+    const value = $("#player-damage-float");
+    const panel = $("#puzzle-panel");
+    if (value) {
+      value.textContent = damage > 0 ? `−${Math.round(damage)} HP` : `보호막 ${Math.round(absorbed)} 방어`;
+      value.classList.toggle("blocked", damage <= 0);
+      value.classList.remove("show");
+      void value.offsetWidth;
+      value.classList.add("show");
+    }
+    panel?.classList.remove("player-hit");
+    if (panel) { void panel.offsetWidth; panel.classList.add("player-hit"); }
+    const bar = document.querySelector(".player-bar");
+    bar?.classList.remove("damage-pulse");
+    if (bar) { void bar.offsetWidth; bar.classList.add("damage-pulse"); }
+    audioDirector.playSfx(damage > 0 ? "debuff" : "shield");
   }
 
   let enemyArtRestoreTimer = null;
@@ -2639,7 +2748,7 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
       state.nextElementBoosts[synergy.buff] = (state.nextElementBoosts[synergy.buff] || 0) + 1;
       addLog(`<strong>${synergy.label} 상생</strong> · ${synergy.text}`, "combo");
     });
-    if (total.damage) applyDamage(total.damage);
+    if (total.damage) applyDamage(total.damage, "내 공격 −", { feedbackKind: "player" });
     if (total.heal) healPlayer(total.heal);
     if (total.shield) gainShield(total.shield);
     if (total.delay) {
@@ -2742,6 +2851,12 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
       state.totalCombos += comboCount;
       const comboScale = 1 + Math.max(0, comboCount - 1) * .25;
       const elemental = applyElementMatchEffects(elementCounts, comboScale);
+      const outcome = [`총 ${elemental.damage} 피해`];
+      if (elemental.heal) outcome.push(`체력 +${elemental.heal}`);
+      if (elemental.shield) outcome.push(`보호막 +${elemental.shield}`);
+      if (elemental.delay) outcome.push(`적 ${elemental.delay}턴 지연`);
+      if (elemental.burn) outcome.push(`화상 ${elemental.burn}`);
+      showBattleFeedback("player", `${comboCount}콤보 · ${removedTiles.length}드롭`, outcome.join(" · "));
       addLog(`<strong>${comboCount}콤보</strong> · ${removedTiles.length}개 제거 · 피해 ${elemental.damage}${elemental.heal ? ` · 회복 ${elemental.heal}` : ""}${elemental.shield ? ` · 보호 ${elemental.shield}` : ""}${elemental.delay ? ` · 행동 지연 ${elemental.delay}턴` : ""}${elemental.burn ? ` · 화상 ${elemental.burn}` : ""}`, "combo");
     }
 
@@ -2757,7 +2872,9 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     }
     chargePartyByHanja(removedTiles);
     renderQueue(); renderIdioms(); updateVitals();
-    await wait(250);
+    // Give the player a readable beat to connect the match with its combat
+    // outcome before idiom and enemy responses can replace the result banner.
+    await wait(cascade ? 700 : 250);
     const activated = await activateIdioms(elementCounts, comboCount);
     cleanQueue(activated.usedIds);
     state.turnsSinceIdiom = activated.activated.length ? 0 : (state.turnsSinceIdiom || 0) + 1;
@@ -2805,7 +2922,7 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     if (dealt > 0) state.enemyHp -= dealt;
     recordTurnTotal("damage", dealt);
     if (dealt > 0) audioDirector.playSfx("enemy-hit");
-    floatDamage(dealt, label);
+    floatDamage(dealt, label, options.feedbackKind || "effect");
     updateVitals();
     if (dealt > 0) setEnemyArtFrame("hurt", 320);
     return dealt;
@@ -3311,6 +3428,13 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     damage -= absorbed;
     state.playerHp -= damage;
     const effectSuffix = applyEnemyIntentEffect(intent, silenced);
+    showPlayerHitFeedback(damage, absorbed);
+    const enemyOutcome = [];
+    if (absorbed) enemyOutcome.push(`보호막이 ${absorbed} 막음`);
+    enemyOutcome.push(damage > 0 ? `체력 ${damage} 감소` : "체력 피해 없음");
+    const secondaryEffect = !silenced ? intent.effectText?.split(" · ").slice(1).join(" · ") : "부가효과 봉인";
+    if (secondaryEffect) enemyOutcome.push(secondaryEffect);
+    showBattleFeedback("enemy", intent.name, enemyOutcome.join(" · "));
     if (reflect) {
       const reflectedDamage = Math.round(rawDamage * (reflect.ratio || 1));
       applyTrueDamage(reflectedDamage, "반사 −");
@@ -3319,6 +3443,7 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     addLog(`${enemy.name}의 ${intent.name} · ${absorbed ? `보호막 ${absorbed} 흡수 · ` : ""}<strong>${damage} 피해</strong>${effectSuffix}`, "enemy");
     advanceEnemyPlan();
     updateVitals();
+    await wait(220);
     if (state.enemyHp <= 0) {
       await nextWave();
       return;
@@ -3956,10 +4081,16 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
         </button>`;
       }
       if (reward.type === "idiom" || reward.type === "idiom-upgrade") {
-        return `<button type="button" class="roguelike-choice reward-choice idiom-reward-choice" data-roguelike-reward="${reward.id}">
+        const effectText = reward.type === "idiom" ? idiomEffectText(reward) : reward.desc;
+        const meaningText = reward.type === "idiom" ? idiomMeaningText(reward) : "";
+        const roleText = reward.type === "idiom" ? (reward.role || "전투 효과") : "보유 성어 위력 강화";
+        const tooltip = reward.type === "idiom"
+          ? `${reward.name}\n효과: ${effectText}\n뜻: ${meaningText}`
+          : `${reward.name}\n효과: ${effectText}`;
+        return `<button type="button" class="roguelike-choice reward-choice idiom-reward-choice" data-roguelike-reward="${escapeHtml(reward.id)}" title="${escapeHtml(tooltip)}" aria-label="${escapeHtml(`${reward.name} 보상. 효과: ${effectText}${meaningText ? `. 뜻: ${meaningText}` : ""}`)}">
           <span class="roguelike-choice-glyphs">${(reward.chars || []).map((char) => `<b>${char}</b>`).join("")}</span>
-          <span class="roguelike-choice-meta"><em>${reward.type === "idiom" ? `${reward.tier || "성어"} · ${reward.category || "연성"}` : "성어 강화"}</em><strong>${reward.name}</strong><small>${reward.reading || reward.desc}</small></span>
-          <span class="roguelike-choice-desc">${reward.desc}</span>
+          <span class="roguelike-choice-meta"><em>${escapeHtml(reward.type === "idiom" ? `${reward.tier || "성어"} · ${reward.category || "연성"}` : "성어 강화")}</em><strong>${escapeHtml(reward.name)}</strong><small>${escapeHtml(roleText)}</small></span>
+          <span class="roguelike-choice-desc reward-idiom-copy"><b class="reward-effect-label">효과</b><span class="reward-idiom-effect">${escapeHtml(effectText)}</span>${meaningText ? `<small class="reward-idiom-meaning"><b>뜻</b> ${escapeHtml(meaningText)}</small>` : ""}</span>
         </button>`;
       }
       const typeLabel = reward.preview ? "등불 미리보기" : reward.type === "heal" ? "회복 보상" : "유물 보상";
@@ -4236,7 +4367,7 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     while (log.children.length > 7) log.lastElementChild.remove();
   }
 
-  const REVIVE_TRACE = { char: "福", reading: "복 복", width: 720, height: 460 };
+  const REVIVE_TRACE = { char: "字", reading: "글자 자", width: 720, height: 460 };
   const trace = {
     drawing: false,
     strokes: [],
@@ -4248,6 +4379,15 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     strokeCanvas: null,
     targetPixels: 0
   };
+
+  function chooseReviveTraceCharacter() {
+    const choice = randomOf(REVIVE_CHARACTER_POOL) || { char: "福", reading: "복 복" };
+    REVIVE_TRACE.char = choice.char;
+    REVIVE_TRACE.reading = choice.reading;
+    $("#revive-title").textContent = `${choice.char} 자를 따라 다시 빚으세요`;
+    $("#revive-canvas").setAttribute("aria-label", `${choice.char}, ${choice.reading} 따라쓰기`);
+    $("#trace-stage").setAttribute("aria-label", `반투명한 ${choice.char}, ${choice.reading} 자를 따라 그리기`);
+  }
 
   function traceFont() {
     return `700 ${Math.round(REVIVE_TRACE.height * .76)}px "Gowun Batang", serif`;
@@ -4386,7 +4526,7 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     progress.classList.toggle("pass", trace.passed);
     progress.classList.toggle("fail", trace.submitted && !trace.passed);
     if (trace.passed) {
-      progress.textContent = `통과 · 유사도 ${score}% · 복 복 자형이 이어졌습니다.`;
+      progress.textContent = `통과 · 유사도 ${score}% · ${REVIVE_TRACE.char}, ${REVIVE_TRACE.reading} 자형이 이어졌습니다.`;
     } else if (trace.submitted) {
       progress.textContent = metrics.drawn
         ? `제출 결과 ${score}% · 획을 더 채운 뒤 다시 제출하세요.`
@@ -4464,7 +4604,7 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     state.shield = 0;
     gainShield(12);
     audioDirector.playSfx("revive-brush");
-    addLog(`<strong>福 · 복 복</strong> · 생명력 ${state.playerHp}으로 다시 일어났습니다.`, "alchemy");
+    addLog(`<strong>${escapeHtml(REVIVE_TRACE.char)} · ${escapeHtml(REVIVE_TRACE.reading)}</strong> · 생명력 ${state.playerHp}으로 다시 일어났습니다.`, "alchemy");
     updateAll();
   }
 
@@ -4472,6 +4612,7 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     if (!state.gameOver || state.reviveUsed || state.playerHp > 0 || !debugCombatAllowed()) return;
     $("#result-modal").classList.remove("open");
     $("#roguelike-result-modal").classList.remove("open");
+    chooseReviveTraceCharacter();
     setupTrace();
     $("#revive-modal").classList.add("open");
     $("#trace-submit").focus();
@@ -4658,10 +4799,24 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     $("#menu-settings-button").addEventListener("click", openSettings);
     $("#settings-close").addEventListener("click", closeSettings);
     $("#idiom-detail-close").addEventListener("click", closeIdiomDetail);
-    $("#idiom-cards").addEventListener("click", (event) => {
+    const openIdiomFromCard = (event) => {
       const card = event.target.closest("[data-idiom-detail]");
       if (card) openIdiomDetail(card.dataset.idiomDetail);
-    });
+    };
+    $("#idiom-cards").addEventListener("click", openIdiomFromCard);
+    $("#idiom-focus").addEventListener("click", openIdiomFromCard);
+    $("#roguelike-rotating-cards").addEventListener("click", openIdiomFromCard);
+    const previewIdiomFromCard = (event) => {
+      const card = event.target.closest("[data-idiom-detail]");
+      if (!card || (event.type === "pointerover" && card.contains(event.relatedTarget))) return;
+      const idiom = getCurrentIdioms().find((entry) => entry.id === card.dataset.idiomDetail);
+      if (!idiom) return;
+      state.focusedIdiomId = idiom.id;
+      const preview = getIdiomActivationPreview().get(idiom.id);
+      renderIdiomFocus(idiom, card.classList.contains("rotating") ? "rotating" : "fixed", preview);
+    };
+    $("#idiom-cards").addEventListener("pointerover", previewIdiomFromCard);
+    $("#idiom-cards").addEventListener("focusin", previewIdiomFromCard);
     $("#debug-button").addEventListener("click", openDebug);
     $("#debug-close").addEventListener("click", closeDebug);
     $("#debug-defeat-button").addEventListener("click", debugForceDefeat);
@@ -4670,6 +4825,7 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     $("#debug-player-heal").addEventListener("click", debugHealPlayer);
     $("#debug-shield").addEventListener("click", debugAddShield);
     $("#debug-clear-queue").addEventListener("click", debugClearQueue);
+    $("#debug-force-match").addEventListener("click", debugForceMatch);
     $("#debug-rotate-idioms").addEventListener("click", debugRotateIdioms);
     $("#debug-fill-party").addEventListener("click", debugFillParty);
     $("#debug-grant-relics").addEventListener("click", debugGrantRelics);

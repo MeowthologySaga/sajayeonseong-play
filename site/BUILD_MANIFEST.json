@@ -25,7 +25,7 @@
     "https://fonts.gstatic.com (font files; system font fallback remains playable)"
   ],
   "fileCount": 146,
-  "totalBytes": 37178866,
+  "totalBytes": 37210142,
   "files": [
     {
       "path": "assets/audio/bgm/act1-mistwood-loop.mp3",
@@ -689,23 +689,23 @@
     },
     {
       "path": "docs/submission/SUBMISSION_QA_REPORT.md",
-      "bytes": 4690,
-      "sha256": "3c3d211236754c2218de4bf6dfa406733c33272074ec831f93ca1c88b874bd1d"
+      "bytes": 4600,
+      "sha256": "7bfedb9b8562c13ff9b6e4a8003b3a5f0b4b682e714b9af60a402d882db80295"
     },
     {
       "path": "game.js",
-      "bytes": 238280,
-      "sha256": "29fafc88da570bca46e0307e28ccd51726d9883f29972c33884c07adb539a682"
+      "bytes": 248294,
+      "sha256": "1f28c33bc310b08944ab2553c8d5c4d616664dbfcea46e51b5faba7e74f55602"
     },
     {
       "path": "index.html",
-      "bytes": 32492,
-      "sha256": "a2cade8086dfaa1df889196f3a6cb1f4f93b3fdc05ea140d50595814cc22931c"
+      "bytes": 33951,
+      "sha256": "3e585bd8cbe77b571a6707fcb99077d72fab924cf6646bf2d70125f7fcdc9cea"
     },
     {
       "path": "README.md",
-      "bytes": 5481,
-      "sha256": "f031a08316f22c5cb6a99a40f8239552560d569b04f2c12b7b6570be8c06be58"
+      "bytes": 5831,
+      "sha256": "d434a946df775930ac73174935d89f354ff33f595f20c4797d7fef654f8360d8"
     },
     {
       "path": "src/assets.js",
@@ -729,8 +729,8 @@
     },
     {
       "path": "src/revive.js",
-      "bytes": 759,
-      "sha256": "01e340b31250c8aee49094976dee5149316e855c549bf9cc6104ac583b99add5"
+      "bytes": 1326,
+      "sha256": "19b05644c7d711bef7bc1ec7160c6751f0ac407987b1ce53d6a361763bdbe21a"
     },
     {
       "path": "src/run-engine.js",
@@ -749,8 +749,8 @@
     },
     {
       "path": "styles.css",
-      "bytes": 104032,
-      "sha256": "9b2cf4c860addbaf96de372d0a70687bd88be9500c25def8a038ba1c3bd32c3c"
+      "bytes": 123008,
+      "sha256": "6b3fbc2b2e16c8dff025713e2a3fde447fa25559b4115b3d394f52f097ad7983"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",

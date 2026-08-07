@@ -53,14 +53,12 @@
 ## 남은 외부 제출 게이트
 
 - 참가자명과 지정 참가신청서·동의서 PDF
-- 현재 후보 빌드를 올린 공개 HTTPS 실행 URL
 - 생성 당시 Suno 유료 등급 증빙과 참고 이미지 이용 권리 확인
-- 공개 URL에서 최종 한 번의 Chrome 무캐시·모바일 실기기 확인
+- 공개 URL에서 최종 한 번의 무캐시 Chrome·모바일 실기기 확인
 
 ## 공개 배포 준비 상태
 
-- 공식 GitHub Pages Actions 워크플로와 로컬 구성 검증기를 추가했습니다.
-- 원격 URL 검증기는 build manifest의 모든 파일, ES 모듈 MIME 형식, 핵심 콘텐츠 수량을 확인합니다.
-- 제출 빌드를 로컬 정적 서버로 제공해 manifest 기록 파일 146개 전체의 HTTP 접근 검증을 통과했습니다.
-- 2026-08-07 확인 시 예상 URL `https://meowthologysaga.github.io/hanjaPND/`은 404이며 아직 배포 전입니다.
-- 저장소 공개 범위 변경·GitHub 재인증·커밋·푸시·Pages 활성화는 저장소 소유자의 명시적 승인 뒤 진행해야 합니다.
+- 기존 개발 저장소와 이력을 분리한 공개 저장소 `MeowthologySaga/sajayeonseong-play`에 단일 루트 커밋만 게시했습니다.
+- GitHub Pages 실행 URL은 `https://meowthologysaga.github.io/sajayeonseong-play/`이며 Actions 배포가 성공했습니다.
+- 원격 URL 검증기로 build manifest의 실행 파일 146개, ES 모듈 MIME 형식, 한자 1,135자·훈음 1,135건·성어 75개 등 핵심 콘텐츠 수량을 확인했습니다.
+- 공개 URL을 실제 브라우저로 열어 메인 메뉴 렌더링과 사이트 자체 콘솔 로그 0건을 확인했습니다.

@@ -1251,3 +1251,21 @@ body.puzzle-mode .enemy-kind-label { display:inline-flex; }
   .roguelike-rotating-cards .idiom-effect { min-height:21px; font-size:7px; }
   body.roguelike-mode .chronicle-panel .run-stats { flex:none; margin-top:7px; padding-top:6px; }
 }
+
+body.roguelike-mode .tip-card { display:none; }
+
+@media (min-width:761px) and (max-height:820px) {
+  body.roguelike-mode .fixed-set .idiom-card-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  body.roguelike-mode .fixed-set .idiom-card { min-height:94px; }
+  body.roguelike-mode .fixed-set .idiom-slot { height:42px; }
+  body.roguelike-mode .fixed-set .idiom-slot b { font-size:24px; }
+  body.roguelike-mode .roguelike-rotating-cards { grid-template-rows:repeat(3,minmax(0,1fr)); }
+  body.roguelike-mode .roguelike-rotating-cards .idiom-card { height:100%; min-height:0; }
+  body.roguelike-mode .roguelike-rotating-cards .idiom-slot { height:40px; }
+  body.roguelike-mode .roguelike-rotating-cards .idiom-slot b { font-size:24px; }
+}
+
+@media (max-width:760px) {
+  body.roguelike-mode .main-grid,
+  body.puzzle-mode .main-grid { grid-template-rows:minmax(0,1fr) 160px; }
+}

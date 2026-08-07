@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#111a1a" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23091312'/%3E%3Crect x='8' y='8' width='48' height='48' rx='10' fill='%23e6b85c'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-size='34' font-family='serif' fill='%23111918'%3E%E5%9B%9B%3C/text%3E%3C/svg%3E" />
+    <title>사자연성 — 색을 잇고 뜻을 깨우다</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css?v=20260807-competition-10" />
+  </head>
+  <body>
+    <div class="grain" aria-hidden="true"></div>
+    <main class="game-shell">
+      <header class="masthead">
+        <div>
+          <p class="eyebrow">五行鍊成録 · 프로토타입</p>
+          <h1>四字<span>鍊成</span></h1>
+        </div>
+        <div class="header-actions">
+          <div class="stage-chip"><span id="mode-kicker">PUZZLE MODE</span><strong id="mode-title">재앙의 문</strong></div>
+          <button id="menu-button" class="icon-button" aria-label="메인 메뉴로 돌아가기">⌂</button>
+          <button id="settings-button" class="icon-button" aria-label="훈독 표시 설정">⚙</button>
+          <button id="debug-button" class="icon-button debug-button" aria-label="디버그 설정">⚒</button>
+          <button id="help-button" class="icon-button" aria-label="게임 방법 보기">?</button>
+        </div>
+      </header>
+
+      <section class="battlefield" aria-label="전투 상황">
+        <div class="enemy-copy">
+          <div class="wave-line"><span id="wave-label">제1파</span><span id="turn-label">첫 번째 연성</span></div>
+          <h2 id="enemy-name">야생 목령</h2>
+          <div class="enemy-kind-label" id="enemy-kind-label">야생 자령 · 木 목</div>
+          <div class="enemy-phase-label" id="enemy-phase-label">1단계 · 먹구름</div>
+          <div class="enemy-intent-card threat-medium" id="enemy-intent" aria-describedby="enemy-intent-live">
+            <div class="intent-kicker">
+              <span class="intent-icon" id="enemy-intent-icon">⚔</span>
+              <span id="enemy-intent-kind">다음 행동</span>
+              <span id="enemy-intent-timing">다음 적 턴</span>
+              <b id="enemy-intent-threat" class="intent-threat threat-medium">보통</b>
+            </div>
+            <strong id="enemy-intent-name">먹빛 발톱</strong>
+            <span id="enemy-intent-value">12 피해 · 플레이어</span>
+            <p id="enemy-intent-response">권장 대응: 보호막</p>
+          </div>
+          <div class="pattern-heading"><span>패턴 예고</span><small id="enemy-pattern-cycle">고정 패턴</small></div>
+          <div id="enemy-pattern-timeline" class="pattern-timeline" aria-label="현재와 다음 자령 행동 예고"></div>
+          <div class="intent-legend" aria-label="자령 행동 아이콘 범례"><span><b>⚔</b> 공격</span><span><b>☄</b> 약화</span><span><b>⌛</b> 지연</span></div>
+          <p id="enemy-intent-live" class="sr-only" aria-live="polite"></p>
+          <div id="enemy-phase-banner" class="enemy-phase-banner" role="status"></div>
+        </div>
+        <div class="enemy-stage">
+          <div class="moon" aria-hidden="true"></div>
+          <div id="jaryeong-squad-stage" class="jaryeong-squad-stage" aria-label="출전 자령 5명"></div>
+          <div id="enemy-sprite" class="enemy-sprite enemy-1" aria-label="먹구름 도깨비">
+            <img id="enemy-sprite-art" class="enemy-sprite-art" alt="" decoding="async" />
+            <span class="enemy-eye eye-left"></span><span class="enemy-eye eye-right"></span>
+          </div>
+          <div id="damage-float" class="damage-float" aria-live="polite"></div>
+        </div>
+        <div class="enemy-vitals">
+          <div class="vital-row"><span>자령 기운 · 진정 게이지</span><span class="vital-value"><strong id="enemy-hp-text">120 / 120</strong><small id="enemy-hp-percent">100%</small></span></div>
+          <div class="bar enemy-bar"><i id="enemy-hp-bar"></i></div>
+          <div class="status-row" id="enemy-status"><span class="status-pill muted">상태 없음</span></div>
+          <div id="enemy-affinity" class="enemy-affinity" aria-label="자령 오행 상성"></div>
+        </div>
+      </section>
+
+      <section class="main-grid">
+        <aside class="idiom-panel panel">
+          <div class="section-heading">
+            <div><span class="section-number">壹</span><h2>연성식</h2></div>
+            <small id="idiom-cycle-status">글자는 순서 없이 모입니다</small>
+          </div>
+          <section id="jaryeong-panel" class="jaryeong-panel" aria-label="자령 편성">
+            <div class="jaryeong-heading"><span>字</span><div><small>JARYEONG PARTY</small><strong>자령 편성</strong></div><b id="jaryeong-party-label">0/5 편성</b></div>
+            <div id="jaryeong-party" class="jaryeong-party"></div>
+          </section>
+          <div id="idiom-cards" class="idiom-cards"></div>
+          <div class="tip-card">
+            <span class="tip-icon">◎</span>
+            <p><strong>같은 글자, 다른 빛.</strong><br />한자의 색은 매번 달라집니다.</p>
+          </div>
+        </aside>
+
+        <section class="puzzle-panel panel">
+          <div id="pang-hud" class="pang-hud" aria-label="팡팡 모드 점수와 남은 시간">
+            <div class="pang-score"><small>SCORE</small><strong id="pang-score">0</strong></div>
+            <div class="pang-time">
+              <div><span>남은 시간</span><strong id="pang-time-text">60.0</strong><em>초</em><b id="pang-time-gain" class="pang-time-gain">+0.0</b></div>
+              <div class="pang-time-bar"><i id="pang-time-bar"></i></div>
+            </div>
+            <div class="pang-combo"><small>BEST COMBO</small><strong id="pang-best-combo">0</strong></div>
+          </div>
+          <div id="pang-idiom-strip" class="pang-idiom-strip" aria-label="팡팡 모드 사자성어 수집 상태"></div>
+          <div id="roguelike-hud" class="roguelike-hud" aria-label="연성행로 진행 정보">
+            <div><small>RUN PROGRESS</small><strong id="roguelike-progress">전투 1 / 3</strong></div>
+            <p id="roguelike-build">성어를 고르고 3번의 전투를 통과하세요</p>
+          </div>
+          <div class="puzzle-head">
+            <div class="player-vitals">
+              <div class="portrait"><span>鍊</span></div>
+              <div class="player-bars">
+                <div class="vital-row"><span>연성술사</span><strong id="player-hp-text">100 / 100</strong></div>
+                <div class="bar player-bar"><i id="player-hp-bar"></i></div>
+              </div>
+              <div id="shield-badge" class="shield-badge" aria-label="보호막">◇ <b>0</b></div>
+            </div>
+            <div class="move-timer" id="move-timer"><span>이동</span><strong>4.0</strong><i></i></div>
+          </div>
+
+          <div class="board-wrap">
+            <div class="board-aura" aria-hidden="true"></div>
+            <div id="board" class="board" role="grid" aria-label="5행 6열 오행 퍼즐 보드" aria-describedby="board-keyboard-help"></div>
+            <p id="board-keyboard-help" class="sr-only">키보드에서는 타일에 초점을 맞춘 뒤 Enter 또는 Space로 잡고, 방향키로 이동한 다음 다시 Enter 또는 Space를 눌러 연성합니다.</p>
+            <div id="combo-badge" class="combo-badge" aria-live="assertive"><strong>0</strong><span>COMBO</span></div>
+          </div>
+
+          <div class="queue-area">
+            <div class="queue-title"><span>문자 큐</span><small><b id="queue-count">0</b> / <b id="queue-limit">14</b> · 최대 3턴 보존</small></div>
+            <div id="letter-queue" class="letter-queue" aria-label="수집한 한자"></div>
+          </div>
+          <p id="pang-guide" class="pang-guide">이웃한 타일을 밀어 3개 이상 맞추세요. 매치가 없으면 원래 자리로 돌아옵니다.</p>
+        </section>
+
+        <aside id="pang-skill-rail" class="pang-skill-rail panel" aria-label="팡팡 모드 사자성어 발동 기록">
+          <div class="pang-skill-heading">
+            <span>成</span>
+            <div><small>SKILL LOG</small><strong>성어 발동</strong></div>
+          </div>
+          <div id="pang-skill-events" class="pang-skill-events" aria-live="polite">
+            <p class="pang-skill-empty"><b>네 글자</b>가 모이면<br />이곳에 효과가 기록됩니다.</p>
+          </div>
+        </aside>
+
+        <aside class="chronicle-panel panel">
+          <div class="section-heading compact">
+            <div><span class="section-number">貳</span><h2>전투 기록</h2></div>
+          </div>
+          <div class="element-legend" aria-label="오행 효과">
+            <span class="wood">木<em>공격·회복</em></span><span class="fire">火<em>공격·화상</em></span><span class="earth">土<em>공격·보호</em></span><span class="metal">金<em>공격·관통</em></span><span class="water">水<em>공격·지연</em></span>
+          </div>
+          <div id="battle-log" class="battle-log" aria-live="polite"></div>
+          <div class="run-stats">
+            <div><small>누적 콤보</small><strong id="total-combos">0</strong></div>
+            <div><small>성어 발동</small><strong id="total-idioms">0</strong></div>
+            <div><small>부활</small><strong id="revive-status">가능</strong></div>
+          </div>
+        </aside>
+      </section>
+
+      <footer class="game-footer">
+        <p><span class="mouse-mark">↔</span> 타일을 누른 채 이웃 칸을 지나가세요. 손을 떼면 한꺼번에 연성됩니다.</p>
+        <button id="reset-button" class="text-button">처음부터</button>
+      </footer>
+    </main>
+
+    <div id="main-menu" class="main-menu open" role="dialog" aria-modal="true" aria-labelledby="menu-title">
+      <div class="menu-content">
+        <p class="eyebrow">五行鍊成録 · 모드를 선택하세요</p>
+        <h2 id="menu-title"><span>四字</span>鍊成</h2>
+        <p class="menu-copy">색을 맞추고 글자를 깨우는 세 가지 연성 의식</p>
+        <div id="menu-spirit-parade" class="menu-spirit-parade" aria-hidden="true"></div>
+        <div class="mode-select-grid">
+          <button id="puzzle-mode-button" class="mode-select-card puzzle-select">
+            <span class="mode-glyph">鍊</span>
+            <span class="mode-tag">TACTICAL · 3 MIN</span>
+            <strong>퍼즐 모드</strong>
+            <em>자유 이동 · 사자성어 · 전투</em>
+            <small>4초 동안 타일 하나를 자유롭게 움직여 여러 매치를 만들고, 모은 한자로 성어를 연성하세요.</small>
+            <b>퍼즐 모드 시작 <i>→</i></b>
+          </button>
+          <button id="pang-mode-button" class="mode-select-card pang-select">
+            <span class="mode-glyph">碰</span>
+            <span class="mode-tag">TIME ATTACK · 60 SEC</span>
+            <strong>팡팡 모드</strong>
+            <em>한 칸 교환 · 연쇄 · 점수 경쟁</em>
+            <small>이웃한 타일을 한 칸씩 바꾸고 빠르게 터뜨리세요. 60초 동안 최고 점수와 연쇄를 노립니다.</small>
+            <b>팡팡 모드 시작 <i>→</i></b>
+          </button>
+          <button id="roguelike-mode-button" class="mode-select-card roguelike-select">
+            <span class="mode-glyph">行</span>
+            <span class="mode-tag">MAIN MODE · 20 MIN RUN</span>
+            <strong>연성행로</strong>
+            <em>3막 · 15노드 · 자령 빌드</em>
+            <small>문자권과 리더를 고르고 3막의 갈림길을 지나세요. 성어·자령·유물의 조합이 매 런 달라집니다.</small>
+            <b>20분 행로 시작 <i>→</i></b>
+          </button>
+        </div>
+        <div class="menu-foot"><span>한자의 색과 뜻은 서로 독립적입니다. 색만 보고 시작해도 충분합니다.</span><div class="menu-foot-actions"><button id="codex-button" class="text-button">冊 한자·성어 도감</button><button id="menu-settings-button" class="text-button">⚙ 표시·음향 설정</button></div></div>
+      </div>
+    </div>
+
+    <div id="settings-modal" class="modal settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+      <div class="modal-card settings-card">
+        <p class="eyebrow">視讀 · 표시 설정</p>
+        <h2 id="settings-title">훈독 표시</h2>
+        <p class="intro-copy">타일에 표시되는 한자 훈독의 크기와 위치를 선택하세요.</p>
+        <div class="reading-options" role="radiogroup" aria-label="훈독 표시 방식">
+          <button type="button" class="reading-option" data-reading-mode="compact" aria-pressed="false">
+            <span class="reading-preview reading-preview-compact"><b>福</b><small>복 복</small></span>
+            <span><strong>작게 표시</strong><em>현재 방식 · 타일 아래쪽</em></span>
+          </button>
+          <button type="button" class="reading-option" data-reading-mode="large" aria-pressed="false">
+            <span class="reading-preview reading-preview-large"><b>福</b><small>복 복</small></span>
+            <span><strong>훈독 크게</strong><em>한자 바로 아래 중앙</em></span>
+          </button>
+        </div>
+        <div class="audio-options" aria-label="음향 설정">
+          <label><span>배경음악</span><input id="bgm-enabled" type="checkbox" checked /><input id="bgm-volume" type="range" min="0" max="100" value="70" /></label>
+          <label><span>효과음</span><input id="sfx-enabled" type="checkbox" checked /><input id="sfx-volume" type="range" min="0" max="100" value="80" /></label>
+        </div>
+        <button id="settings-close" class="primary-button">확인 <span>✓</span></button>
+      </div>
+    </div>
+
+    <div id="idiom-detail-modal" class="modal idiom-detail-modal" role="dialog" aria-modal="true" aria-labelledby="idiom-detail-title">
+      <div class="modal-card idiom-detail-card">
+        <p class="eyebrow">四字成語 · 뜻과 전투 효과</p>
+        <div id="idiom-detail-glyphs" class="idiom-detail-glyphs" aria-hidden="true"></div>
+        <h2 id="idiom-detail-title">사자성어</h2>
+        <p id="idiom-detail-reading" class="idiom-detail-reading"></p>
+        <dl class="idiom-detail-copy">
+          <div><dt>뜻</dt><dd id="idiom-detail-meaning"></dd></div>
+          <div><dt>전투 효과</dt><dd id="idiom-detail-effect"></dd></div>
+        </dl>
+        <button id="idiom-detail-close" class="primary-button" type="button">전투로 돌아가기 <span>✓</span></button>
+      </div>
+    </div>
+
+    <div id="debug-modal" class="modal debug-modal" role="dialog" aria-modal="true" aria-labelledby="debug-title">
+      <div class="modal-card debug-card">
+        <p class="eyebrow">DEBUG · 테스트 설정</p>
+        <h2 id="debug-title">전투 상태 조작</h2>
+        <p id="debug-copy" class="intro-copy">게임오버·부활 흐름과 전투 상태를 빠르게 확인합니다.</p>
+        <div class="debug-status" aria-label="디버그 현재 상태">
+          <div><small>MODE</small><strong id="debug-mode-value">메뉴</strong></div>
+          <div><small>HP</small><strong id="debug-hp-value">-</strong></div>
+          <div><small>REVIVE</small><strong id="debug-revive-value">-</strong></div>
+        </div>
+        <div class="debug-action-grid">
+          <button id="debug-defeat-button" class="debug-action-button debug-danger" data-debug-combat type="button">게임오버 · 부활 흐름</button>
+          <button id="debug-reset-revive" class="debug-action-button" data-debug-combat type="button">부활 상태 초기화</button>
+          <button id="debug-enemy-one" class="debug-action-button" data-debug-combat type="button">자령 기운 1로 설정</button>
+          <button id="debug-player-heal" class="debug-action-button" data-debug-combat type="button">플레이어 HP 회복</button>
+          <button id="debug-shield" class="debug-action-button" data-debug-combat type="button">보호막 +50</button>
+          <button id="debug-clear-queue" class="debug-action-button" data-debug-combat type="button">문자 큐 비우기</button>
+          <button id="debug-rotate-idioms" class="debug-action-button" data-debug-combat type="button">순환 성어 즉시 교체</button>
+          <button id="debug-fill-party" class="debug-action-button" data-debug-combat type="button">팀 5명 채우기 · 계약 QA</button>
+          <button id="debug-grant-relics" class="debug-action-button" data-debug-rogue type="button">유물 18종 지급 · 효과 QA</button>
+          <button id="debug-reset-battle" class="debug-action-button" data-debug-combat type="button">현재 전투 초기화</button>
+          <button id="debug-copy-seed" class="debug-action-button" type="button">런 시드 복사</button>
+          <button id="debug-next-node" class="debug-action-button" type="button">다음 노드 열기</button>
+          <button id="debug-show-reward" class="debug-action-button" data-debug-combat type="button">보상 화면 열기</button>
+          <button id="debug-validate-data" class="debug-action-button" type="button">전체 데이터 검증</button>
+        </div>
+        <p id="debug-message" class="debug-message" aria-live="polite">퍼즐·로그라이크 전투에서 사용할 수 있습니다.</p>
+        <button id="debug-close" class="primary-button" type="button">닫기 <span>✓</span></button>
+      </div>
+    </div>
+
+    <div id="intro-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="intro-title">
+      <div class="modal-card intro-card">
+        <p class="eyebrow">三分間의 연성 의식</p>
+        <h2 id="intro-title">색을 잇고,<br /><span>뜻의 힘</span>을 깨우세요.</h2>
+        <p class="intro-copy">한자를 외울 필요는 없습니다. 같은 빛을 3개 이상 맞추면 글자가 모이고, 네 글자가 갖춰지는 순간 사자성어가 전투의 힘으로 깨어납니다.</p>
+        <div class="how-to">
+          <div><b>1</b><span><strong>잡기</strong>타일 하나를 누르세요</span></div>
+          <div><b>2</b><span><strong>움직이기</strong>4초 동안 이웃 칸을 통과하세요</span></div>
+          <div><b>3</b><span><strong>연성하기</strong>손을 떼면 매치와 글자를 판정합니다</span></div>
+        </div>
+        <button id="start-button" class="primary-button">연성을 시작한다 <span>→</span></button>
+        <button id="puzzle-intro-menu" class="text-button">다른 모드 선택</button>
+        <small>목·화·토·금·수의 문양만 보고 시작해도 충분합니다.</small>
+      </div>
+    </div>
+
+    <div id="pang-intro-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="pang-intro-title">
+      <div class="modal-card pang-intro-card">
+        <p class="eyebrow">六十秒의 속성 연타</p>
+        <h2 id="pang-intro-title">밀고, 터뜨리고,<br /><span>연쇄하세요.</span></h2>
+        <p class="intro-copy">이웃한 타일 두 개의 자리를 바꿔 같은 색을 3개 이상 만드세요. 매치가 없으면 교환이 취소되고, 연쇄가 길수록 점수가 크게 오릅니다.</p>
+        <div class="pang-rules">
+          <span><b>7×7</b> 넓은 보드</span>
+          <span><b>60초</b> 전체 제한시간</span>
+          <span><b>성어</b> 추가 점수</span>
+        </div>
+        <button id="pang-start-button" class="primary-button">60초 도전 시작 <span>→</span></button>
+        <button id="pang-intro-menu" class="text-button">다른 모드 선택</button>
+      </div>
+    </div>
+
+    <div id="roguelike-intro-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="roguelike-intro-title">
+      <div class="modal-card roguelike-intro-card">
+        <p class="eyebrow">MAIN RUN · 약 20분</p>
+        <h2 id="roguelike-intro-title">고르고, 버티고,<br /><span>끝까지 잇세요.</span></h2>
+        <p class="intro-copy">문자권과 자령 리더를 고르고 75개 성어 중 시작 성어를 드래프트하세요. 세 장의 갈림길과 15개 노드에서 자기만의 오행 공명을 완성합니다.</p>
+        <div class="pang-rules roguelike-rules">
+          <span><b>15종</b> 자령 도감</span>
+          <span><b>75종</b> 전체 성어</span>
+          <span><b>3막</b> 15노드</span>
+        </div>
+        <div class="volume-picker" aria-label="이번 런 문자권">
+          <div><small>CHARACTER VOLUME</small><strong>이번 런 문자권</strong><span id="volume-summary">천자문 1권 · 125자</span></div>
+          <div id="volume-options" class="volume-options" role="radiogroup"></div>
+        </div>
+        <div id="roguelike-resume-panel" class="roguelike-resume-panel" hidden>
+          <div><small>SAVED RUN · 자동 저장</small><strong id="roguelike-save-seed">-</strong><span id="roguelike-save-summary">-</span></div>
+          <button id="roguelike-resume-button" class="primary-button" type="button">저장된 행로 이어하기 <span>→</span></button>
+        </div>
+        <button id="roguelike-start-button" class="primary-button">런 시작 · 리더 고르기 <span>→</span></button>
+        <button id="roguelike-intro-menu" class="text-button">다른 모드 선택</button>
+      </div>
+    </div>
+
+    <div id="roguelike-route-modal" class="modal route-modal" role="dialog" aria-modal="true" aria-labelledby="route-title">
+      <div class="modal-card route-card">
+        <div class="route-heading"><div><p class="eyebrow">RUN MAP · 연성행로</p><h2 id="route-title">다음 길을 고르세요</h2><p id="route-copy" class="intro-copy">앞으로 보이는 길 중 한 곳을 선택합니다.</p></div><div class="route-seed"><small>RUN SEED</small><button id="route-seed-button" type="button">-</button></div></div>
+        <div id="route-act-strip" class="route-act-strip" aria-label="3막 진행도"></div>
+        <div id="route-choices" class="route-choices"></div>
+        <div class="route-build-bar"><span id="route-hp">체력 100</span><span id="route-ink">먹 0</span><span id="route-party">자령 1/5</span><span id="route-idioms">성어 3/8</span></div>
+      </div>
+    </div>
+
+    <div id="roguelike-node-modal" class="modal node-modal" role="dialog" aria-modal="true" aria-labelledby="node-title">
+      <div class="modal-card node-card">
+        <p id="node-kicker" class="eyebrow">EVENT · 사건</p>
+        <div id="node-glyph" class="node-glyph">?</div>
+        <h2 id="node-title">기이한 사건</h2>
+        <p id="node-copy" class="intro-copy"></p>
+        <div id="node-choices" class="node-choices"></div>
+      </div>
+    </div>
+
+    <div id="codex-modal" class="modal codex-modal" role="dialog" aria-modal="true" aria-labelledby="codex-title">
+      <div class="modal-card codex-card">
+        <div class="codex-heading"><div><p class="eyebrow">萬字譜 · COLLECTION</p><h2 id="codex-title">한자·성어 도감</h2></div><button id="codex-close" class="icon-button" type="button" aria-label="도감 닫기">×</button></div>
+        <div class="codex-controls"><div class="codex-tabs" role="tablist"><button class="active" data-codex-tab="characters" type="button">한자 1,135</button><button data-codex-tab="idioms" type="button">성어 75</button><button data-codex-tab="jaryeongs" type="button">자령 15</button></div><label><span class="sr-only">도감 검색</span><input id="codex-search" type="search" placeholder="한자·훈음·성어 검색" /></label><select id="codex-volume" aria-label="문자권 선택"></select></div>
+        <div id="codex-stats" class="codex-stats"></div>
+        <div id="codex-grid" class="codex-grid"></div>
+      </div>
+    </div>
+
+    <div id="roguelike-leader-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="roguelike-leader-title">
+      <div class="modal-card roguelike-picker-card">
+        <p class="eyebrow">RUN LEADER · 자령</p>
+        <h2 id="roguelike-leader-title">첫 리더를 고르세요</h2>
+        <p class="intro-copy">리더 스킬은 이번 런 내내 적용됩니다. 이후 전투 보상에서 자령을 최대 5마리까지 편성할 수 있습니다.</p>
+        <div id="roguelike-leader-cards" class="roguelike-choice-grid jaryeong-choice-grid"></div>
+      </div>
+    </div>
+
+    <div id="roguelike-draft-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="roguelike-draft-title">
+      <div class="modal-card roguelike-picker-card">
+        <p class="eyebrow">RUN DRAFT · 사자성어</p>
+        <h2 id="roguelike-draft-title">첫 성어를 고르세요</h2>
+        <p id="roguelike-draft-copy" class="intro-copy">이번 런에서 사용할 성어를 하나 선택합니다.</p>
+        <div id="roguelike-draft-cards" class="roguelike-choice-grid"></div>
+        <p id="roguelike-draft-progress" class="picker-progress">0 / 3 선택</p>
+      </div>
+    </div>
+
+    <div id="roguelike-reward-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="roguelike-reward-title">
+      <div class="modal-card roguelike-picker-card">
+        <p class="eyebrow">RUN REWARD · 전투 후 선택</p>
+        <h2 id="roguelike-reward-title">다음 행로를 고르세요</h2>
+        <p id="roguelike-reward-copy" class="intro-copy">진정한 야생 자령과 유물·회복 중 하나를 선택하세요.</p>
+        <div id="roguelike-reward-cards" class="roguelike-choice-grid"></div>
+        <button id="roguelike-reward-reroll" class="text-button reward-reroll" type="button">↻ 보상 새로고침 <b id="reward-reroll-count">1</b></button>
+      </div>
+    </div>
+
+    <div id="jaryeong-contract-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="contract-title">
+      <div class="modal-card roguelike-picker-card contract-card">
+        <p class="eyebrow">WILD CONTRACT · 부적 계약</p>
+        <h2 id="contract-title">팀이 가득 찼습니다</h2>
+        <p id="contract-copy" class="intro-copy">새 자령을 계약하려면 기존 자령과 교체하거나, 중복 강화·부적 조각 중 하나를 선택하세요.</p>
+        <div id="contract-candidate" class="contract-candidate"></div>
+        <p class="contract-party-title">교체할 기존 자령을 고르세요</p>
+        <div id="contract-party-options" class="contract-party-options"></div>
+        <div class="contract-actions">
+          <button id="contract-duplicate-button" class="text-button" type="button">기존 자령 중복 강화</button>
+          <button id="contract-abandon-button" class="text-button" type="button">영입 포기 · 부적 조각</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="alchemy-overlay" class="alchemy-overlay" aria-live="assertive">
+      <div class="seal-ring"></div>
+      <div id="alchemy-glyphs" class="alchemy-glyphs"></div>
+      <h2 id="alchemy-name"></h2>
+      <p id="alchemy-reading"></p>
+      <strong id="alchemy-effect"></strong>
+    </div>
+
+    <div id="cursor-timer" class="cursor-timer" aria-hidden="true"><strong>4.0</strong><small>초</small></div>
+    <div id="drag-ghost" class="drag-ghost" aria-hidden="true"></div>
+
+    <div id="revive-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="revive-title">
+      <div class="modal-card revive-card">
+        <p class="eyebrow">한 번뿐인 자형 재연성</p>
+        <h2 id="revive-title">福을 따라 다시 빚으세요</h2>
+        <p>반투명한 글자 위를 천천히 따라 그어 보세요. 획이 조금 달라도 대강의 유사도로 판정합니다.</p>
+        <div class="trace-stage" aria-label="반투명한 복 복 자를 따라 그리기">
+          <canvas id="revive-canvas" class="revive-canvas" width="720" height="460" aria-label="福 자 따라쓰기"></canvas>
+        </div>
+        <p id="trace-progress" class="trace-progress">반투명 글자를 따라 써 주세요 · 모두 쓴 뒤 제출하세요.</p>
+        <div class="trace-actions">
+          <button id="trace-reset" class="text-button" type="button">다시 그리기</button>
+          <button id="trace-submit" class="primary-button" type="button">제출하고 부활 확인 <span>✎</span></button>
+        </div>
+      </div>
+    </div>
+
+    <div id="result-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="result-title">
+      <div class="modal-card result-card">
+        <p id="result-kicker" class="eyebrow">연성 완료</p>
+        <h2 id="result-title">재앙의 문을 봉인했습니다</h2>
+        <p id="result-copy">진정한 자령의 기운이 가라앉고 봉인이 안정되었습니다.</p>
+        <div class="result-stats">
+          <div><small>턴</small><strong id="result-turns">0</strong></div>
+          <div><small>콤보</small><strong id="result-combos">0</strong></div>
+          <div><small>성어</small><strong id="result-idioms">0</strong></div>
+        </div>
+        <button id="revive-result-button" class="primary-button" type="button" hidden>한자 쓰기로 부활 <span>✎</span></button>
+        <button id="replay-button" class="primary-button">다시 연성하기 <span>↻</span></button>
+        <button id="result-menu" class="text-button">메인 메뉴</button>
+      </div>
+    </div>
+
+    <div id="pang-result-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="pang-result-title">
+      <div class="modal-card result-card pang-result-card">
+        <p class="eyebrow">TIME UP · 연성 종료</p>
+        <h2 id="pang-result-title">60초의 기록</h2>
+        <p>빠른 판단과 연쇄가 남긴 팡팡 모드 결과입니다.</p>
+        <div class="result-stats">
+          <div><small>최종 점수</small><strong id="pang-result-score">0</strong></div>
+          <div><small>최고 콤보</small><strong id="pang-result-combo">0</strong></div>
+          <div><small>성공한 이동</small><strong id="pang-result-moves">0</strong></div>
+          <div><small>성어 발동</small><strong id="pang-result-idioms">0</strong></div>
+        </div>
+        <button id="pang-replay-button" class="primary-button">한 판 더 <span>↻</span></button>
+        <button id="pang-result-menu" class="text-button">메인 메뉴</button>
+      </div>
+    </div>
+
+    <div id="roguelike-result-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="roguelike-result-title">
+      <div class="modal-card result-card roguelike-result-card">
+        <p id="roguelike-result-kicker" class="eyebrow">RUN COMPLETE · 연성 완료</p>
+        <h2 id="roguelike-result-title">연성행로를 돌파했습니다</h2>
+        <p id="roguelike-result-copy">세 번의 진정과 부적 계약이 하나의 빌드가 되었습니다.</p>
+        <div class="result-stats">
+          <div><small>전투</small><strong id="roguelike-result-battles">0</strong></div>
+          <div><small>콤보</small><strong id="roguelike-result-combos">0</strong></div>
+          <div><small>성어</small><strong id="roguelike-result-idioms">0</strong></div>
+        </div>
+        <p class="roguelike-result-build"><small>이번 빌드</small><strong id="roguelike-result-build">-</strong></p>
+        <button id="roguelike-revive-result-button" class="primary-button" type="button" hidden>한자 쓰기로 부활 <span>✎</span></button>
+        <button id="roguelike-replay-button" class="primary-button">새 런 시작 <span>↻</span></button>
+        <button id="roguelike-result-menu" class="text-button">메인 메뉴</button>
+      </div>
+    </div>
+
+    <script src="data/sajayeonseong-hanja-v2.js?v=20260807-data-2"></script>
+    <script src="data/hanja-hun-eum.js?v=20260807-hun-1"></script>
+    <script type="module" src="game.js?v=20260807-competition-17"></script>
+  </body>
+</html>

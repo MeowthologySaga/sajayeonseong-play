@@ -1,0 +1,4 @@
+* text=auto eol=lf
+site/data/*.js binary
+*.png binary
+*.mp3 binary

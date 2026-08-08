@@ -1,11 +1,18 @@
 import { AUDIO_MANIFEST, buildIdiomSpecs, ENCOUNTER_CATALOG, EVENT_CATALOG, RELIC_CATALOG, RUN_CONTENT } from "./src/content.js?v=20260807-audio-2";
-import { ASSET_MANIFEST } from "./src/assets.js";
-import { AudioDirector } from "./src/audio.js";
+import { ASSET_MANIFEST } from "./src/assets.js?v=20260808-roster-30";
+import { AudioDirector } from "./src/audio.js?v=20260807-audio-rotation-1";
 import { interpolateGridPath } from "./src/drag-path.js?v=20260807-drag-1";
-import { buildCharacterVolumes, buildRunCharacterPool, chooseRotatingRecipes, createRunRoute, createSeededRng, pickWithRng, randomFrom, RUN_LIMITS, shuffleWithRng, validateGameCatalog } from "./src/run-engine.js?v=20260807-recipes-1";
+import { calculateElementProcChance, ELEMENT_PROC_RULES, formatProcPercent, rollElementProc } from "./src/element-procs.js?v=20260807-procs-1";
+import { getIdiomCastTiming, IDIOM_SPEED_STORAGE_KEY, normalizeIdiomSpeed } from "./src/presentation-settings.js?v=20260807-idiom-speed-1";
+import { buildCharacterVolumes, buildRunCharacterPool, chooseRotatingRecipes, createRunRoute, createSeededRng, pickWithRng, randomFrom, RUN_LIMITS, shuffleWithRng, validateGameCatalog } from "./src/run-engine.js?v=20260807-recipes-2";
 import { decodeRunSave, describeRunSaveStage, encodeRunSave, RUN_SAVE_KEY } from "./src/save.js?v=20260807-save-2";
 import { buildReviveCharacterPool, passesReviveTrace, scoreReviveTrace } from "./src/revive.js?v=20260807-revive-3";
 import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELIC_EFFECT_TYPES } from "./src/relics.js?v=20260807-relics-1";
+import { awardTalismanFragments, createDefaultJaryeongMetaState, getFragmentAwardAmount, getJaryeongRarity, getJaryeongSummonThreshold, getPreparedJaryeongParty, resetTargetFragmentPity, sanitizeJaryeongMetaState, setEquippedJaryeongParty, setTargetJaryeong, summonJaryeong, TARGET_FRAGMENT_PITY_MISSES } from "./src/jaryeong-meta.js?v=20260808-roster-30";
+import { selectBackgroundForScene } from "./src/background-rotation.js?v=20260807-background-rotation-1";
+import { applyCombatObjectiveEvent, COMBAT_OBJECTIVE_EVENT, COMBAT_OBJECTIVE_TYPE, isCombatObjectiveComplete, resolveCombatObjectiveReward, selectCombatObjective } from "./src/combat-objectives.js?v=20260808-objectives-1";
+import { advanceRareEncounterTurn, calculateIdiomWeaknessBonus, createRareEncounterState, deterministicRareRoll, RARE_GIMMICKS, rollRareEncounter } from "./src/rare-encounters.js?v=20260808-rare-1";
+import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE_ONBOARDING_EVENT, getCurrentFirstBattleHint, issueFirstBattleOnboardingGrants } from "./src/first-battle-onboarding.js?v=20260808-first-battle-1";
 
 (function () {
   "use strict";
@@ -20,8 +27,9 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
   const IDIOM_RECIPE_COUNT = 3;
   const IDIOM_RECIPE_MIN_TURNS = 3;
   const IDIOM_RECIPE_MAX_TURNS = 7;
-  const INITIAL_IDIOM_DRAFT_COUNT = 3;
+  const INITIAL_IDIOM_DRAFT_COUNT = RUN_LIMITS.initialIdiomCount;
   const READING_MODE_KEY = "sajayeonseong-reading-mode";
+  const IDIOM_DISPLAY_MODE_KEY = "sajayeonseong-idiom-display";
   const ELEMENTS = [
     { id: "wood", symbol: "木", label: "목" },
     { id: "fire", symbol: "火", label: "화" },
@@ -39,18 +47,18 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
   });
   const PANG_IDIOM_HANJA = ["一心同體", "一葉知秋", "心機一轉", "轉禍爲福", "一石二鳥", "知彼知己"];
   const ELEMENT_RULES = Object.freeze({
-    wood: { damage: 8, label: "목", effect: "회복" },
-    fire: { damage: 12, label: "화", effect: "화상" },
-    earth: { damage: 7, label: "토", effect: "보호막" },
-    metal: { damage: 9, label: "금", effect: "관통" },
-    water: { damage: 7, label: "수", effect: "지연" }
+    wood: { damage: 8, label: "목", effect: ELEMENT_PROC_RULES.wood.effect },
+    fire: { damage: 12, label: "화", effect: ELEMENT_PROC_RULES.fire.effect },
+    earth: { damage: 7, label: "토", effect: ELEMENT_PROC_RULES.earth.effect },
+    metal: { damage: 9, label: "금", effect: ELEMENT_PROC_RULES.metal.effect },
+    water: { damage: 7, label: "수", effect: ELEMENT_PROC_RULES.water.effect }
   });
   const ELEMENT_SYNERGIES = Object.freeze([
-    { from: "water", to: "wood", label: "水→木", text: "다음 목 회복·성장 증가", buff: "wood" },
-    { from: "wood", to: "fire", label: "木→火", text: "다음 화상 강화", buff: "fire" },
-    { from: "fire", to: "earth", label: "火→土", text: "화 피해 일부를 보호막으로 전환", buff: "earth" },
-    { from: "earth", to: "metal", label: "土→金", text: "다음 금 공격 관통 강화", buff: "metal" },
-    { from: "metal", to: "water", label: "金→水", text: "다음 수 지연 강화", buff: "water" }
+    { from: "water", to: "wood", label: "水→木", text: "다음 목 회복 확률·회복량 증가", buff: "wood" },
+    { from: "wood", to: "fire", label: "木→火", text: "다음 화상 확률·중첩 증가", buff: "fire" },
+    { from: "fire", to: "earth", label: "火→土", text: "다음 토 보호막 확률·획득량 증가", buff: "earth" },
+    { from: "earth", to: "metal", label: "土→金", text: "다음 금 관통 확률·위력 증가", buff: "metal" },
+    { from: "metal", to: "water", label: "金→水", text: "다음 수 지연 발동률 증가", buff: "water" }
   ]);
   const FALLBACK_READINGS = {
     轉: "구를 전", 禍: "재앙 화", 爲: "할 위", 福: "복 복",
@@ -204,54 +212,95 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     { id: "wood-mok", hanja: "木", reading: "나무 목", meaning: "성장", element: "wood", attack: 8, skillName: "덩굴 자람", skillDesc: "체력 12 회복 · 다음 목 회복 강화", leaderSkill: "목 회복량 +25%", bodyType: "semi-humanoid", personality: "느긋하고 다정한 숲의 수호자" },
     { id: "wood-tree", hanja: "樹", reading: "나무 수", meaning: "숲과 생명", element: "wood", attack: 7, skillName: "생명의 그늘", skillDesc: "보호막 10 획득 · 체력 8 회복", leaderSkill: "목 매치마다 보호막 +1", bodyType: "semi-humanoid", personality: "작은 생명을 돌보는 나무 정령" },
     { id: "wood-life", hanja: "生", reading: "날 생", meaning: "생명", element: "wood", attack: 9, skillName: "새싹 회복", skillDesc: "체력 18 회복", leaderSkill: "회복 효과 +20%", bodyType: "plant-spirit", personality: "끝까지 다시 피어나는 새싹" },
+    { id: "wood-bamboo", hanja: "竹", reading: "대 죽", meaning: "대나무", element: "wood", attack: 8, skillName: "죽엽 정화", skillDesc: "봉인 타일 전부 해제 · 문자 큐 수명 초기화", leaderSkill: "목 회복량 +25%", bodyType: "bamboo-mantis", personality: "매듭을 끊고 길을 여는 날렵한 대나무 사마귀" },
+    { id: "wood-orchid", hanja: "蘭", reading: "난초 란", meaning: "난초", element: "wood", attack: 7, skillName: "난향 회귀", skillDesc: "직전 회복량을 다시 회복 · 최소 10", leaderSkill: "회복 효과 +20%", bodyType: "orchid-mask", personality: "전장의 치유 향기를 기억해 되돌려 주는 난초 가면" },
+    { id: "wood-forest", hanja: "森", reading: "수풀 삼", meaning: "숲", element: "wood", attack: 9, skillName: "삼림 맥동", skillDesc: "즉시 8 회복 · 3턴 동안 턴마다 6 회복", leaderSkill: "회복 효과 +20%", bodyType: "moss-stag", personality: "등 위의 작은 숲을 흔들어 오래가는 생명장을 펼치는 이끼사슴" },
     { id: "fire-hwa", hanja: "火", reading: "불 화", meaning: "불꽃", element: "fire", attack: 12, skillName: "불씨 폭발", skillDesc: "적에게 22 피해 · 화상 2", leaderSkill: "화 피해 +15%", bodyType: "floating", personality: "성급하지만 정의감이 강한 불꽃" },
     { id: "fire-light", hanja: "光", reading: "빛 광", meaning: "빛", element: "fire", attack: 10, skillName: "섬광", skillDesc: "적에게 18 피해 · 다음 화상 강화", leaderSkill: "화상 피해 +1", bodyType: "floating", personality: "어둠을 밀어내는 장난꾸러기" },
     { id: "fire-sun", hanja: "日", reading: "날 일", meaning: "태양", element: "fire", attack: 11, skillName: "정오의 일격", skillDesc: "적에게 28 피해", leaderSkill: "첫 화 공격 강화", bodyType: "sun-spirit", personality: "한낮처럼 당당한 작은 태양" },
+    { id: "fire-lantern", hanja: "燈", reading: "등잔 등", meaning: "등불", element: "fire", attack: 10, skillName: "등화 폭쇄", skillDesc: "화상을 6배 피해로 폭발 · 기본 12 피해", leaderSkill: "화 피해 +15%", bodyType: "lantern-moth", personality: "모아 둔 불씨를 한순간에 터뜨리는 등불나방" },
+    { id: "fire-fox", hanja: "狐", reading: "여우 호", meaning: "여우", element: "fire", attack: 11, skillName: "화필 전환", skillDesc: "오래된 문자 2개를 화속성화 · 화 타일 3개 생성", leaderSkill: "화 피해 +15%", bodyType: "brushfire-fox", personality: "꼬리 붓으로 낡은 글자에 새 불씨를 칠하는 먹여우" },
+    { id: "fire-phoenix", hanja: "鳳", reading: "봉황 봉", meaning: "봉황", element: "fire", attack: 13, skillName: "봉염 귀환", skillDesc: "다음 전투불능 시 체력 35% 부활 · 36 반격", leaderSkill: "화 피해 +15%", bodyType: "flame-phoenix", personality: "꺼진 획에서 다시 날아올라 마지막 불씨를 돌려주는 봉황" },
     { id: "earth-to", hanja: "土", reading: "흙 토", meaning: "대지", element: "earth", attack: 7, skillName: "대지의 품", skillDesc: "보호막 20 획득", leaderSkill: "보호막 획득량 +25%", bodyType: "stone-guardian", personality: "말이 적고 믿음직한 수호령" },
     { id: "earth-stone", hanja: "石", reading: "돌 석", meaning: "바위", element: "earth", attack: 8, skillName: "돌벽", skillDesc: "보호막 14 · 다음 피해 10% 감소", leaderSkill: "토 매치마다 보호막 +1", bodyType: "stone-guardian", personality: "작지만 무너지지 않는 돌" },
     { id: "earth-mountain", hanja: "山", reading: "메 산", meaning: "산", element: "earth", attack: 9, skillName: "산울림", skillDesc: "적에게 16 피해 · 보호막 8", leaderSkill: "최대 보호막 +12", bodyType: "mountain-spirit", personality: "느리지만 누구보다 오래 버틴다" },
+    { id: "earth-pottery", hanja: "陶", reading: "질그릇 도", meaning: "도자기", element: "earth", attack: 7, skillName: "청자 저장", skillDesc: "보호막 12 · 다음 자령 충전 +1 · 이동 +1초", leaderSkill: "보호막 획득량 +25%", bodyType: "celadon-crab", personality: "금 간 힘도 차곡차곡 저장하는 청자 항아리게" },
+    { id: "earth-tortoise", hanja: "龜", reading: "거북 귀", meaning: "거북", element: "earth", attack: 6, skillName: "육각 성곽", skillDesc: "보호막 18 · 다음 피격 피해 25% 감소", leaderSkill: "보호막 획득량 +25%", bodyType: "flagstone-tortoise", personality: "낮은 돌등을 성곽처럼 포개 아군을 지키는 이끼거북" },
+    { id: "earth-valley", hanja: "谷", reading: "골 곡", meaning: "골짜기", element: "earth", attack: 10, skillName: "협곡 분류", skillDesc: "다음 3회 피격의 45%를 3턴에 나눠 받음", leaderSkill: "보호막 획득량 +25%", bodyType: "canyon-salamander", personality: "한 번의 충격을 여러 지층으로 흘려 보내는 협곡도롱뇽" },
     { id: "metal-gold", hanja: "金", reading: "쇠 금", meaning: "금속", element: "metal", attack: 9, skillName: "금빛 관통", skillDesc: "적에게 24 피해 · 다음 금 확정 관통", leaderSkill: "금 피해 +15%", bodyType: "armored", personality: "규칙을 중시하는 소형 호위무사" },
     { id: "metal-sword", hanja: "劍", reading: "칼 검", meaning: "검", element: "metal", attack: 11, skillName: "일섬", skillDesc: "적에게 30 피해", leaderSkill: "금 치명타 확률 증가", bodyType: "armored", personality: "한 번의 칼끝에 집중하는 전사" },
     { id: "metal-jade", hanja: "玉", reading: "구슬 옥", meaning: "옥", element: "metal", attack: 8, skillName: "옥갑", skillDesc: "보호막 12 · 금 게이지 +1", leaderSkill: "관통 피해 +10%", bodyType: "relic-spirit", personality: "차갑지만 빛나는 보석 정령" },
-    { id: "water-sui", hanja: "水", reading: "물 수", meaning: "물", element: "water", attack: 7, skillName: "물결 지연", skillDesc: "적 행동 1턴 지연 · 수 타일 2개 생성", leaderSkill: "수 지연량 증가", bodyType: "fluid", personality: "상황에 맞춰 흐르는 물방울" },
-    { id: "water-rain", hanja: "雨", reading: "비 우", meaning: "비", element: "water", attack: 7, skillName: "비의 장막", skillDesc: "보호막 8 · 적 행동 1턴 지연", leaderSkill: "첫 수 매치가 지연 부여", bodyType: "fluid", personality: "조용히 전장을 적시는 비" },
-    { id: "water-sea", hanja: "海", reading: "바다 해", meaning: "바다", element: "water", attack: 8, skillName: "깊은 파도", skillDesc: "적에게 18 피해 · 행동 지연", leaderSkill: "수 피해 +15%", bodyType: "fluid", personality: "깊이를 숨긴 느긋한 바다 요괴" }
+    { id: "metal-bell", hanja: "鐘", reading: "쇠북 종", meaning: "종", element: "metal", attack: 8, skillName: "종음 침묵", skillDesc: "적 부가효과 1턴 봉인 · 보호막 6", leaderSkill: "금 피해 +15%", bodyType: "bronze-bell", personality: "한 번의 울림으로 사악한 술식을 잠재우는 청동 종" },
+    { id: "metal-mirror", hanja: "鏡", reading: "거울 경", meaning: "거울", element: "metal", attack: 7, skillName: "명경반조", skillDesc: "다음 적 공격 35% 경감 · 원 피해 75% 반사", leaderSkill: "관통 피해 +10%", bodyType: "ritual-mirror", personality: "다가올 일격을 한눈에 비추어 되돌리는 의식 거울" },
+    { id: "metal-chain", hanja: "鎖", reading: "쇠사슬 쇄", meaning: "사슬", element: "metal", attack: 10, skillName: "쇄맥 봉인", skillDesc: "현재 적 행동 1턴 결박 · 보호막 무시 12 피해", leaderSkill: "관통 피해 +10%", bodyType: "chain-centipede", personality: "흩어진 고리를 맞물려 적의 다음 술식을 묶는 자물쇠지네" },
+    { id: "water-sui", hanja: "水", reading: "물 수", meaning: "물", element: "water", attack: 7, skillName: "물결 지연", skillDesc: "적 행동 1턴 지연 · 수 타일 2개 생성", leaderSkill: "지연 발동률 +8%p", bodyType: "fluid", personality: "상황에 맞춰 흐르는 물방울" },
+    { id: "water-rain", hanja: "雨", reading: "비 우", meaning: "비", element: "water", attack: 7, skillName: "비의 장막", skillDesc: "보호막 8 · 적 행동 1턴 지연", leaderSkill: "지연 발동률 +8%p", bodyType: "fluid", personality: "조용히 전장을 적시는 비" },
+    { id: "water-sea", hanja: "海", reading: "바다 해", meaning: "바다", element: "water", attack: 8, skillName: "깊은 파도", skillDesc: "적에게 18 피해 · 행동 지연", leaderSkill: "수 피해 +15% · 지연 발동률 +8%p", bodyType: "fluid", personality: "깊이를 숨긴 느긋한 바다 요괴" },
+    { id: "water-abyss", hanja: "淵", reading: "못 연", meaning: "깊은 못", element: "water", attack: 8, skillName: "심연 차폐", skillDesc: "적 행동 1턴 지연 · 부가효과 1턴 봉인", leaderSkill: "지연 발동률 +8%p", bodyType: "abyss-manta", personality: "고요한 눈으로 다음 위협을 삼키는 심연 가오리" },
+    { id: "water-ice", hanja: "氷", reading: "얼음 빙", meaning: "얼음", element: "water", attack: 9, skillName: "빙류 정지", skillDesc: "적 행동 1턴 지연 · 다음 이동시간 +2초", leaderSkill: "지연 발동률 +8%p", bodyType: "ice-koi", personality: "시간의 물결을 얼려 한 번 더 생각할 틈을 만드는 얼음잉어" },
+    { id: "water-mist", hanja: "霧", reading: "안개 무", meaning: "안개", element: "water", attack: 8, skillName: "무영 수막", skillDesc: "다음 피해 50% 감소 · 부가효과 봉인 · 이동 +1.5초", leaderSkill: "지연 발동률 +8%p", bodyType: "mist-octopus", personality: "위협의 윤곽을 흐려 가장 안전한 반격 창을 보여 주는 구름문어" }
   ].map((jaryeong) => ({
     ...jaryeong,
+    procChanceBonus: .03,
+    leaderProcChanceBonus: .08,
+    leaderSkill: jaryeong.element === "water" ? jaryeong.leaderSkill : `${jaryeong.leaderSkill} · ${ELEMENT_PROC_RULES[jaryeong.element].effect} 발동률 +8%p`,
     asset: ASSET_MANIFEST.jaryeongs[jaryeong.id],
     name: ({
       "wood-mok": "목령", "wood-tree": "수령", "wood-life": "생령",
+      "wood-bamboo": "죽령", "wood-orchid": "난령", "wood-forest": "삼령",
       "fire-hwa": "화령", "fire-light": "광령", "fire-sun": "일령",
+      "fire-lantern": "등령", "fire-fox": "호령", "fire-phoenix": "봉령",
       "earth-to": "토령", "earth-stone": "석령", "earth-mountain": "산령",
+      "earth-pottery": "도령", "earth-tortoise": "귀령", "earth-valley": "곡령",
       "metal-gold": "금령", "metal-sword": "검령", "metal-jade": "옥령",
-      "water-sui": "수령", "water-rain": "우령", "water-sea": "해령"
+      "metal-bell": "종령", "metal-mirror": "경령", "metal-chain": "쇄령",
+      "water-sui": "수령", "water-rain": "우령", "water-sea": "해령", "water-abyss": "연령", "water-ice": "빙령", "water-mist": "무령"
     })[jaryeong.id] || `${jaryeong.hanja}령`,
     skillId: `${jaryeong.id}-skill`,
     leaderEffectId: `${jaryeong.id}-leader`,
     wildBehaviorId: ({
       "wood-mok": "wild-growth", "wood-tree": "wild-canopy", "wood-life": "wild-regrowth",
+      "wood-bamboo": "wild-bamboo", "wood-orchid": "wild-orchid", "wood-forest": "wild-forest",
       "fire-hwa": "wild-ember", "fire-light": "wild-flash", "fire-sun": "wild-sun",
+      "fire-lantern": "wild-lantern", "fire-fox": "wild-fox", "fire-phoenix": "wild-phoenix",
       "earth-to": "wild-earth-wall", "earth-stone": "wild-stone-guard", "earth-mountain": "wild-landslide",
+      "earth-pottery": "wild-pottery", "earth-tortoise": "wild-tortoise", "earth-valley": "wild-valley",
       "metal-gold": "wild-pierce", "metal-sword": "wild-sword", "metal-jade": "wild-reflect",
-      "water-sui": "wild-tide", "water-rain": "wild-rain", "water-sea": "wild-sea"
+      "metal-bell": "wild-bell", "metal-mirror": "wild-mirror", "metal-chain": "wild-chain",
+      "water-sui": "wild-tide", "water-rain": "wild-rain", "water-sea": "wild-sea", "water-abyss": "wild-abyss", "water-ice": "wild-ice", "water-mist": "wild-mist"
     })[jaryeong.id] || "wild-growth"
   })));
   const JARYEONG_SKILL_EFFECTS = Object.freeze({
     "wood-mok-skill": [{ type: "healPlayer", amount: 12 }, { type: "increaseNextElement", element: "wood", amount: 1 }],
     "wood-tree-skill": [{ type: "gainShield", amount: 10 }, { type: "healPlayer", amount: 8 }],
     "wood-life-skill": [{ type: "healPlayer", amount: 18 }, { type: "healPlayerIfLow", threshold: 35, amount: 8 }],
+    "wood-bamboo-skill": [{ type: "cleansePlayerStatuses" }, { type: "resetQueueAges" }],
+    "wood-orchid-skill": [{ type: "repeatLastHeal", minimum: 10 }],
+    "wood-forest-skill": [{ type: "healPlayer", amount: 8 }, { type: "healingField", turns: 3, amount: 6 }],
     "fire-hwa-skill": [{ type: "dealDamage", amount: 22 }, { type: "applyBurn", amount: 2 }],
     "fire-light-skill": [{ type: "dealDamage", amount: 18 }, { type: "increaseNextElement", element: "fire", amount: 1 }],
     "fire-sun-skill": [{ type: "dealDamage", amount: 28 }],
+    "fire-lantern-skill": [{ type: "dealDamage", amount: 12 }, { type: "detonateBurn", multiplier: 6 }],
+    "fire-fox-skill": [{ type: "convertOldestQueue", element: "fire", count: 2 }, { type: "convertTiles", element: "fire", count: 3 }],
+    "fire-phoenix-skill": [{ type: "armRebirth", hpRatio: .35, counterDamage: 36 }],
     "earth-to-skill": [{ type: "gainShield", amount: 20 }],
     "earth-stone-skill": [{ type: "gainShield", amount: 14 }, { type: "reduceNextEnemyDamage", ratio: .1 }],
     "earth-mountain-skill": [{ type: "dealDamage", amount: 16 }, { type: "gainShield", amount: 8 }],
+    "earth-pottery-skill": [{ type: "gainShield", amount: 12 }, { type: "gainPartyCharge", amount: 1 }],
+    "earth-tortoise-skill": [{ type: "gainShield", amount: 18 }, { type: "reduceNextEnemyDamage", ratio: .25 }],
+    "earth-valley-skill": [{ type: "splitIncomingDamage", ratio: .45, hits: 3, ticks: 3 }],
     "metal-gold-skill": [{ type: "dealDamage", amount: 24 }, { type: "pierceNextElement", element: "metal" }],
     "metal-sword-skill": [{ type: "dealDamage", amount: 30 }],
     "metal-jade-skill": [{ type: "gainShield", amount: 12 }, { type: "gainPartyCharge", element: "metal", amount: 1 }],
+    "metal-bell-skill": [{ type: "gainShield", amount: 6 }, { type: "silenceEnemy", turns: 1 }],
+    "metal-mirror-skill": [{ type: "reflectNextEnemyAttack", ratio: .75, damageReduction: .35 }],
+    "metal-chain-skill": [{ type: "bindEnemyIntent", turns: 1 }, { type: "dealDamage", amount: 12 }],
     "water-sui-skill": [{ type: "delayEnemy", turns: 1 }, { type: "convertTiles", element: "water", count: 2 }],
     "water-rain-skill": [{ type: "gainShield", amount: 8 }, { type: "delayEnemy", turns: 1 }],
-    "water-sea-skill": [{ type: "dealDamage", amount: 18 }, { type: "delayEnemy", turns: 1 }]
+    "water-sea-skill": [{ type: "dealDamage", amount: 18 }, { type: "delayEnemy", turns: 1 }],
+    "water-abyss-skill": [{ type: "delayEnemy", turns: 1 }, { type: "silenceEnemy", turns: 1 }],
+    "water-ice-skill": [{ type: "delayEnemy", turns: 1 }, { type: "increaseMoveTime", seconds: 2 }],
+    "water-mist-skill": [{ type: "reduceNextEnemyDamage", ratio: .5 }, { type: "silenceEnemy", turns: 1 }, { type: "increaseMoveTime", seconds: 1.5 }]
   });
   const JARYEONG_SKILL_LIBRARY = Object.freeze(Object.fromEntries(JARYEONG_LIBRARY.map((jaryeong) => [jaryeong.skillId, {
     id: jaryeong.skillId,
@@ -265,8 +314,8 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     id: jaryeong.leaderEffectId,
     ownerId: jaryeong.id,
     trigger: jaryeong.element === "water" ? "afterWaterMatch" : "afterElementMatch",
-    type: jaryeong.element === "wood" ? "healMultiplier" : jaryeong.element === "earth" ? "shieldMultiplier" : jaryeong.element === "water" ? "delayOnce" : "elementDamageMultiplier",
-    value: jaryeong.element === "wood" || jaryeong.element === "earth" ? 1.25 : jaryeong.element === "water" ? 1 : 1.15,
+    type: jaryeong.element === "wood" ? "healMultiplier" : jaryeong.element === "earth" ? "shieldMultiplier" : jaryeong.element === "water" ? "procChanceBonus" : "elementDamageMultiplier",
+    value: jaryeong.element === "wood" || jaryeong.element === "earth" ? 1.25 : jaryeong.element === "water" ? .08 : 1.15,
     description: jaryeong.leaderSkill
   }])));
   const BASE_ENEMIES = [
@@ -507,7 +556,28 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     },
     "wild-regrowth": {
       label: "새싹 재생",
-      phases: [{ id: "wild-regrowth", label: "새싹 재생", minHpRatio: 0, sequence: [{ id: "wild-regrowth-heal", kind: "attack", name: "새싹 재생", icon: "✦", damage: 10, effect: { type: "healEnemy", amount: 10 }, effectText: "10 피해 · 기운 10 회복", threat: "medium", threatLabel: "주의", responseHint: "화상으로 재생을 끊으세요" }] }]
+      phases: [
+        { id: "wild-regrowth", label: "뿌리의 시험", minHpRatio: .6, sequence: [
+          { id: "wild-regrowth-roots", kind: "control", name: "휘감는 뿌리", icon: "木", damage: 12, effect: { type: "lockTiles", count: 2, turns: 1 }, effectText: "12 피해 · 타일 2개 1턴 봉인", threat: "medium", threatLabel: "주의", responseHint: "봉인 전에 이동 경로를 넓게 확보하세요" },
+          { id: "wild-regrowth-heal", kind: "heal", name: "새싹 재생", icon: "✦", damage: 10, effect: { type: "healEnemyUnlessBurning", amount: 14 }, effectText: "10 피해 · 화상이 없으면 기운 14 회복", threat: "medium", threatLabel: "주의", responseHint: "화상을 남겨 재생을 끊으세요" }
+        ] },
+        { id: "wild-regrowth-awakened", label: "만생의 폭주", minHpRatio: 0, sequence: [
+          { id: "wild-regrowth-roots-awakened", kind: "control", name: "폭주하는 뿌리", icon: "木", damage: 18, effect: { type: "lockTiles", count: 3, turns: 1 }, effectText: "18 피해 · 타일 3개 1턴 봉인", threat: "high", threatLabel: "위험", responseHint: "봉인을 풀 수단과 짧은 경로를 준비하세요" },
+          { id: "wild-regrowth-heal-awakened", kind: "heal", name: "만생 재생", icon: "✦", damage: 14, effect: { type: "healEnemyUnlessBurning", amount: 18 }, effectText: "14 피해 · 화상이 없으면 기운 18 회복", threat: "high", threatLabel: "위험", responseHint: "화상과 성어를 이어 재생을 차단하세요" }
+        ] }
+      ]
+    },
+    "wild-bamboo": {
+      label: "죽엽 결박",
+      phases: [{ id: "wild-bamboo", label: "죽엽 결박", minHpRatio: 0, sequence: [{ id: "wild-bamboo-bind", kind: "control", name: "마디 결박", icon: "竹", damage: 12, effect: { type: "lockTiles", count: 3, turns: 1 }, effectText: "12 피해 · 타일 3개 1턴 봉인", threat: "medium", threatLabel: "주의", responseHint: "봉인 전 이동 경로를 넓게 잡으세요" }] }]
+    },
+    "wild-orchid": {
+      label: "난향 회귀",
+      phases: [{ id: "wild-orchid", label: "난향 회귀", minHpRatio: 0, sequence: [{ id: "wild-orchid-heal", kind: "heal", name: "되감는 향기", icon: "蘭", damage: 14, effect: { type: "healEnemy", amount: 18 }, effectText: "14 피해 · 기운 18 회복", threat: "high", threatLabel: "위험", responseHint: "회복 전에 화상으로 압박하세요" }] }]
+    },
+    "wild-forest": {
+      label: "고목의 맥동",
+      phases: [{ id: "wild-forest", label: "고목의 맥동", minHpRatio: 0, sequence: [{ id: "wild-forest-bloom", kind: "heal", name: "숲등 확장", icon: "森", damage: 18, effect: { type: "healEnemy", amount: 24 }, effectText: "18 피해 · 기운 24 회복", threat: "high", threatLabel: "위험", responseHint: "회복 주기 전에 화상과 성어를 집중하세요" }] }]
     },
     "wild-flash": {
       label: "눈부신 섬광",
@@ -516,6 +586,33 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     "wild-sun": {
       label: "태양 충전",
       phases: [{ id: "wild-sun", label: "태양 충전", minHpRatio: 0, sequence: [{ id: "wild-sun-strike", kind: "attack", name: "태양 충전", icon: "☀", damage: 24, effectText: "24 피해 · 강한 단일 공격", threat: "high", threatLabel: "위험", responseHint: "보호막을 준비하세요" }] }]
+    },
+    "boss-crimson-order": {
+      label: "적월의 순서",
+      phases: [
+        { id: "crimson-order", label: "적월의 순서", minHpRatio: .6, sequence: [
+          { id: "crimson-seal", kind: "control", name: "적월 봉인", icon: "封", damage: 16, effect: { type: "lockTiles", count: 3, turns: 1 }, effectText: "16 피해 · 타일 3개 1턴 봉인", threat: "medium", threatLabel: "주의", responseHint: "다음 성어 문자의 이동 경로를 먼저 확보하세요" },
+          { id: "crimson-scorch", kind: "control", name: "문자 소각", icon: "火", damage: 18, effect: { type: "decayQueue", turns: 1 }, effectText: "18 피해 · 오래된 문자 수명 감소", threat: "high", threatLabel: "위험", responseHint: "오래된 문자부터 성어에 사용하세요" },
+          { id: "crimson-strike", kind: "attack", name: "정오 일섬", icon: "☀", damage: 24, effectText: "24 피해 · 강한 단일 공격", threat: "high", threatLabel: "위험", responseHint: "보호막과 회복을 준비하세요" }
+        ] },
+        { id: "crimson-order-awakened", label: "적월 폭주", minHpRatio: 0, sequence: [
+          { id: "crimson-seal-awakened", kind: "control", name: "적월 대봉인", icon: "封", damage: 20, effect: { type: "lockTiles", count: 4, turns: 1 }, effectText: "20 피해 · 타일 4개 1턴 봉인", threat: "high", threatLabel: "위험", responseHint: "봉인을 풀고 성어 순서를 다시 짜세요" },
+          { id: "crimson-scorch-awakened", kind: "control", name: "성어 소각", icon: "火", damage: 22, effect: { type: "decayQueue", turns: 2 }, effectText: "22 피해 · 오래된 문자 수명 크게 감소", threat: "high", threatLabel: "위험", responseHint: "완성 직전 성어를 이번 턴에 사용하세요" },
+          { id: "crimson-strike-awakened", kind: "attack", name: "적월 일섬", icon: "☀", damage: 30, effectText: "30 피해 · 폭주 강공격", threat: "high", threatLabel: "위험", responseHint: "지연·보호막·회복 중 하나를 반드시 준비하세요" }
+        ] }
+      ]
+    },
+    "wild-lantern": {
+      label: "등화 분진",
+      phases: [{ id: "wild-lantern", label: "등화 분진", minHpRatio: 0, sequence: [{ id: "wild-lantern-dust", kind: "weaken", name: "그을음 날개", icon: "燈", damage: 15, effect: { type: "weaken", turns: 1, healReduction: .2 }, effectText: "15 피해 · 다음 회복 -20%", threat: "medium", threatLabel: "주의", responseHint: "회복 전에 빠르게 진정시키세요" }] }]
+    },
+    "wild-fox": {
+      label: "묵화 불씨",
+      phases: [{ id: "wild-fox", label: "묵화 불씨", minHpRatio: 0, sequence: [{ id: "wild-fox-burn", kind: "attack", name: "꼬리 붓질", icon: "狐", damage: 17, effect: { type: "burnPlayer", amount: 4 }, effectText: "17 피해 · 추가 화상 4", threat: "high", threatLabel: "위험", responseHint: "보호막과 회복을 함께 준비하세요" }] }]
+    },
+    "wild-phoenix": {
+      label: "봉염 폭우",
+      phases: [{ id: "wild-phoenix", label: "봉염 폭우", minHpRatio: 0, sequence: [{ id: "wild-phoenix-fall", kind: "attack", name: "불깃 낙하", icon: "鳳", damage: 22, effect: { type: "burnPlayer", amount: 6 }, effectText: "22 피해 · 추가 화상 6", threat: "high", threatLabel: "위험", responseHint: "수 지연과 보호막을 함께 준비하세요" }] }]
     },
     "wild-earth-wall": {
       label: "대지의 벽",
@@ -529,6 +626,18 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
       label: "산사태",
       phases: [{ id: "wild-landslide", label: "산사태", minHpRatio: 0, sequence: [{ id: "wild-landslide-strike", kind: "attack", name: "산사태", icon: "⛰", damage: 18, effect: { type: "lockTiles", count: 2, turns: 1 }, effectText: "18 피해 · 타일 2개 1턴 봉인", threat: "high", threatLabel: "위험", responseHint: "봉인 전 경로를 확보하세요" }] }]
     },
+    "wild-pottery": {
+      label: "청자 축적",
+      phases: [{ id: "wild-pottery", label: "청자 축적", minHpRatio: 0, sequence: [{ id: "wild-pottery-store", kind: "attack", name: "금빛 봉합", icon: "陶", damage: 15, effect: { type: "gainEnemyShield", amount: 24 }, effectText: "15 피해 · 야생 보호막 24", threat: "high", threatLabel: "위험", responseHint: "금 관통으로 축적을 깨뜨리세요" }] }]
+    },
+    "wild-tortoise": {
+      label: "육각 성곽",
+      phases: [{ id: "wild-tortoise", label: "육각 성곽", minHpRatio: 0, sequence: [{ id: "wild-tortoise-wall", kind: "guard", name: "돌등 닫기", icon: "龜", damage: 14, effect: { type: "gainEnemyShield", amount: 22 }, effectText: "14 피해 · 야생 보호막 22", threat: "medium", threatLabel: "주의", responseHint: "금 관통으로 돌등을 여세요" }] }]
+    },
+    "wild-valley": {
+      label: "협곡 붕괴",
+      phases: [{ id: "wild-valley", label: "협곡 붕괴", minHpRatio: 0, sequence: [{ id: "wild-valley-collapse", kind: "control", name: "지층 쓸림", icon: "谷", damage: 20, effect: { type: "lockTiles", count: 3, turns: 1 }, effectText: "20 피해 · 타일 3개 1턴 봉인", threat: "high", threatLabel: "위험", responseHint: "봉인 전 넓은 이동 경로를 확보하세요" }] }]
+    },
     "wild-pierce": {
       label: "갑주 관통",
       phases: [{ id: "wild-pierce", label: "갑주 관통", minHpRatio: 0, sequence: [{ id: "wild-pierce-strike", kind: "attack", name: "갑주 관통", icon: "◇", damage: 16, effect: { type: "pierce" }, effectText: "16 피해 · 보호막 무시", threat: "high", threatLabel: "위험", responseHint: "회복을 준비하세요" }] }]
@@ -541,6 +650,21 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
       label: "옥의 반사막",
       phases: [{ id: "wild-reflect", label: "옥의 반사막", minHpRatio: 0, sequence: [{ id: "wild-reflect-strike", kind: "attack", name: "옥의 반사막", icon: "◇", damage: 10, effect: { type: "gainEnemyShield", amount: 16 }, effectText: "10 피해 · 야생 보호막 16", threat: "medium", threatLabel: "주의", responseHint: "보호막을 걷은 뒤 공격하세요" }] }]
     },
+    "wild-bell": {
+      label: "공명 쇠약",
+      phases: [{ id: "wild-bell", label: "공명 쇠약", minHpRatio: 0, sequence: [{ id: "wild-bell-ring", kind: "control", name: "낡은 종소리", icon: "鐘", damage: 18, effect: { type: "decayQueue", turns: 1 }, effectText: "18 피해 · 오래된 문자 수명 감소", threat: "high", threatLabel: "위험", responseHint: "오래된 문자를 먼저 성어로 쓰세요" }] }]
+    },
+    "wild-mirror": {
+      label: "은빛 역광",
+      phases: [{ id: "wild-mirror", label: "은빛 역광", minHpRatio: 0, sequence: [{ id: "wild-mirror-pierce", kind: "attack", name: "거울 일섬", icon: "鏡", damage: 24, effect: { type: "pierce" }, effectText: "24 피해 · 보호막 무시", threat: "high", threatLabel: "위험", responseHint: "지연·반사로 일격을 피하세요" }] }]
+    },
+    "wild-chain": {
+      label: "고리 압착",
+      phases: [{ id: "wild-chain", label: "고리 압착", minHpRatio: 0, sequence: [
+        { id: "wild-chain-drag", kind: "control", name: "문자 끌어당김", icon: "鎖", damage: 23, effect: { type: "decayQueue", turns: 1 }, effectText: "23 피해 · 오래된 문자 수명 감소", threat: "high", threatLabel: "위험", responseHint: "오래된 문자를 먼저 성어로 사용하세요" },
+        { id: "wild-chain-lock", kind: "control", name: "자물쇠 협착", icon: "鎖", damage: 20, effect: { type: "lockTiles", count: 3, turns: 1 }, effectText: "20 피해 · 타일 3개 1턴 봉인", threat: "high", threatLabel: "위험", responseHint: "다음 이동 경로를 미리 확보하세요" }
+      ] }]
+    },
     "wild-rain": {
       label: "비의 장막",
       phases: [{ id: "wild-rain", label: "비의 장막", minHpRatio: 0, sequence: [{ id: "wild-rain-strike", kind: "attack", name: "비의 장막", icon: "☂", damage: 10, effect: { type: "reduceMoveTime", seconds: .5 }, effectText: "10 피해 · 다음 이동시간 -0.5초", threat: "medium", threatLabel: "주의", responseHint: "수 매치로 흐름을 되찾으세요" }] }]
@@ -548,6 +672,39 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     "wild-sea": {
       label: "깊은 파도",
       phases: [{ id: "wild-sea", label: "깊은 파도", minHpRatio: 0, sequence: [{ id: "wild-sea-strike", kind: "attack", name: "깊은 파도", icon: "≈", damage: 16, effect: { type: "decayQueue", turns: 1 }, effectText: "16 피해 · 오래된 문자 수명 감소", threat: "high", threatLabel: "위험", responseHint: "큐를 비우거나 성어를 완성하세요" }] }]
+    },
+    "boss-moon-trial": {
+      label: "심해의 시험",
+      phases: [
+        { id: "moon-trial", label: "심해의 시험", minHpRatio: .6, sequence: [
+          { id: "moon-barrier", kind: "guard", name: "심해 장막", icon: "水", damage: 14, effect: { type: "gainEnemyShield", amount: 28 }, effectText: "14 피해 · 야생 보호막 28", threat: "medium", threatLabel: "주의", responseHint: "금 관통이나 집중 공격으로 장막을 걷어내세요" },
+          { id: "moon-pierce", kind: "attack", name: "월광 관통", icon: "月", damage: 26, effect: { type: "pierce" }, effectText: "26 피해 · 보호막 무시", threat: "high", threatLabel: "위험", responseHint: "체력 회복과 지연을 준비하세요" },
+          { id: "moon-decay", kind: "control", name: "심해 침식", icon: "≈", damage: 20, effect: { type: "decayQueue", turns: 1 }, effectText: "20 피해 · 오래된 문자 수명 감소", threat: "high", threatLabel: "위험", responseHint: "핵심 성어 문자를 먼저 사용하세요" }
+        ] },
+        { id: "moon-trial-awakened", label: "심해월 폭주", minHpRatio: 0, sequence: [
+          { id: "moon-barrier-awakened", kind: "guard", name: "만월 장막", icon: "水", damage: 18, effect: { type: "gainEnemyShield", amount: 40 }, effectText: "18 피해 · 야생 보호막 40", threat: "high", threatLabel: "위험", responseHint: "관통과 성어 화력을 한 턴에 집중하세요" },
+          { id: "moon-pierce-awakened", kind: "attack", name: "심해월 관통", icon: "月", damage: 34, effect: { type: "pierce" }, effectText: "34 피해 · 보호막 무시", threat: "high", threatLabel: "위험", responseHint: "지연하거나 체력을 충분히 회복하세요" },
+          { id: "moon-decay-awakened", kind: "control", name: "망각의 파도", icon: "≈", damage: 24, effect: { type: "decayQueue", turns: 2 }, effectText: "24 피해 · 오래된 문자 수명 크게 감소", threat: "high", threatLabel: "위험", responseHint: "완성 가능한 성어를 미루지 마세요" }
+        ] }
+      ]
+    },
+    "wild-abyss": {
+      label: "심연 은폐",
+      phases: [{ id: "wild-abyss", label: "심연 은폐", minHpRatio: 0, sequence: [
+        { id: "wild-abyss-dim", kind: "control", name: "깊이 가리기", icon: "淵", damage: 19, effect: { type: "reduceMoveTime", seconds: .7 }, effectText: "19 피해 · 다음 이동시간 -0.7초", threat: "high", threatLabel: "위험", responseHint: "다음 이동을 짧게 준비하세요" },
+        { id: "wild-abyss-pull", kind: "weaken", name: "심연의 끌림", icon: "≈", damage: 17, effect: { type: "weaken", turns: 1 }, effectText: "17 피해 · 기력 약화", threat: "medium", threatLabel: "주의", responseHint: "정화·회복을 준비하세요" }
+      ] }]
+    },
+    "wild-ice": {
+      label: "빙류 결박",
+      phases: [{ id: "wild-ice", label: "빙류 결박", minHpRatio: 0, sequence: [{ id: "wild-ice-freeze", kind: "control", name: "서리 지느러미", icon: "氷", damage: 20, effect: { type: "reduceMoveTime", seconds: 1 }, effectText: "20 피해 · 다음 이동시간 -1초", threat: "high", threatLabel: "위험", responseHint: "짧고 확실한 경로를 준비하세요" }] }]
+    },
+    "wild-mist": {
+      label: "무영 수역",
+      phases: [{ id: "wild-mist", label: "무영 수역", minHpRatio: 0, sequence: [
+        { id: "wild-mist-dim", kind: "control", name: "시야 침잠", icon: "霧", damage: 22, effect: { type: "reduceMoveTime", seconds: 1.2 }, effectText: "22 피해 · 다음 이동시간 -1.2초", threat: "high", threatLabel: "위험", responseHint: "짧고 확실한 경로를 준비하세요" },
+        { id: "wild-mist-soak", kind: "weaken", name: "젖은 먹빛", icon: "霧", damage: 20, effect: { type: "weaken", turns: 1 }, effectText: "20 피해 · 기력 약화", threat: "high", threatLabel: "위험", responseHint: "정화와 회복을 준비하세요" }
+      ] }]
     }
   });
 
@@ -662,7 +819,7 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
   const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const state = {
     board: [], queue: [], turn: 1, wave: 0, enemyHp: 0,
-    playerHp: 100, shield: 0, delayed: 0, weakened: false, prepared: false,
+    playerHp: 100, shield: 0, delayed: 0, weakened: false, weakenedTurns: 0, prepared: false,
     enemyBurn: 0, nextElementBoosts: {},
     reviveUsed: false, totalCombos: 0, totalIdioms: 0,
     dragging: false, dragMoved: false, resolving: false, selected: null, timerId: null, moveStartedAt: 0, currentMoveLimit: MOVE_SECONDS,
@@ -670,32 +827,36 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     mode: null, pangRunning: false, pangScore: 0, pangBestCombo: 0,
     pangMoves: 0, pangTimeLeft: PANG_SECONDS, pangTimerId: null,
     pangLastTick: 0, pangOrigin: null, pangTarget: null, pangMoved: false,
-    pangEndPending: false, dragPreview: null, readingMode: "compact", swapAnimationUntil: 0, audioContext: null,
+    pangEndPending: false, dragPreview: null, readingMode: "compact", idiomSpeed: "slow", idiomDisplayMode: "balanced", swapAnimationUntil: 0, audioContext: null,
     enemyPlan: createEnemyPlan(), stageIdiomIds: [], usedStageIdiomIds: new Set(), rotatingIdiomIds: [], usedRotatingIdiomIds: new Set(), readyIdiomIds: new Set(), run: null,
     nextIdiomRecipeTurn: 0, idiomRecipeInterval: 0, recipeSupplyUntilTurn: 0, idiomDetailId: null, focusedIdiomId: null,
     nextMoveBonus: 0, enemyMovePenalty: 0, currentChargeBonus: 0, nextChargeBonus: 0, nextPlayerDamageBonus: 0, nextWeaknessDamageBonus: 0,
     enemyVulnerableTurns: 0, enemyVulnerableRatio: 0, enemySilenced: 0, healReductionTurns: 0, healReductionRatio: 0,
     reflectNextEnemyAttack: null, nextEnemyDamageReduction: 0, enemyDamageMultiplier: 1, enemyShield: 0,
+    healingFieldTurns: 0, healingFieldAmount: 0, phoenixRebirthReady: 0, damageSplitHits: 0, damageSplitRatio: 0,
+    deferredDamage: 0, deferredDamageTicks: 0, boundEnemyIntentTurns: 0,
     idiomGrowthStacks: 0, turnsSinceIdiom: 0, lastActivatedIdiomId: null,
-    lastTurnElementDamage: {}, lastMatchGroupSizes: [], turnTotals: { damage: 0, heal: 0, shield: 0, burn: 0, delay: 0, elementDamage: {} },
-    lockedTiles: new Map(),
+    lastTurnElementDamage: {}, lastMatchGroupSizes: [], lastPlayerHealing: 0, turnTotals: { damage: 0, heal: 0, shield: 0, burn: 0, delay: 0, elementDamage: {} },
+    lockedTiles: new Map(), combatObjective: null, rareEncounter: null, firstBattleOnboarding: null,
     sessionRng: createSeededRng(`session-${Date.now()}`)
   };
 
   const audioDirector = new AudioDirector(AUDIO_MANIFEST);
   const META_KEY = "sajayeonseong-meta-v1";
   const RUN_SAVE_FIELDS = [
-    "board", "queue", "turn", "wave", "enemyHp", "playerHp", "shield", "delayed", "weakened", "prepared",
+    "board", "queue", "turn", "wave", "enemyHp", "playerHp", "shield", "delayed", "weakened", "weakenedTurns", "prepared",
     "enemyBurn", "nextElementBoosts", "reviveUsed", "totalCombos", "totalIdioms", "stageIdiomIds", "rotatingIdiomIds",
     "nextIdiomRecipeTurn", "idiomRecipeInterval", "recipeSupplyUntilTurn", "nextMoveBonus", "enemyMovePenalty",
     "currentChargeBonus", "nextChargeBonus", "nextPlayerDamageBonus", "nextWeaknessDamageBonus", "enemyVulnerableTurns",
     "enemyVulnerableRatio", "enemySilenced", "healReductionTurns", "healReductionRatio", "reflectNextEnemyAttack",
     "nextEnemyDamageReduction", "enemyDamageMultiplier", "enemyShield", "idiomGrowthStacks", "turnsSinceIdiom", "lastActivatedIdiomId",
-    "lastTurnElementDamage", "lastMatchGroupSizes", "turnTotals", "enemyPlan", "gameOver"
+    "healingFieldTurns", "healingFieldAmount", "phoenixRebirthReady", "damageSplitHits", "damageSplitRatio", "deferredDamage", "deferredDamageTicks", "boundEnemyIntentTurns",
+    "lastTurnElementDamage", "lastMatchGroupSizes", "lastPlayerHealing", "turnTotals", "enemyPlan", "combatObjective", "rareEncounter", "firstBattleOnboarding", "gameOver"
   ];
   let runSaveTimer = null;
 
   function loadMetaProgress() {
+    const defaultJaryeongMeta = createDefaultJaryeongMetaState();
     const defaults = {
       ink: 0,
       maxHpBonus: 0,
@@ -710,16 +871,26 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
       seenIdioms: [],
       usedIdioms: [],
       masteredIdioms: [],
-      seenJaryeongs: [],
+      seenJaryeongs: Object.keys(defaultJaryeongMeta.owned),
+      jaryeongMeta: defaultJaryeongMeta,
       completedRuns: 0,
       bestTimeMs: null
     };
-    try { return { ...defaults, ...JSON.parse(localStorage.getItem(META_KEY) || "{}") }; } catch { return defaults; }
+    try {
+      const loaded = { ...defaults, ...JSON.parse(localStorage.getItem(META_KEY) || "{}") };
+      loaded.jaryeongMeta = sanitizeJaryeongMetaState(loaded.jaryeongMeta || loaded);
+      loaded.seenJaryeongs = [...new Set([
+        ...(Array.isArray(loaded.seenJaryeongs) ? loaded.seenJaryeongs : []),
+        ...Object.keys(loaded.jaryeongMeta.owned || {})
+      ])];
+      return loaded;
+    } catch { return defaults; }
   }
 
   const metaProgress = loadMetaProgress();
 
   function saveMetaProgress() {
+    metaProgress.jaryeongMeta = sanitizeJaryeongMetaState(metaProgress.jaryeongMeta);
     try { localStorage.setItem(META_KEY, JSON.stringify(metaProgress)); } catch {}
   }
 
@@ -762,12 +933,16 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     if (!panel || !startButton) return;
     const saved = readActiveRunSave();
     panel.hidden = !saved;
-    startButton.innerHTML = saved ? `새 런으로 덮어쓰기 <span>↻</span>` : `런 시작 · 리더 고르기 <span>→</span>`;
+    startButton.innerHTML = saved ? `새 행로 시작 <span>↻</span>` : `행로 출발 <span>→</span>`;
     startButton.classList.toggle("has-save", Boolean(saved));
+    if ($("#volume-picker-title")) $("#volume-picker-title").textContent = saved ? "새 행로 문자권" : "이번 런 문자권";
+    const menuJourneyLabel = $("#menu-journey-label");
+    if (menuJourneyLabel) menuJourneyLabel.textContent = saved ? "연성행로 이어가기" : "연성행로 출발";
     if (!saved) return;
     const stage = describeRunSaveStage(saved);
+    const savedVolume = CHARACTER_VOLUMES[clamp(Number(saved.run.characterVolumeIndex) || 0, 0, CHARACTER_VOLUMES.length - 1)];
     $("#roguelike-save-seed").textContent = saved.run.seed;
-    $("#roguelike-save-summary").textContent = `${stage.label} · 제${saved.run.act || 1}막 ${Math.min(15, (saved.run.routeIndex || 0) + 1)}/15 · ${formatRunSaveElapsed(saved.elapsedMs)}`;
+    $("#roguelike-save-summary").textContent = `${stage.label} · 제${saved.run.act || 1}막 ${Math.min(15, (saved.run.routeIndex || 0) + 1)}/15 · 저장 문자권 ${savedVolume?.label || "-"} · ${formatRunSaveElapsed(saved.elapsedMs)}`;
   }
 
   function clearActiveRunSave({ sync = true } = {}) {
@@ -810,11 +985,18 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
 
   function restoreRunBattleState(battle) {
     RUN_SAVE_FIELDS.forEach((key) => { state[key] = cloneSaveValue(battle[key]); });
+    [
+      "lastPlayerHealing", "healingFieldTurns", "healingFieldAmount", "phoenixRebirthReady",
+      "damageSplitHits", "damageSplitRatio", "deferredDamage", "deferredDamageTicks",
+      "boundEnemyIntentTurns"
+    ].forEach((key) => { state[key] = Number(state[key]) || 0; });
     state.freshQueueIds = new Set(battle.freshQueueIds || []);
     state.usedStageIdiomIds = new Set(battle.usedStageIdiomIds || []);
     state.usedRotatingIdiomIds = new Set(battle.usedRotatingIdiomIds || []);
     state.readyIdiomIds = new Set(battle.readyIdiomIds || []);
     state.lockedTiles = new Map(battle.lockedTiles || []);
+    state.combatObjective = battle.combatObjective && typeof battle.combatObjective === "object" ? cloneSaveValue(battle.combatObjective) : null;
+    state.rareEncounter = battle.rareEncounter && typeof battle.rareEncounter === "object" ? cloneSaveValue(battle.rareEncounter) : null;
     state.dragging = false;
     state.dragMoved = false;
     state.selected = null;
@@ -864,7 +1046,7 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     } else {
       openRoguelikeRoute();
     }
-    void audioDirector.playBgm(`act-${state.run.act || 1}`, { immediate: true });
+    playRoguelikeBgm({ immediate: true });
     saveActiveRun({ allowGameOver: state.gameOver });
   }
 
@@ -897,7 +1079,7 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
 
   function getFixedIdioms() {
     if (state.mode === "pang") return PANG_IDIOMS;
-    if (state.mode === "roguelike" && state.run?.activeIdiomIds?.length) return idiomsFromIds(state.run.activeIdiomIds);
+    if (state.mode === "roguelike" && state.run) return idiomsFromIds(state.run.activeIdiomIds || []);
     if (state.stageIdiomIds?.length) return idiomsFromIds(state.stageIdiomIds);
     return (ACTIVE_IDIOMS.length ? ACTIVE_IDIOMS : IDIOMS).slice(0, IDIOM_RECIPE_COUNT);
   }
@@ -968,9 +1150,51 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     return state.mode === "roguelike" && state.run ? state.run.queueLife : 3;
   }
 
-  function getRunRelicEffect(type) {
+  function getRunRelicEffect(type, predicate = null) {
     if (state.mode !== "roguelike" || !state.run) return null;
-    return findRunRelicEffect(RELIC_CATALOG, state.run.relicIds, type);
+    return findRunRelicEffect(RELIC_CATALOG, state.run.relicIds, type, predicate);
+  }
+
+  function elementProcContext(element, units = 1, synergyStacks = 0) {
+    const party = getPartyJaryeongs().filter((jaryeong) => jaryeong.element === element);
+    const partyLevelSum = party.reduce((sum, jaryeong) => sum
+      + (state.run?.jaryeongLevels?.[jaryeong.id] || 1)
+      + (state.run?.jaryeongAwakenings?.[jaryeong.id] || 0), 0);
+    const leader = getLeaderJaryeong();
+    const relic = getRunRelicEffect("elementProcChance", (effect) => effect.element === element);
+    return {
+      units,
+      synergyStacks,
+      partyMembers: party.length,
+      partyLevelSum,
+      leaderMatches: leader?.element === element,
+      affinityStacks: state.run?.elementAffinity?.[element] || 0,
+      focusStacks: state.run?.focusBuildElement === element ? state.run?.focusBuildStacks || 0 : 0,
+      relicBonus: relic?.amount || 0
+    };
+  }
+
+  function getElementProcDetails(element, units = 1, synergyStacks = 0) {
+    return calculateElementProcChance(element, elementProcContext(element, units, synergyStacks));
+  }
+
+  function renderElementProcLegend() {
+    document.querySelectorAll("[data-element-proc]").forEach((node) => {
+      const element = node.dataset.elementProc;
+      const details = getElementProcDetails(element);
+      const rule = ELEMENT_PROC_RULES[element];
+      const label = ELEMENT_RULES[element]?.label || element;
+      const percent = details ? formatProcPercent(details.chance) : "0%";
+      const value = node.querySelector("b");
+      if (value && value.textContent !== percent) value.textContent = percent;
+      if (!details || !rule) return;
+      const bonuses = Object.entries(details.bonuses).filter(([, amount]) => amount > 0).map(([source, amount]) => {
+        const sourceLabel = ({ match: "대형 매치", synergy: "상생", party: "자령 편성", levels: "자령 레벨", leader: "리더", affinity: "오행 공명", focus: "빌드 집중", relic: "유물" })[source] || source;
+        return `${sourceLabel} +${Math.round(amount * 100)}%p`;
+      });
+      node.title = `${label} ${rule.effect} · 현재 ${percent} (기본 ${formatProcPercent(rule.baseChance)}, 상한 ${formatProcPercent(rule.maxChance)})${bonuses.length ? ` · ${bonuses.join(" · ")}` : ""}`;
+      node.setAttribute("aria-label", node.title);
+    });
   }
 
   function encounterRelicKey(type) {
@@ -1006,6 +1230,7 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     const healed = state.playerHp - before;
     if (healed) {
       recordTurnTotal("heal", healed);
+      state.lastPlayerHealing = healed;
       audioDirector.playSfx("heal");
     }
     const overflowRelic = getRunRelicEffect("overhealShield");
@@ -1033,11 +1258,14 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
   function lockRandomTiles(count = 2, turns = 1) {
     if (state.mode !== "puzzle" && state.mode !== "roguelike") return 0;
     if (!(state.lockedTiles instanceof Map)) state.lockedTiles = new Map();
+    const beforeCount = state.lockedTiles.size;
     const cells = [];
     for (let row = 0; row < ROWS; row++) for (let col = 0; col < COLS; col++) cells.push([row, col]);
     shuffled(cells).slice(0, Math.min(count, cells.length)).forEach(([row, col]) => state.lockedTiles.set(tileKey(row, col), turns));
+    const appliedCount = Math.max(0, state.lockedTiles.size - beforeCount);
+    if (appliedCount) recordCombatObjectiveEvent({ type: COMBAT_OBJECTIVE_EVENT.SEALS_APPLIED, count: appliedCount });
     renderBoard();
-    return Math.min(count, cells.length);
+    return appliedCount;
   }
 
   function isTileLocked(row, col) {
@@ -1057,8 +1285,10 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     if (state.weakened) { state.weakened = false; removed++; }
     if (state.healReductionTurns > 0) { state.healReductionTurns = 0; state.healReductionRatio = 0; removed++; }
     if (state.lockedTiles instanceof Map && state.lockedTiles.size) {
-      removed += state.lockedTiles.size;
+      const removedLocks = state.lockedTiles.size;
+      removed += removedLocks;
       state.lockedTiles.clear();
+      recordCombatObjectiveEvent({ type: COMBAT_OBJECTIVE_EVENT.SEALS_REMOVED, count: removedLocks });
     }
     return removed;
   }
@@ -1090,9 +1320,102 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
 
   function currentEnemy() {
     if (state.mode === "roguelike" && state.run?.currentEncounterId) {
-      return ROGUELIKE_ENEMY_BY_ID.get(state.run.currentEncounterId) || ROGUELIKE_ENEMIES[0];
+      const enemy = ROGUELIKE_ENEMY_BY_ID.get(state.run.currentEncounterId) || ROGUELIKE_ENEMIES[0];
+      if (state.rareEncounter && state.rareEncounter.status !== "escaped") {
+        return { ...enemy, rare: true, name: `희귀 ${enemy.name}`, wildLabel: "도주 희귀 자령" };
+      }
+      return enemy;
     }
     return ENEMIES[state.wave] || ENEMIES[0];
+  }
+
+  function enemyCanSealTiles(enemy) {
+    return Boolean(enemy?.phases?.some((phase) => phase.sequence?.some((intent) => intent.effect?.type === "lockTiles")));
+  }
+
+  function partyCanCleanseSeals() {
+    return getPartyJaryeongs().some((jaryeong) => jaryeong.id === "wood-bamboo")
+      || getCurrentIdioms().some((idiom) => (idiom.effectId || idiom.id) === "untieKnot");
+  }
+
+  function chooseCombatObjective(enemy) {
+    const run = state.run;
+    if (!run) return null;
+    for (let attempt = 0; attempt < 12; attempt++) {
+      const objective = selectCombatObjective({
+        seed: `${run.seed}|objective:${attempt}`,
+        coordinates: { act: run.act, routeIndex: run.routeIndex, battleIndex: run.battleIndex }
+      });
+      if (objective.type === COMBAT_OBJECTIVE_TYPE.SHIELD_VICTORY && state.shield <= 0) continue;
+      if (objective.type === COMBAT_OBJECTIVE_TYPE.CLEAR_SEALS && (!enemyCanSealTiles(enemy) || !partyCanCleanseSeals())) continue;
+      return { ...objective, rewardGranted: false, rewardReceipt: null };
+    }
+    return {
+      ...selectCombatObjective({
+        seed: `${run.seed}|objective:fallback`,
+        coordinates: { act: run.act, routeIndex: run.routeIndex, battleIndex: run.battleIndex }
+      }),
+      rewardGranted: false,
+      rewardReceipt: null
+    };
+  }
+
+  function recordCombatObjectiveEvent(event) {
+    if (state.mode !== "roguelike" || !state.combatObjective) return;
+    const previousStatus = state.combatObjective.status;
+    state.combatObjective = applyCombatObjectiveEvent(state.combatObjective, event);
+    if (previousStatus !== "completed" && state.combatObjective.status === "completed") {
+      addLog(`<strong>작은 목표 달성</strong> · ${state.combatObjective.title} · 전투 승리 시 추가 보상`, "victory");
+      audioDirector.playSfx("reward");
+    }
+  }
+
+  function objectiveProgressText(objective = state.combatObjective) {
+    if (!objective) return "";
+    if (objective.rewardGranted) return "보상 완료";
+    if (objective.status === "completed") return "달성";
+    if (objective.status === "failed") return "실패";
+    const progress = objective.progress || {};
+    switch (objective.type) {
+      case COMBAT_OBJECTIVE_TYPE.SHIELD_VICTORY: return `보호 ${Math.max(0, Math.floor(state.shield || 0))}`;
+      case COMBAT_OBJECTIVE_TYPE.ELEMENT_PROCS: return `${progress.count || 0} / ${objective.target.count} ${ELEMENT_RULES[objective.target.element]?.label || "오행"}`;
+      case COMBAT_OBJECTIVE_TYPE.IDIOM_ACTIVATIONS: return `${progress.count || 0} / ${objective.target.count}`;
+      case COMBAT_OBJECTIVE_TYPE.CLEAR_SEALS: return progress.applied ? `남음 ${progress.remaining || 0}` : "봉인 대기";
+      case COMBAT_OBJECTIVE_TYPE.TURN_LIMIT_VICTORY: return `${state.turn} / ${objective.target.turnLimit}턴`;
+      default: return "진행 중";
+    }
+  }
+
+  function rareGimmickLabel(rare = state.rareEncounter) {
+    if (!rare) return "";
+    if (rare.gimmick === RARE_GIMMICKS.TALISMAN_SHIELD) return `부적 보호막 ${Math.max(0, Math.ceil(state.enemyShield || 0))}`;
+    if (rare.gimmick === RARE_GIMMICKS.IDIOM_WEAKNESS) {
+      const idiom = ALL_IDIOMS.find((candidate) => candidate.id === rare.idiomWeakness?.idiomId);
+      return `약점 ${idiom?.name || "성어"}`;
+    }
+    return "황급한 도주";
+  }
+
+  function renderCombatMission() {
+    const card = $("#combat-mission");
+    const hud = $("#roguelike-hud");
+    if (!card || !hud) return;
+    const objective = state.mode === "roguelike" ? state.combatObjective : null;
+    card.hidden = !objective;
+    hud.classList.toggle("has-combat-mission", Boolean(objective));
+    if (!objective) return;
+    const rare = state.rareEncounter?.status === "active" ? state.rareEncounter : null;
+    card.classList.toggle("is-complete", objective.status === "completed" || objective.rewardGranted);
+    card.classList.toggle("is-rare", Boolean(rare));
+    $("#combat-mission-glyph").textContent = rare ? "稀" : objective.status === "completed" ? "成" : "目";
+    $("#combat-mission-kicker").textContent = rare
+      ? `희귀 조우 · ${rare.escapeCountdown}턴 후 도주 · ${rareGimmickLabel(rare)}`
+      : "작은 목표 · 추가 보상";
+    $("#combat-mission-title").textContent = objective.title;
+    $("#combat-mission-progress").textContent = objectiveProgressText(objective);
+    const label = `${rare ? `희귀 자령, ${rare.escapeCountdown}턴 후 도주, ${rareGimmickLabel(rare)}. ` : ""}작은 목표 ${objective.title}. ${objective.description}. ${objectiveProgressText(objective)}`;
+    card.setAttribute("aria-label", label);
+    card.title = label;
   }
 
   function getEnemyPhaseIndex(enemy = currentEnemy(), hp = state.enemyHp) {
@@ -1195,8 +1518,14 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     if (state.healReductionTurns) entries.push({ className: "status-weakened", text: `☄ 회복 약화 ${state.healReductionTurns}턴 · 회복 -${Math.round((state.healReductionRatio || 0) * 100)}%` });
     if (state.enemyVulnerableTurns) entries.push({ className: "status-weakened", text: `◌ 취약 ${state.enemyVulnerableTurns}턴 · 피해 +${Math.round((state.enemyVulnerableRatio || 0) * 100)}%` });
     if (state.enemySilenced) entries.push({ className: "status-delay", text: `🔇 침묵 ${state.enemySilenced}턴` });
+    if (state.boundEnemyIntentTurns) entries.push({ className: "status-delay", text: `⛓ 쇄맥 봉인 ${state.boundEnemyIntentTurns}턴` });
     if (state.enemyShield) entries.push({ className: "status-shield", text: `◇ 야생 보호막 ${state.enemyShield}` });
     if (state.prepared) entries.push({ className: "status-prepared", text: "◈ 지피지기 대비 활성" });
+    if (state.nextEnemyDamageReduction) entries.push({ className: "status-shield", text: `☁ 다음 피해 -${Math.round(state.nextEnemyDamageReduction * 100)}%` });
+    if (state.healingFieldTurns) entries.push({ className: "status-prepared", text: `🌲 회복장 ${state.healingFieldTurns}턴 · +${state.healingFieldAmount}` });
+    if (state.phoenixRebirthReady) entries.push({ className: "status-burn", text: `🔥 봉염 귀환 · 반격 ${state.phoenixRebirthReady}` });
+    if (state.damageSplitHits) entries.push({ className: "status-shield", text: `谷 협곡 분류 ${state.damageSplitHits}회` });
+    if (state.deferredDamage) entries.push({ className: "status-weakened", text: `◌ 유예 피해 ${state.deferredDamage} · ${state.deferredDamageTicks}턴` });
     if (state.shield) entries.push({ className: "status-shield", text: `🛡 보호막 ${state.shield}` });
     if (!entries.length) {
       const empty = document.createElement("span");
@@ -1300,15 +1629,91 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
         continue;
       }
       const level = run.jaryeongLevels?.[jaryeong.id] || 1;
+      const awakening = run.jaryeongAwakenings?.[jaryeong.id] || 0;
       const charge = run.skillCharges?.[jaryeong.id] || 0;
-      slot.innerHTML = `<span class="jaryeong-avatar ${jaryeong.element}">${tamedSpriteMarkup(jaryeong)}</span><span class="jaryeong-slot-copy"><b>${jaryeong.name} <small>Lv.${level}</small></b><em>${jaryeong.reading}</em></span><button type="button" class="jaryeong-skill-button" data-jaryeong-skill="${jaryeong.id}" ${charge < 5 || state.resolving || state.gameOver ? "disabled" : ""} aria-label="${jaryeong.skillName} ${charge}/5">${charge}/5</button>`;
-      slot.title = `${jaryeong.skillName} · ${jaryeong.skillDesc}`;
+      const procBonus = Math.round((jaryeong.procChanceBonus + Math.max(0, level - 1 + awakening) * .01) * 100);
+      const skillReady = charge >= 5 && !state.resolving && !state.gameOver;
+      slot.classList.toggle("skill-ready", skillReady);
+      slot.innerHTML = `<span class="jaryeong-avatar ${jaryeong.element}">${tamedSpriteMarkup(jaryeong)}</span><span class="jaryeong-slot-copy"><b>${jaryeong.name} <small>Lv.${level}${awakening ? ` · 覺${awakening}` : ""}</small></b><em><strong>${escapeHtml(jaryeong.skillName)}</strong> · ${escapeHtml(jaryeong.skillDesc)}</em></span><button type="button" class="jaryeong-skill-button${skillReady ? " ready" : ""}" data-jaryeong-skill="${jaryeong.id}" ${skillReady ? "" : "disabled"} aria-label="${escapeHtml(`${jaryeong.name}의 ${jaryeong.skillName}. ${jaryeong.skillDesc}. 기운 ${charge}/5`)}"><b>${escapeHtml(jaryeong.skillName)}</b><span>${charge}/5</span></button>`;
+      slot.title = `${jaryeong.skillName} · ${jaryeong.skillDesc} · 각성당 공격 +3% · 편성 공명: ${ELEMENT_PROC_RULES[jaryeong.element].effect} 발동률 +${procBonus}%p`;
       fragment.appendChild(slot);
     }
     wrap.replaceChildren(fragment);
     const label = $("#jaryeong-party-label");
     if (label) label.textContent = `${partyIds.length}/5 편성 · 리더 ${getLeaderJaryeong()?.hanja || "-"}`;
     renderJaryeongStage();
+  }
+
+  let activeCombatHudDrawer = null;
+
+  function currentRunRelics() {
+    return (state.run?.relicIds || []).map((id) => RELIC_CATALOG.find((relic) => relic.id === id)).filter(Boolean);
+  }
+
+  function renderCombatHudDrawer() {
+    const drawer = $("#hud-secondary-drawer");
+    const title = $("#hud-drawer-title");
+    const content = $("#hud-drawer-content");
+    if (!drawer || !title || !content) return;
+    const open = state.mode === "roguelike" && Boolean(activeCombatHudDrawer);
+    drawer.hidden = !open;
+    drawer.classList.toggle("open", open);
+    document.querySelectorAll("[data-hud-drawer]").forEach((button) => {
+      const selected = open && button.dataset.hudDrawer === activeCombatHudDrawer;
+      button.classList.toggle("active", selected);
+      button.setAttribute("aria-expanded", String(selected));
+    });
+    if (!open) {
+      content.replaceChildren();
+      return;
+    }
+    if (activeCombatHudDrawer === "relics") {
+      const relics = currentRunRelics();
+      title.textContent = `유물 ${relics.length}종`;
+      content.innerHTML = relics.length
+        ? `<div class="hud-relic-list">${relics.map((relic) => `<article><b>${escapeHtml(relic.glyph)}</b><span><strong>${escapeHtml(relic.name)}</strong><small>${escapeHtml(relic.desc)}</small></span></article>`).join("")}</div>`
+        : '<p class="hud-drawer-empty"><b>寶</b><span>아직 획득한 유물이 없습니다.<small>전투 보상과 행로 이벤트에서 유물을 얻을 수 있습니다.</small></span></p>';
+      return;
+    }
+    const battleLog = $("#battle-log");
+    const entries = battleLog ? [...battleLog.children] : [];
+    title.textContent = `전투 기록 ${entries.length}`;
+    content.innerHTML = entries.length
+      ? `<div class="hud-log-list">${entries.map((entry) => entry.outerHTML).join("")}</div>`
+      : '<p class="hud-drawer-empty"><b>記</b><span>아직 기록된 전투 행동이 없습니다.<small>매치와 적 행동 결과가 여기에 쌓입니다.</small></span></p>';
+  }
+
+  function syncCombatHud() {
+    const relicCount = $("#hud-relic-count");
+    const logCount = $("#hud-log-count");
+    if (relicCount) relicCount.textContent = String(currentRunRelics().length);
+    if (logCount) logCount.textContent = String($("#battle-log")?.children.length || 0);
+    if (activeCombatHudDrawer) renderCombatHudDrawer();
+  }
+
+  function setCombatHudDrawer(kind = null) {
+    activeCombatHudDrawer = activeCombatHudDrawer === kind ? null : kind;
+    renderCombatHudDrawer();
+    audioDirector.playSfx(activeCombatHudDrawer ? "ui-confirm" : "ui-cancel");
+  }
+
+  function toggleCombatParty() {
+    const panel = $("#jaryeong-panel");
+    const button = $("#hud-party-button");
+    if (!panel || !button) return;
+    const expanded = !panel.classList.contains("hud-expanded");
+    panel.classList.toggle("hud-expanded", expanded);
+    button.setAttribute("aria-expanded", String(expanded));
+    audioDirector.playSfx(expanded ? "ui-confirm" : "ui-cancel");
+  }
+
+  function closeCombatHudPanels() {
+    activeCombatHudDrawer = null;
+    const panel = $("#jaryeong-panel");
+    const partyButton = $("#hud-party-button");
+    panel?.classList.remove("hud-expanded");
+    partyButton?.setAttribute("aria-expanded", "false");
+    renderCombatHudDrawer();
   }
 
   function renderJaryeongStage() {
@@ -1400,8 +1805,56 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     setReadingMode(saved, false);
   }
 
+  function updateIdiomSpeedButtons() {
+    document.querySelectorAll("[data-idiom-speed]").forEach((button) => {
+      const selected = button.dataset.idiomSpeed === state.idiomSpeed;
+      button.classList.toggle("selected", selected);
+      button.setAttribute("aria-pressed", String(selected));
+    });
+  }
+
+  function setIdiomSpeed(speed, persist = true) {
+    state.idiomSpeed = normalizeIdiomSpeed(speed);
+    document.body.dataset.idiomSpeed = state.idiomSpeed;
+    updateIdiomSpeedButtons();
+    if (persist) {
+      try { localStorage.setItem(IDIOM_SPEED_STORAGE_KEY, state.idiomSpeed); } catch {}
+    }
+  }
+
+  function loadIdiomSpeed() {
+    let saved = "slow";
+    try { saved = localStorage.getItem(IDIOM_SPEED_STORAGE_KEY) || "slow"; } catch {}
+    setIdiomSpeed(saved, false);
+  }
+
+  function updateIdiomDisplayButtons() {
+    document.querySelectorAll("[data-idiom-display]").forEach((button) => {
+      const selected = button.dataset.idiomDisplay === state.idiomDisplayMode;
+      button.classList.toggle("selected", selected);
+      button.setAttribute("aria-pressed", String(selected));
+    });
+  }
+
+  function setIdiomDisplayMode(mode, persist = true) {
+    state.idiomDisplayMode = ["focus", "compact"].includes(mode) ? mode : "balanced";
+    document.body.dataset.idiomDisplay = state.idiomDisplayMode;
+    updateIdiomDisplayButtons();
+    if (persist) {
+      try { localStorage.setItem(IDIOM_DISPLAY_MODE_KEY, state.idiomDisplayMode); } catch {}
+    }
+  }
+
+  function loadIdiomDisplayMode() {
+    let saved = "balanced";
+    try { saved = localStorage.getItem(IDIOM_DISPLAY_MODE_KEY) || "balanced"; } catch {}
+    setIdiomDisplayMode(saved, false);
+  }
+
   function openSettings() {
     updateReadingModeButtons();
+    updateIdiomSpeedButtons();
+    updateIdiomDisplayButtons();
     syncAudioControls();
     const modal = $("#settings-modal");
     modal.inert = false;
@@ -1568,10 +2021,11 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     const ids = [leaderId, ...JARYEONG_LIBRARY.map((jaryeong) => jaryeong.id).filter((id) => id !== leaderId)].slice(0, 5);
     state.run.partyJaryeongIds = ids;
     state.run.jaryeongLevels = Object.fromEntries(ids.map((id) => [id, state.run.jaryeongLevels?.[id] || 1]));
+    state.run.jaryeongAwakenings = Object.fromEntries(ids.map((id) => [id, state.run.jaryeongAwakenings?.[id] || 0]));
     state.run.skillCharges = Object.fromEntries(ids.map((id) => [id, state.run.skillCharges?.[id] || 0]));
     rebuildRunCharacterPool();
     updateAll();
-    debugMessage("자령 팀을 5명으로 채웠습니다. 다음 신규 계약 후보에서 교체·중복 강화·포기를 확인할 수 있습니다.");
+    debugMessage("이전 저장 호환 QA용으로 자령 팀을 5명 채웠습니다.");
   }
 
   function debugGrantRelics() {
@@ -1728,7 +2182,9 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
       nextMoveBonus: 0, enemyMovePenalty: 0, currentChargeBonus: 0, nextChargeBonus: 0, nextPlayerDamageBonus: 0, nextWeaknessDamageBonus: 0,
       enemyVulnerableTurns: 0, enemyVulnerableRatio: 0, enemySilenced: 0, healReductionTurns: 0, healReductionRatio: 0,
       reflectNextEnemyAttack: null, nextEnemyDamageReduction: 0, idiomGrowthStacks: 0, turnsSinceIdiom: 0, lastActivatedIdiomId: null,
-      lastTurnElementDamage: {}, lastMatchGroupSizes: [], turnTotals: { damage: 0, heal: 0, shield: 0, burn: 0, delay: 0, elementDamage: {} },
+      healingFieldTurns: 0, healingFieldAmount: 0, phoenixRebirthReady: 0, damageSplitHits: 0, damageSplitRatio: 0,
+      deferredDamage: 0, deferredDamageTicks: 0, boundEnemyIntentTurns: 0,
+      lastTurnElementDamage: {}, lastMatchGroupSizes: [], lastPlayerHealing: 0, turnTotals: { damage: 0, heal: 0, shield: 0, burn: 0, delay: 0, elementDamage: {} },
       lockedTiles: new Map()
     });
     resetEnemyPlan();
@@ -2047,6 +2503,8 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     }
     renderEnemyStatuses();
     renderEnemyAffinity();
+    renderElementProcLegend();
+    renderCombatMission();
     $("#total-combos").textContent = state.totalCombos;
     $("#total-idioms").textContent = state.totalIdioms;
     $("#revive-status").textContent = state.reviveUsed ? "사용함" : "가능";
@@ -2722,8 +3180,8 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
 
   function elementMultiplier(element, pierce = false) {
     const enemy = currentEnemy();
-    if (element === "metal" && pierce) return 1;
     if (enemy.weakElement === element) return 1.3;
+    if (element === "metal" && pierce) return 1;
     if (enemy.resistElement === element) return .8;
     return 1;
   }
@@ -2732,7 +3190,7 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     const activeElements = Object.entries(elementCounts).filter(([, count]) => count > 0).map(([element]) => element);
     const activeSet = new Set(activeElements);
     const leader = getLeaderJaryeong();
-    const total = { damage: 0, heal: 0, shield: 0, burn: 0, delay: 0, logs: [], byElement: {} };
+    const total = { damage: 0, heal: 0, shield: 0, burn: 0, delay: 0, logs: [], procs: [], byElement: {} };
     activeElements.forEach((element) => {
       const count = elementCounts[element];
       const units = matchUnits(count);
@@ -2743,42 +3201,53 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
       const synergyBonus = state.nextElementBoosts[element] || 0;
       state.nextElementBoosts[element] = 0;
       const party = getPartyJaryeongs().filter((jaryeong) => jaryeong.element === element);
-      const attackBase = party.length ? party.reduce((sum, jaryeong) => sum + jaryeong.attack * (1 + ((state.run?.jaryeongLevels?.[jaryeong.id] || 1) - 1) * .15), 0) : ELEMENT_RULES[element].damage;
+      const proc = rollElementProc(element, elementProcContext(element, units, synergyBonus), randomValue);
+      const procRule = proc.rule;
+      const metalPiercing = element === "metal" && proc.activated;
+      const attackBase = party.length ? party.reduce((sum, jaryeong) => {
+        const level = state.run?.jaryeongLevels?.[jaryeong.id] || 1;
+        const awakening = state.run?.jaryeongAwakenings?.[jaryeong.id] || 0;
+        return sum + jaryeong.attack * (1 + (level - 1) * .15 + awakening * .03);
+      }, 0) : ELEMENT_RULES[element].damage;
       const playerDamageBonus = state.nextPlayerDamageBonus || 0;
       const weaknessBonus = currentEnemy().weakElement === element ? (state.nextWeaknessDamageBonus || 0) : 0;
       const affinityStacks = state.run?.elementAffinity?.[element] || 0;
       const focusStacks = state.run?.focusBuildElement === element ? state.run?.focusBuildStacks || 0 : 0;
       const buildMultiplier = Math.min(RUN_LIMITS.maxDamageMultiplier, 1 + affinityStacks * .08 + focusStacks * .05);
-      const damage = Math.round(attackBase * units * comboScale * leaderDamageBonus * buildMultiplier * (1 + synergyBonus * .18) * elementMultiplier(element, element === "metal" && synergyBonus > 0) * (1 + weaknessBonus) * (state.weakened ? .75 : 1) * (1 + playerDamageBonus) * (1 + (state.idiomGrowthStacks || 0) * .04));
+      const procDamageMultiplier = metalPiercing ? procRule.damageMultiplier : 1;
+      const damage = Math.round(attackBase * units * comboScale * leaderDamageBonus * buildMultiplier * (1 + synergyBonus * .18) * procDamageMultiplier * elementMultiplier(element, metalPiercing) * (1 + weaknessBonus) * (state.weakened ? .75 : 1) * (1 + playerDamageBonus) * (1 + (state.idiomGrowthStacks || 0) * .04));
       total.damage += damage;
       total.byElement[element] = (total.byElement[element] || 0) + damage;
       chargePartyByElement(element, count);
-      if (element === "wood") total.heal += Math.round(units * 2 * leaderHealBonus * (1 + synergyBonus * .4));
-      if (element === "fire") {
-        total.burn += Math.max(1, Math.round(units * (1 + synergyBonus)));
-        state.enemyBurn += total.burn;
+      let procResult = `${procRule.effect} 미발동`;
+      if (proc.activated && element === "wood") {
+        const amount = Math.round(units * procRule.amountPerUnit * leaderHealBonus * (1 + synergyBonus * .4));
+        total.heal += amount;
+        procResult = `회복 +${amount}`;
       }
-      if (element === "earth") total.shield += Math.round(units * 4 * leaderShieldBonus * (1 + synergyBonus));
-      if (element === "water") {
-        total.delay = Math.max(total.delay, Math.max(1, Math.round(units + synergyBonus)));
-        const firstWater = getRunRelicEffect("firstWaterDelay");
-        if (firstWater && claimRunTrigger(state.run, encounterRelicKey("firstWaterDelay"))) {
-          total.delay += firstWater.turns || 1;
-          addLog(`<strong>${firstWater.relicName}</strong> · 첫 수 매치의 행동 지연 +${firstWater.turns || 1}`, "water");
-        }
-        if (leader?.element === "water" && !state.run?.leaderDelayUsed && count >= 6) {
-          total.delay += 1;
-          if (state.run) state.run.leaderDelayUsed = true;
-        }
+      if (proc.activated && element === "fire") {
+        const amount = Math.max(1, Math.round(units * procRule.amountPerUnit * (1 + synergyBonus)));
+        total.burn += amount;
+        state.enemyBurn += amount;
+        procResult = `화상 ${amount}`;
       }
-      if (element === "metal" && count >= 4) {
+      if (proc.activated && element === "earth") {
+        const amount = Math.round(units * procRule.amountPerUnit * leaderShieldBonus * (1 + synergyBonus));
+        total.shield += amount;
+        procResult = `보호막 +${amount}`;
+      }
+      if (proc.activated && element === "water") {
+        total.delay = Math.max(total.delay, procRule.turns || 1);
+        procResult = `행동 지연 ${procRule.turns || 1}턴`;
+      }
+      if (metalPiercing) {
         const metalPierce = getRunRelicEffect("metalPierce");
-        if (metalPierce && state.enemyShield > 0) {
-          const pierced = Math.min(state.enemyShield, metalPierce.amount || 0);
-          state.enemyShield -= pierced;
-          if (pierced) addLog(`<strong>${metalPierce.relicName}</strong> · 야생 보호막 ${pierced} 관통`, "metal");
-        }
+        const breakPower = procRule.shieldBreakBase + units * procRule.shieldBreakPerUnit + (metalPierce?.amount || 0);
+        const pierced = Math.min(state.enemyShield, breakPower);
+        state.enemyShield -= pierced;
+        procResult = `관통 피해 +${Math.round((procRule.damageMultiplier - 1) * 100)}%${pierced ? ` · 보호막 ${pierced} 파괴` : ""}`;
       }
+      total.procs.push({ ...proc, effectText: procResult });
       total.logs.push(`${ELEMENT_RULES[element].label} ${damage}피해`);
       animateSquadElement(element);
       audioDirector.playSfx(`hit-${element}`);
@@ -2804,44 +3273,110 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
       recordTurnTotal("delay", Math.max(0, state.delayed - beforeDelay));
     }
     if (total.burn) recordTurnTotal("burn", total.burn);
+    if (total.procs.length) {
+      const procSummary = total.procs.map((proc) => `${ELEMENT_RULES[proc.element].label} ${proc.effectText} (${formatProcPercent(proc.chance)})`).join(" · ");
+      addLog(`<strong>부가효과 판정</strong> · ${procSummary}`, total.procs.some((proc) => proc.activated) ? "alchemy" : "miss");
+    }
     state.lastTurnElementDamage = { ...total.byElement };
     if (activeElements.length) state.nextWeaknessDamageBonus = 0;
     state.nextPlayerDamageBonus = 0;
     return total;
   }
 
-  function useJaryeongSkill(id) {
+  async function useJaryeongSkill(id) {
     if (state.mode !== "roguelike" || !state.run || state.resolving || state.gameOver) return;
     const jaryeong = getJaryeong(id);
     if (!jaryeong || !state.run.partyJaryeongIds.includes(id) || (state.run.skillCharges?.[id] || 0) < 5) return;
     const skill = JARYEONG_SKILL_LIBRARY[jaryeong.skillId] || { name: jaryeong.skillName, description: jaryeong.skillDesc };
     const level = getJaryeongLevel(id);
-    const awakened = level >= 5;
+    // 이전 저장의 Lv.5 각성 판정은 유지하면서, 영구 메타 각성도 전투 효과에 반영한다.
+    const awakened = (state.run.jaryeongAwakenings?.[id] || 0) > 0 || level >= 5;
     state.run.skillCharges[id] = 0;
     switch (jaryeong.element) {
       case "wood":
-        if (jaryeong.id === "wood-life") healPlayer(state.playerHp <= 35 ? 26 : 18);
+        if (jaryeong.id === "wood-bamboo") {
+          const removedLocks = state.lockedTiles?.size || 0;
+          state.lockedTiles?.clear();
+          if (removedLocks) recordCombatObjectiveEvent({ type: COMBAT_OBJECTIVE_EVENT.SEALS_REMOVED, count: removedLocks });
+          resetQueueAges();
+          if (removedLocks) gainShield(Math.min(12, removedLocks * 3));
+        } else if (jaryeong.id === "wood-forest") {
+          healPlayer(8);
+          state.healingFieldTurns = awakened ? 4 : 3;
+          state.healingFieldAmount = awakened ? 8 : 6;
+        } else if (jaryeong.id === "wood-orchid") {
+          const copiedHealing = Math.max(10, state.lastPlayerHealing || 0);
+          healPlayer(Math.round(copiedHealing * (awakened ? 1.5 : 1)));
+        } else if (jaryeong.id === "wood-life") healPlayer(state.playerHp <= 35 ? 26 : 18);
         else if (jaryeong.id === "wood-tree") { gainShield(10); healPlayer(8); }
         else { healPlayer(12); if (awakened) gainShield(6); }
         state.nextElementBoosts.wood = (state.nextElementBoosts.wood || 0) + 1;
         break;
       case "fire":
-        applyDamage(jaryeong.id === "fire-sun" ? 28 : jaryeong.id === "fire-light" ? 18 : 22, "스킬 −");
-        state.enemyBurn += jaryeong.id === "fire-hwa" ? 2 : 1;
-        if (awakened && state.enemyBurn >= 5) { applyTrueDamage(state.enemyBurn, "각성 화상 −"); state.enemyBurn = 0; }
+        if (jaryeong.id === "fire-lantern") {
+          applyDamage(12, "스킬 −");
+          if (state.enemyBurn > 0) {
+            applyTrueDamage(state.enemyBurn * (awakened ? 7 : 6), "등화 폭쇄 −");
+            state.enemyBurn = 0;
+          }
+        } else if (jaryeong.id === "fire-phoenix") {
+          state.phoenixRebirthReady = Math.max(state.phoenixRebirthReady || 0, awakened ? 48 : 36);
+        } else if (jaryeong.id === "fire-fox") {
+          const fire = ELEMENTS.find((entry) => entry.id === "fire");
+          [...state.queue].sort((a, b) => a.born - b.born).slice(0, awakened ? 3 : 2).forEach((entry) => {
+            entry.element = "fire";
+            entry.symbol = fire?.symbol || "火";
+          });
+          addBoardElementTiles("fire", awakened ? 4 : 3);
+        } else {
+          applyDamage(jaryeong.id === "fire-sun" ? 28 : jaryeong.id === "fire-light" ? 18 : 22, "스킬 −");
+          state.enemyBurn += jaryeong.id === "fire-hwa" ? 2 : 1;
+          if (awakened && state.enemyBurn >= 5) { applyTrueDamage(state.enemyBurn, "각성 화상 −"); state.enemyBurn = 0; }
+        }
         state.nextElementBoosts.fire = (state.nextElementBoosts.fire || 0) + 1;
         break;
       case "earth":
-        gainShield(jaryeong.id === "earth-to" ? 20 : jaryeong.id === "earth-mountain" ? 8 : 14);
+        gainShield(jaryeong.id === "earth-to" ? 20 : jaryeong.id === "earth-mountain" ? 8 : jaryeong.id === "earth-pottery" ? 12 : jaryeong.id === "earth-tortoise" ? 18 : jaryeong.id === "earth-valley" ? 0 : 14);
+        if (jaryeong.id === "earth-stone") state.nextEnemyDamageReduction = Math.max(state.nextEnemyDamageReduction || 0, .1);
+        if (jaryeong.id === "earth-mountain") applyDamage(16, "스킬 −");
+        if (jaryeong.id === "earth-pottery") {
+          state.nextChargeBonus = Math.max(state.nextChargeBonus || 0, 1);
+          state.nextMoveBonus += awakened ? 1.5 : 1;
+        }
+        if (jaryeong.id === "earth-tortoise") state.nextEnemyDamageReduction = Math.max(state.nextEnemyDamageReduction || 0, awakened ? .35 : .25);
+        if (jaryeong.id === "earth-valley") {
+          state.damageSplitHits = awakened ? 4 : 3;
+          state.damageSplitRatio = awakened ? .55 : .45;
+        }
         if (awakened && state.shield > 30) applyTrueDamage(Math.round((state.shield - 30) * .25), "각성 반동 −");
         break;
       case "metal":
-        applyDamage(jaryeong.id === "metal-sword" ? 30 : 24, "스킬 −", { ignoreShield: true });
+        if (jaryeong.id === "metal-bell") {
+          state.enemySilenced = Math.max(state.enemySilenced, awakened ? 2 : 1);
+          gainShield(6);
+        } else if (jaryeong.id === "metal-mirror") {
+          state.reflectNextEnemyAttack = { ratio: awakened ? 1 : .75, damageReduction: awakened ? .5 : .35, label: "경령 · 명경반조" };
+        } else if (jaryeong.id === "metal-chain") {
+          state.boundEnemyIntentTurns = Math.max(state.boundEnemyIntentTurns || 0, awakened ? 2 : 1);
+          applyDamage(12, "쇄맥 −", { ignoreShield: true });
+        } else if (jaryeong.id === "metal-jade") {
+          gainShield(12);
+          getPartyJaryeongs().filter((member) => member.element === "metal" && member.id !== jaryeong.id).forEach((member) => chargeJaryeong(member.id, 1));
+        } else applyDamage(jaryeong.id === "metal-sword" ? 30 : 24, "스킬 −", { ignoreShield: true });
         state.nextElementBoosts.metal = (state.nextElementBoosts.metal || 0) + 1;
         break;
       case "water":
-        state.delayed = Math.max(state.delayed, 1);
+        if (["water-sui", "water-rain", "water-sea", "water-abyss", "water-ice"].includes(jaryeong.id)) {
+          state.delayed = Math.max(state.delayed, 1);
+        }
         state.nextElementBoosts.water = (state.nextElementBoosts.water || 0) + 1;
+        if (jaryeong.id === "water-abyss") state.enemySilenced = Math.max(state.enemySilenced, awakened ? 2 : 1);
+        if (jaryeong.id === "water-ice") state.nextMoveBonus += awakened ? 3 : 2;
+        if (jaryeong.id === "water-mist") {
+          state.nextEnemyDamageReduction = Math.max(state.nextEnemyDamageReduction || 0, awakened ? .6 : .5);
+          state.enemySilenced = Math.max(state.enemySilenced, awakened ? 2 : 1);
+          state.nextMoveBonus += awakened ? 2 : 1.5;
+        }
         if (jaryeong.id === "water-sui") addBoardElementTiles("water", awakened ? 4 : 2);
         if (jaryeong.id === "water-sea") applyDamage(18, "스킬 −");
         if (jaryeong.id === "water-rain") gainShield(awakened ? 12 : 8);
@@ -2849,6 +3384,43 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     }
     addLog(`<strong>${jaryeong.hanja}령 · ${skill.name}</strong> · ${skill.description}`, "alchemy");
     updateAll();
+    if (state.enemyHp <= 0) {
+      state.resolving = true;
+      try {
+        await nextWave();
+      } finally {
+        state.resolving = false;
+      }
+      saveActiveRun();
+    }
+  }
+
+  function advanceRareAfterPlayerTurn() {
+    if (!state.rareEncounter || state.rareEncounter.status !== "active") return false;
+    state.rareEncounter.enemyHp = Math.max(0, state.enemyHp);
+    state.rareEncounter.talismanShield = Math.max(0, state.enemyShield || 0);
+    state.rareEncounter = advanceRareEncounterTurn(state.rareEncounter, 1);
+    return state.rareEncounter.status === "escaped";
+  }
+
+  async function finishEscapedRareEncounter() {
+    const escapedEnemy = currentEnemy();
+    recordCombatObjectiveEvent({ type: COMBAT_OBJECTIVE_EVENT.BATTLE_LOST });
+    if (state.run) {
+      state.run.rareEncountersEscaped = (state.run.rareEncountersEscaped || 0) + 1;
+      state.run.rewardHistory.push(`rare-escaped:${escapedEnemy?.jaryeongId || escapedEnemy?.id || "unknown"}`);
+      state.run.pendingReward = false;
+      state.run.pendingContractJaryeongId = null;
+      state.run.rewardChoices = [];
+    }
+    addLog(`<strong>${escapedEnemy?.name || "희귀 자령"} 도주</strong> · 행로는 계속되지만 전투·작은 목표 보상은 받지 못합니다.`, "miss");
+    showBattleFeedback("enemy", "희귀 자령이 달아났습니다", "런은 끝나지 않습니다 · 다음 경로를 선택하세요");
+    await wait(320);
+    state.resolving = false;
+    state.rareEncounter = null;
+    state.combatObjective = null;
+    completeCurrentRunNode();
+    saveActiveRun();
   }
 
   async function resolveTurn() {
@@ -2903,6 +3475,11 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
       if (elemental.shield) outcome.push(`보호막 +${elemental.shield}`);
       if (elemental.delay) outcome.push(`적 ${elemental.delay}턴 지연`);
       if (elemental.burn) outcome.push(`화상 ${elemental.burn}`);
+      const activatedProcs = elemental.procs.filter((proc) => proc.activated);
+      activatedProcs.forEach((proc) => recordCombatObjectiveEvent({ type: COMBAT_OBJECTIVE_EVENT.ELEMENT_PROC, element: proc.element, count: 1 }));
+      outcome.push(activatedProcs.length
+        ? `부가효과: ${activatedProcs.map((proc) => `${ELEMENT_RULES[proc.element].label} ${proc.rule.effect}`).join(" · ")}`
+        : "부가효과 미발동");
       showBattleFeedback("player", `${comboCount}콤보 · ${removedTiles.length}드롭`, outcome.join(" · "));
       addLog(`<strong>${comboCount}콤보</strong> · ${removedTiles.length}개 제거 · 피해 ${elemental.damage}${elemental.heal ? ` · 회복 ${elemental.heal}` : ""}${elemental.shield ? ` · 보호 ${elemental.shield}` : ""}${elemental.delay ? ` · 행동 지연 ${elemental.delay}턴` : ""}${elemental.burn ? ` · 화상 ${elemental.burn}` : ""}`, "combo");
     }
@@ -2923,30 +3500,59 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     // outcome before idiom and enemy responses can replace the result banner.
     await wait(cascade ? 700 : 250);
     const activated = await activateIdioms(elementCounts, comboCount);
+    if (activated.activated.length) recordCombatObjectiveEvent({ type: COMBAT_OBJECTIVE_EVENT.IDIOM_ACTIVATED, count: activated.activated.length });
     cleanQueue(activated.usedIds);
     state.turnsSinceIdiom = activated.activated.length ? 0 : (state.turnsSinceIdiom || 0) + 1;
     renderQueue(); renderIdioms(); updateVitals();
+    if (state.healReductionTurns > 0) {
+      state.healReductionTurns--;
+      if (!state.healReductionTurns) state.healReductionRatio = 0;
+    }
+    // Locks created by the previous enemy action remain through this player
+    // move, then expire before the enemy can apply a fresh lock for next turn.
+    reduceTileLocks();
 
+    let enemyActed = false;
     if (state.enemyHp <= 0) {
       await nextWave();
     } else {
+      if (advanceRareAfterPlayerTurn()) {
+        await finishEscapedRareEncounter();
+        return;
+      }
       const hourglass = getRunRelicEffect("turnSevenDelay");
       if (hourglass && state.turn === 7 && claimRunTrigger(state.run, encounterRelicKey("turnSevenDelay"))) {
         state.delayed = Math.min(RUN_LIMITS.maxDelay, state.delayed + (hourglass.turns || 1));
         addLog(`<strong>${hourglass.relicName}</strong> · 7턴째의 적 행동을 ${hourglass.turns || 1}턴 지연`, "water");
       }
-      await enemyTurn();
+      enemyActed = await enemyTurn();
     }
     if (!state.gameOver) {
       if (state.enemyVulnerableTurns > 0) state.enemyVulnerableTurns--;
-      if (state.enemySilenced > 0) state.enemySilenced--;
-      if (state.healReductionTurns > 0) {
-        state.healReductionTurns--;
-        if (!state.healReductionTurns) state.healReductionRatio = 0;
-      }
-      reduceTileLocks();
+      if (enemyActed && state.enemySilenced > 0) state.enemySilenced--;
       state.currentChargeBonus = 0;
       state.turn++;
+      if (state.enemyHp > 0 && state.healingFieldTurns > 0) {
+        const healed = healPlayer(state.healingFieldAmount || 0);
+        state.healingFieldTurns--;
+        addLog(`<strong>삼림 맥동</strong> · 체력 ${healed} 회복 · ${state.healingFieldTurns}턴 남음`, "wood");
+      }
+      if (state.enemyHp > 0 && state.deferredDamageTicks > 0 && state.deferredDamage > 0) {
+        const deferredTick = Math.ceil(state.deferredDamage / state.deferredDamageTicks);
+        state.deferredDamage = Math.max(0, state.deferredDamage - deferredTick);
+        state.deferredDamageTicks--;
+        state.playerHp = Math.max(0, state.playerHp - deferredTick);
+        addLog(`<strong>협곡 분류</strong> · 미뤄 둔 피해 ${deferredTick} · ${state.deferredDamageTicks}턴 남음`, "earth");
+        if (state.playerHp <= 0) {
+          await handleDefeat();
+          if (state.gameOver) return;
+          if (state.enemyHp <= 0) {
+            state.resolving = false;
+            saveActiveRun();
+            return;
+          }
+        }
+      }
       state.queue = state.queue.filter((entry) => state.turn - entry.born < getQueueLife());
       if (state.queue.length > getQueueMax()) state.queue = state.queue.slice(-getQueueMax());
       state.freshQueueIds.clear();
@@ -3055,6 +3661,14 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
         if (bonusShield) gainShield(bonusShield);
         addLog(`<strong>서당 복습</strong> · 다음 성어 수치 +${Math.round(pendingPower * 100)}%${bonusDamage || bonusHeal || bonusShield ? ` (피해 ${bonusDamage} · 회복 ${bonusHeal} · 보호 ${bonusShield})` : ""}`, "alchemy");
       }
+      if (state.rareEncounter?.status === "active" && state.rareEncounter.gimmick === RARE_GIMMICKS.IDIOM_WEAKNESS) {
+        const idiomDamage = Math.max(12, Math.max(0, (state.turnTotals?.damage || 0) - beforePowerTotals.damage));
+        const weakness = calculateIdiomWeaknessBonus(state.rareEncounter, { baseDamage: idiomDamage, idiomId: idiom.id });
+        if (weakness.matched && weakness.bonusDamage > 0) {
+          const dealt = applyTrueDamage(weakness.bonusDamage, "희귀 약점 −");
+          addLog(`<strong>희귀 성어 약점</strong> · ${idiom.name} 공명 추가 피해 ${dealt}`, "alchemy");
+        }
+      }
       applyJaryeongResonance(idiom);
       if (state.run) {
         const firstCharge = getRunRelicEffect("firstIdiomCharge");
@@ -3091,12 +3705,14 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
 
   async function showAlchemy(idiom) {
     const overlay = $("#alchemy-overlay");
-    $("#alchemy-glyphs").innerHTML = idiom.chars.map((char, i) => `<span style="animation-delay:${i * 80}ms">${char}</span>`).join("");
+    const timing = getIdiomCastTiming(state.idiomSpeed, state.mode);
+    $("#alchemy-glyphs").innerHTML = idiom.chars.map((char, i) => `<span style="animation-delay:${i * timing.glyphStaggerMs}ms">${char}</span>`).join("");
     $("#alchemy-name").textContent = idiom.name;
     $("#alchemy-reading").textContent = `${idiom.sourceHanja} · ${idiom.pronunciation || idiom.name}`;
     $("#alchemy-effect").textContent = idiomEffectText(idiom);
+    overlay.style.setProperty("--alchemy-duration", `${timing.animationMs}ms`);
     overlay.classList.remove("show"); void overlay.offsetWidth; overlay.classList.add("show");
-    await wait(state.mode === "roguelike" ? 620 : 900);
+    await wait(timing.holdMs);
     overlay.classList.remove("show");
   }
 
@@ -3431,14 +4047,20 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
       updateVitals();
       if (state.enemyHp <= 0) {
         await nextWave();
-        return;
+        return false;
       }
+    }
+    if (state.boundEnemyIntentTurns > 0) {
+      state.boundEnemyIntentTurns--;
+      addLog(`<strong>쇄맥 봉인</strong> · 적의 현재 행동이 묶였습니다.`, "metal");
+      updateVitals();
+      return false;
     }
     if (state.delayed > 0) {
       state.delayed--;
       addLog("수의 기운이 자령 행동을 <strong>한 턴 늦췄습니다.</strong>", "water");
       updateVitals();
-      return;
+      return false;
     }
     const enemy = currentEnemy();
     const intent = currentEnemyIntent();
@@ -3472,7 +4094,16 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     const piercesShield = intent.effect?.type === "pierce" && !silenced;
     const absorbed = piercesShield ? 0 : Math.min(state.shield, damage);
     state.shield -= absorbed;
+    recordCombatObjectiveEvent({ type: COMBAT_OBJECTIVE_EVENT.SHIELD_CHANGED, shield: state.shield });
     damage -= absorbed;
+    if (state.damageSplitHits > 0 && damage > 0) {
+      const deferred = Math.max(1, Math.floor(damage * (state.damageSplitRatio || 0)));
+      damage = Math.max(0, damage - deferred);
+      state.deferredDamage += deferred;
+      state.deferredDamageTicks = Math.max(state.deferredDamageTicks || 0, 3);
+      state.damageSplitHits--;
+      addLog(`<strong>협곡 분류</strong> · 체력 피해 ${deferred}을 3턴에 나누어 받습니다.`, "earth");
+    }
     state.playerHp -= damage;
     const effectSuffix = applyEnemyIntentEffect(intent, silenced);
     showPlayerHitFeedback(damage, absorbed);
@@ -3491,11 +4122,15 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     advanceEnemyPlan();
     updateVitals();
     await wait(220);
+    if (state.playerHp <= 0) {
+      await handleDefeat();
+      return true;
+    }
     if (state.enemyHp <= 0) {
       await nextWave();
-      return;
+      return true;
     }
-    if (state.playerHp <= 0) await handleDefeat();
+    return true;
   }
 
   function createRoguelikeRun() {
@@ -3503,6 +4138,10 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     const rng = createSeededRng(seed);
     const volumeIndex = clamp(Number(metaProgress.selectedVolumeIndex) || 0, 0, CHARACTER_VOLUMES.length - 1);
     const volume = CHARACTER_VOLUMES[volumeIndex] || CHARACTER_VOLUMES[0];
+    metaProgress.jaryeongMeta = resetTargetFragmentPity(metaProgress.jaryeongMeta);
+    const preparedParty = getPreparedJaryeongParty(metaProgress.jaryeongMeta);
+    metaProgress.jaryeongMeta = preparedParty.state;
+    const partyJaryeongIds = preparedParty.partyIds;
     const run = {
       seed,
       rng,
@@ -3518,10 +4157,11 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
       characterVolumeIndex: volumeIndex,
       characterPool: [],
       battleIndex: 0,
-      leaderJaryeongId: null,
-      partyJaryeongIds: [],
-      jaryeongLevels: {},
-      skillCharges: {},
+      leaderJaryeongId: partyJaryeongIds[0] || null,
+      partyJaryeongIds: [...partyJaryeongIds],
+      jaryeongLevels: Object.fromEntries(partyJaryeongIds.map((id) => [id, metaProgress.jaryeongMeta.owned?.[id]?.level || 1])),
+      jaryeongAwakenings: Object.fromEntries(partyJaryeongIds.map((id) => [id, metaProgress.jaryeongMeta.owned?.[id]?.awakening || 0])),
+      skillCharges: Object.fromEntries(partyJaryeongIds.map((id) => [id, 0])),
       jaryeongDraftChoices: [],
       draftStep: 0,
       activeIdiomIds: [],
@@ -3546,9 +4186,13 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
       rewardRerolls: Math.min(1, Number(metaProgress.rewardRerolls) || 0),
       maxHp: 100 + Math.min(5, Number(metaProgress.maxHpBonus) || 0),
       pendingFlags: {},
-      completedNodeIds: []
+      completedNodeIds: [],
+      rareCandidatesSeen: 0,
+      rareEncounterSeen: false,
+      rareEncountersDefeated: 0,
+      rareEncountersEscaped: 0
     };
-    run.characterPool = buildRunCharacterPool({ volume, rng, targetSize: 125 });
+    run.characterPool = buildRunCharacterPool({ volume, fallbackCharacters: CHARACTER_POOL, rng, targetSize: 125 });
     return run;
   }
 
@@ -3558,13 +4202,30 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     if (!progress || !build) return;
     const run = state.run;
     const sceneAct = clamp(run?.act || 1, 1, 3);
-    document.body.style.setProperty("--rogue-scene", `url("${ASSET_MANIFEST.backgrounds[`act${sceneAct}`]}")`);
+    const activeNode = run ? currentRouteTier()?.choices.find((candidate) => candidate.id === run.currentNodeId) : null;
+    const sceneKey = `act${sceneAct}${activeNode?.type === "boss" ? "Boss" : ""}`;
+    const backgroundSelectionKey = run ? `${sceneKey}:${run.battleIndex || 0}:${run.routeIndex || 0}` : sceneKey;
+    if (run && run.currentBackgroundKey !== backgroundSelectionKey) {
+      run.currentBackgroundPath = selectBackgroundForScene({
+        pools: ASSET_MANIFEST.backgroundPools || ASSET_MANIFEST.backgrounds,
+        sceneKey,
+        runSeed: run.seed,
+        battleIndex: run.battleIndex,
+        nodeIndex: run.routeIndex,
+        previousBackground: run.currentBackgroundPath,
+        fallback: ASSET_MANIFEST.backgrounds[`act${sceneAct}`]
+      });
+      run.currentBackgroundKey = backgroundSelectionKey;
+    }
+    const backgroundPath = run?.currentBackgroundPath || ASSET_MANIFEST.backgrounds[`act${sceneAct}`];
+    document.body.style.setProperty("--rogue-scene", `url("${backgroundPath}")`);
     document.body.dataset.rogueAct = String(sceneAct);
     const node = run ? clamp((run.routeIndex || 0) + 1, 1, 15) : 1;
     progress.textContent = `제${run?.act || 1}막 · 노드 ${node} / 15`;
     if (!run) {
       build.textContent = "문자권과 성어를 고르고 3막의 행로를 완주하세요";
       renderJaryeongPanel();
+      syncCombatHud();
       return;
     }
     const idioms = run.idiomBookIds.length;
@@ -3576,6 +4237,7 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     const focusLabel = run.focusBuildStacks ? ` · 집중 ${ELEMENT_RULES[run.focusBuildElement]?.label || "목"}+${run.focusBuildStacks}` : "";
     build.textContent = `리더 ${leader?.name || "-"} · 자령 ${party}/5 · 성어 ${idioms}/${RUN_LIMITS.idiomBookMax} · 유물 ${relics} · 먹 ${run.ink || 0}${fragments ? ` · 조각 ${fragments}` : ""}${stoneBreaks ? ` · 석파 ${stoneBreaks}` : ""}${focusLabel}`;
     renderJaryeongPanel();
+    syncCombatHud();
   }
 
   function prepareRoguelikeRun() {
@@ -3593,7 +4255,9 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     $("#roguelike-intro-modal").classList.remove("open");
     $("#roguelike-result-modal").classList.remove("open");
     prepareRoguelikeRun();
-    openRoguelikeLeaderPicker();
+    rememberMeta("seenJaryeongs", state.run.partyJaryeongIds);
+    saveMetaProgress();
+    openRoguelikeDraft();
   }
 
   function renderVolumeOptions() {
@@ -3668,7 +4332,7 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
       const status = metaRankFor("Jaryeongs", jaryeong.id);
       return `<article class="codex-jaryeong ${status.rank}"><div class="codex-jaryeong-art ${jaryeong.element}">${tamedSpriteMarkup(jaryeong, { alt: jaryeong.name })}</div><strong>${jaryeong.name}</strong><p>${jaryeong.reading} · ${jaryeong.meaning}</p><small>${status.label} · ${jaryeong.skillName}</small></article>`;
     }).join("");
-    $("#codex-stats").textContent = `자령 15종 · 발견 ${metaProgress.seenJaryeongs.length}`;
+    $("#codex-stats").textContent = `자령 ${JARYEONG_LIBRARY.length}종 · 발견 ${metaProgress.seenJaryeongs.length}`;
   }
 
   function openCodex() {
@@ -3688,6 +4352,198 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     renderCodex();
   }
 
+  const JARYEONG_RARITY_LABELS = Object.freeze({ common: "일반", uncommon: "고급", rare: "희귀", legendary: "전설" });
+  let jaryeongMetaView = "collection";
+  let jaryeongMetaElement = "all";
+  let jaryeongMetaSelectedId = "wood-mok";
+  let jaryeongPartyDraft = [];
+  let jaryeongPartySlot = 0;
+
+  function metaJaryeongState() {
+    metaProgress.jaryeongMeta = sanitizeJaryeongMetaState(metaProgress.jaryeongMeta);
+    return metaProgress.jaryeongMeta;
+  }
+
+  function restoreMetaFocus(selector) {
+    window.requestAnimationFrame(() => [...document.querySelectorAll(selector)].find((node) => node.offsetParent !== null)?.focus());
+  }
+
+  function renderPreparedParty(partyOverride = null) {
+    const prepared = getPreparedJaryeongParty(metaProgress.jaryeongMeta);
+    metaProgress.jaryeongMeta = prepared.state;
+    const hasSavedPartyOverride = Array.isArray(partyOverride);
+    const partyIds = hasSavedPartyOverride ? partyOverride.slice(0, 5) : prepared.partyIds;
+    const wrap = $("#meta-prep-party");
+    if (wrap) wrap.innerHTML = partyIds.map((id, index) => {
+      const jaryeong = getJaryeong(id);
+      return `<article class="meta-prep-slot ${jaryeong?.element || ""}"><small>${index === 0 ? "리더" : `${index + 1}`}</small><div>${tamedSpriteMarkup(jaryeong, { alt: `${jaryeong?.name || "자령"} 출전` })}</div><strong>${escapeHtml(jaryeong?.name || id)}</strong></article>`;
+    }).join("");
+    if ($("#prep-party-title")) $("#prep-party-title").textContent = hasSavedPartyOverride
+      ? partyIds.length ? `저장된 출전 자령 ${partyIds.length}명` : "저장 런 · 리더 선택 전"
+      : "출전 자령 5명";
+    const count = Object.keys(prepared.state.owned || {}).length;
+    if ($("#prep-owned-count")) $("#prep-owned-count").textContent = `${count}종`;
+  }
+
+  function setJaryeongMetaView(view) {
+    if (!["collection", "party", "summon"].includes(view)) return;
+    jaryeongMetaView = view;
+    const card = $("#jaryeong-meta-modal .jaryeong-meta-card");
+    if (card) card.dataset.metaView = view;
+    document.querySelectorAll("[data-jaryeong-meta-view]").forEach((button) => {
+      const active = button.dataset.jaryeongMetaView === view;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-selected", String(active));
+      button.tabIndex = active ? 0 : -1;
+    });
+    document.querySelectorAll(".meta-view-panel").forEach((panel) => { panel.hidden = panel.id !== `jaryeong-panel-${view}`; });
+    const titles = { collection: ["자령 도감", "보유 자령과 부적 조각을 확인합니다."], party: ["출전 편성", "런 전에 다섯 자령과 리더를 정합니다."], summon: ["부적 소환", "대상 조각을 모아 확정적으로 자령을 부릅니다."] };
+    $("#jaryeong-meta-title").textContent = titles[view][0];
+    $("#jaryeong-meta-summary").textContent = titles[view][1];
+    renderJaryeongMeta();
+  }
+
+  function renderJaryeongCollection() {
+    const meta = metaJaryeongState();
+    const rows = JARYEONG_LIBRARY.filter((jaryeong) => jaryeongMetaElement === "all" || jaryeong.element === jaryeongMetaElement);
+    if (!rows.some((entry) => entry.id === jaryeongMetaSelectedId)) jaryeongMetaSelectedId = rows[0]?.id || JARYEONG_LIBRARY[0]?.id;
+    $("#jaryeong-meta-grid").innerHTML = rows.map((jaryeong) => {
+      const owned = meta.owned[jaryeong.id];
+      const rarity = getJaryeongRarity(jaryeong.id) || "common";
+      const fragments = meta.fragments[jaryeong.id] || 0;
+      const threshold = getJaryeongSummonThreshold(jaryeong.id) || 0;
+      return `<button type="button" class="jaryeong-meta-tile ${jaryeong.element}${owned ? " owned" : " locked"}${jaryeong.id === jaryeongMetaSelectedId ? " selected" : ""}" data-meta-jaryeong="${jaryeong.id}"><div>${tamedSpriteMarkup(jaryeong, { alt: owned ? jaryeong.name : "미소환 자령" })}</div><strong>${owned ? escapeHtml(jaryeong.name) : "미소환"}</strong><small>${JARYEONG_RARITY_LABELS[rarity]} · ${owned ? `Lv.${owned.level}` : `조각 ${fragments}/${threshold}`}</small></button>`;
+    }).join("");
+    const selected = getJaryeong(jaryeongMetaSelectedId) || rows[0];
+    if (!selected) return;
+    const record = meta.owned[selected.id];
+    const rarity = getJaryeongRarity(selected.id) || "common";
+    const fragments = meta.fragments[selected.id] || 0;
+    const threshold = getJaryeongSummonThreshold(selected.id) || 0;
+    const targeted = meta.targetJaryeongId === selected.id;
+    const maxed = Boolean(record?.level >= 99 && record?.awakening >= 5);
+    $("#jaryeong-meta-detail").innerHTML = `<div class="meta-detail-art ${selected.element}">${tamedSpriteMarkup(selected, { alt: selected.name })}</div><p>${ELEMENTS.find((entry) => entry.id === selected.element)?.symbol || "靈"} · ${JARYEONG_RARITY_LABELS[rarity]}</p><h3>${escapeHtml(selected.name)}</h3><strong>${escapeHtml(selected.reading)} · ${escapeHtml(selected.meaning)}</strong><dl><div><dt>기술</dt><dd>${escapeHtml(selected.skillName)} · ${escapeHtml(selected.skillDesc)}</dd></div><div><dt>리더</dt><dd>${escapeHtml(selected.leaderSkill)}</dd></div></dl><div class="meta-fragment-meter"><span style="--fragment-progress:${Math.min(100, threshold ? fragments / threshold * 100 : 0)}%"></span><b>조각 ${fragments} / ${threshold}</b></div><small>${record ? `Lv.${record.level} · 각성 ${record.awakening}/5 · 성장 ${record.level >= 99 ? "MAX" : `${record.levelProgress}/100`}` : "조각을 완성하면 확정 소환"}</small><button class="text-button" data-meta-target="${selected.id}" type="button" ${maxed ? "disabled" : ""}>${maxed ? "완전 각성" : targeted ? "목표 조각 해제" : "목표 조각으로 지정"}</button>`;
+  }
+
+  function renderJaryeongParty() {
+    const meta = metaJaryeongState();
+    if (jaryeongPartyDraft.length !== 5) jaryeongPartyDraft = [...meta.equippedParty];
+    $("#jaryeong-party-slots").innerHTML = jaryeongPartyDraft.map((id, index) => {
+      const jaryeong = getJaryeong(id);
+      return `<button type="button" class="jaryeong-party-slot ${jaryeong?.element || ""}${index === jaryeongPartySlot ? " selected" : ""}" data-party-slot="${index}"><small>${index === 0 ? "리더" : `슬롯 ${index + 1}`}</small><div>${tamedSpriteMarkup(jaryeong, { alt: jaryeong?.name || "자령" })}</div><strong>${escapeHtml(jaryeong?.name || id)}</strong><em>${index === 0 ? escapeHtml(jaryeong?.leaderSkill || "") : escapeHtml(jaryeong?.skillName || "")}</em></button>`;
+    }).join("");
+    $("#jaryeong-party-pool").innerHTML = Object.keys(meta.owned).map((id) => {
+      const jaryeong = getJaryeong(id);
+      if (!jaryeong) return "";
+      const inParty = jaryeongPartyDraft.includes(id);
+      return `<button type="button" class="party-pool-card ${jaryeong.element}${inParty ? " equipped" : ""}" data-party-jaryeong="${id}"><div>${tamedSpriteMarkup(jaryeong, { alt: jaryeong.name })}</div><span><strong>${escapeHtml(jaryeong.name)}</strong><small>Lv.${meta.owned[id].level} · ${escapeHtml(jaryeong.skillName)}</small></span></button>`;
+    }).join("");
+    $("#jaryeong-party-status").textContent = `편성 ${jaryeongPartyDraft.length} / 5 · 첫 슬롯 리더`;
+  }
+
+  function renderJaryeongSummon() {
+    const meta = metaJaryeongState();
+    const selected = getJaryeong(jaryeongMetaSelectedId) || JARYEONG_LIBRARY[0];
+    if (!selected) return;
+    const rarity = getJaryeongRarity(selected.id) || "common";
+    const threshold = getJaryeongSummonThreshold(selected.id) || 0;
+    const fragments = meta.fragments[selected.id] || 0;
+    const owned = meta.owned[selected.id];
+    const maxed = Boolean(owned?.level >= 99 && owned?.awakening >= 5);
+    const ready = fragments >= threshold && !maxed;
+    const target = meta.targetJaryeongId === selected.id;
+    const pity = meta.targetFragmentMisses || 0;
+    $("#jaryeong-summon-ritual").innerHTML = `<div class="summon-seal ${selected.element}"><i></i><div>${tamedSpriteMarkup(selected, { alt: selected.name })}</div></div><p>${JARYEONG_RARITY_LABELS[rarity]} · ${ELEMENTS.find((entry) => entry.id === selected.element)?.label || "자령"}</p><h3>${escapeHtml(selected.name)} 부적 ${owned ? "공명" : "완성"}</h3><div class="summon-meter"><span style="--fragment-progress:${Math.min(100, threshold ? fragments / threshold * 100 : 0)}%"></span><b>${fragments} / ${threshold}</b></div><small>${maxed ? "레벨과 각성이 모두 최대입니다." : target ? `목표 지정 · 천장 ${pity}/${TARGET_FRAGMENT_PITY_MISSES}` : "목표를 지정하면 희귀 보상 천장이 누적됩니다."}</small><div class="summon-actions"><button type="button" class="text-button" data-meta-target="${selected.id}" ${maxed ? "disabled" : ""}>${maxed ? "목표 지정 불가" : target ? "목표 조각 해제" : "목표 조각 지정"}</button><button id="jaryeong-summon-button" type="button" class="primary-button" data-summon-jaryeong="${selected.id}" ${ready ? "" : "disabled"}>${maxed ? "완전 각성" : owned ? "중복 공명" : "소환"} <span>符</span></button></div>`;
+    $("#jaryeong-summon-targets").innerHTML = JARYEONG_LIBRARY.map((jaryeong) => {
+      const amount = meta.fragments[jaryeong.id] || 0;
+      const needed = getJaryeongSummonThreshold(jaryeong.id) || 0;
+      return `<button type="button" class="summon-target ${jaryeong.element}${jaryeong.id === selected.id ? " selected" : ""}" data-summon-target="${jaryeong.id}"><div>${tamedSpriteMarkup(jaryeong, { alt: jaryeong.name })}</div><span><strong>${escapeHtml(jaryeong.name)}</strong><small>${amount} / ${needed}</small></span></button>`;
+    }).join("");
+  }
+
+  function renderJaryeongMeta() {
+    renderPreparedParty();
+    if (jaryeongMetaView === "collection") renderJaryeongCollection();
+    else if (jaryeongMetaView === "party") renderJaryeongParty();
+    else renderJaryeongSummon();
+  }
+
+  function openJaryeongMeta(view = "collection") {
+    const meta = metaJaryeongState();
+    jaryeongPartyDraft = [...meta.equippedParty];
+    jaryeongMetaSelectedId = meta.targetJaryeongId || meta.equippedParty[0] || JARYEONG_LIBRARY[0]?.id;
+    setJaryeongMetaView(view);
+    const modal = $("#jaryeong-meta-modal");
+    modal.inert = false;
+    modal.classList.add("open");
+  }
+
+  function closeJaryeongMeta() {
+    $("#jaryeong-summon-result-modal").classList.remove("open");
+    $("#jaryeong-meta-modal").classList.remove("open");
+    const savedRun = $("#roguelike-intro-modal")?.classList.contains("open") ? readActiveRunSave() : null;
+    renderPreparedParty(savedRun?.run?.partyJaryeongIds || null);
+  }
+
+  function choosePartyJaryeong(id) {
+    const existingIndex = jaryeongPartyDraft.indexOf(id);
+    if (existingIndex === jaryeongPartySlot) return;
+    if (existingIndex >= 0) {
+      const previous = jaryeongPartyDraft[jaryeongPartySlot];
+      jaryeongPartyDraft[jaryeongPartySlot] = id;
+      jaryeongPartyDraft[existingIndex] = previous;
+    } else {
+      jaryeongPartyDraft[jaryeongPartySlot] = id;
+    }
+    jaryeongPartySlot = Math.min(4, jaryeongPartySlot + 1);
+    renderJaryeongParty();
+    restoreMetaFocus(`[data-party-slot="${jaryeongPartySlot}"]`);
+    audioDirector.playSfx("ui-confirm");
+  }
+
+  function saveJaryeongParty() {
+    const result = setEquippedJaryeongParty(metaProgress.jaryeongMeta, jaryeongPartyDraft);
+    if (!result.ok) {
+      $("#jaryeong-party-status").textContent = "서로 다른 보유 자령 5종이 필요합니다.";
+      return;
+    }
+    metaProgress.jaryeongMeta = result.state;
+    saveMetaProgress();
+    renderPreparedParty();
+    $("#jaryeong-party-status").textContent = "편성을 저장했습니다. 다음 런부터 적용됩니다.";
+    audioDirector.playSfx("reward");
+  }
+
+  function targetJaryeongFragments(id) {
+    const nextTargetId = metaProgress.jaryeongMeta?.targetJaryeongId === id ? null : id;
+    const result = setTargetJaryeong(metaProgress.jaryeongMeta, nextTargetId);
+    if (!result.ok) return;
+    metaProgress.jaryeongMeta = result.state;
+    saveMetaProgress();
+    jaryeongMetaSelectedId = id;
+    renderJaryeongMeta();
+    restoreMetaFocus(`[data-meta-target="${id}"]`);
+    audioDirector.playSfx("ui-confirm");
+  }
+
+  function summonSelectedJaryeong(id) {
+    const jaryeong = getJaryeong(id);
+    const result = summonJaryeong(metaProgress.jaryeongMeta, id);
+    if (!result.ok || !jaryeong) return;
+    metaProgress.jaryeongMeta = result.state;
+    rememberMeta("seenJaryeongs", id);
+    saveMetaProgress();
+    $("#summon-result-art").className = `summon-result-art ${jaryeong.element}`;
+    $("#summon-result-art").innerHTML = tamedSpriteMarkup(jaryeong, { alt: `${jaryeong.name} 소환 결과` });
+    $("#summon-result-title").textContent = result.kind === "unlock" ? `${jaryeong.name} 획득` : `${jaryeong.name} 공명 강화`;
+    $("#summon-result-copy").textContent = result.kind === "unlock"
+      ? `${JARYEONG_RARITY_LABELS[result.rarity]} · ${jaryeong.reading} · ${jaryeong.skillName}`
+      : `각성 ${result.record.awakening}/5 · 레벨 ${result.record.level} · 성장 ${result.record.level >= 99 ? "MAX" : `${result.record.levelProgress}/100`} · ${jaryeong.skillName}`;
+    renderJaryeongMeta();
+    $("#jaryeong-summon-result-modal").classList.add("open");
+    audioDirector.playSfx("victory");
+  }
+
   function roguelikeDraftPool() {
     return ACTIVE_IDIOMS.filter((idiom) => !state.run?.idiomBookIds.includes(idiom.id));
   }
@@ -3696,8 +4552,8 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     const run = state.run;
     if (!run) return;
     const choices = run.draftChoices || [];
-    $("#roguelike-draft-title").textContent = `${run.draftStep + 1}번째 고정 성어를 고르세요`;
-    $("#roguelike-draft-copy").textContent = "직접 고른 세 성어는 전투 내내 유지됩니다. 전투에서는 별도의 순환 성어 세 개가 추가됩니다.";
+    $("#roguelike-draft-title").textContent = "시작 고정 성어를 고르세요";
+    $("#roguelike-draft-copy").textContent = "직접 고른 한 성어는 전투 내내 유지됩니다. 전투에서는 별도의 순환 성어 세 개가 추가됩니다.";
     $("#roguelike-draft-progress").textContent = `${run.idiomBookIds.length} / ${INITIAL_IDIOM_DRAFT_COUNT} 고정 성어 선택 · 순환 성어 3개 별도`;
     $("#roguelike-draft-cards").innerHTML = choices.map((idiom) => `<button type="button" class="roguelike-choice" data-roguelike-idiom="${idiom.id}">
       <span class="roguelike-choice-glyphs">${idiom.chars.map((char) => `<b title="${char} · ${HANJA_READINGS[char]}">${char}</b>`).join("")}</span>
@@ -3763,6 +4619,7 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
         volume: CHARACTER_VOLUMES[state.run.characterVolumeIndex],
         idioms: activeIdioms,
         jaryeongs: getPartyJaryeongs(),
+        fallbackCharacters: CHARACTER_POOL,
         rng: state.run.rng,
         targetSize: 125
       });
@@ -3781,6 +4638,10 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     const run = state.run;
     const tier = currentRouteTier();
     if (!run || !tier) return;
+    if (run.act && run.act !== tier.act) {
+      metaProgress.jaryeongMeta = resetTargetFragmentPity(metaProgress.jaryeongMeta);
+      saveMetaProgress();
+    }
     run.act = tier.act;
     $("#route-title").textContent = `제${tier.act}막 · ${tier.depth}번째 갈림길`;
     $("#route-copy").textContent = tier.depth === 5 ? "이 장의 수호자가 기다립니다. 지금까지 만든 빌드를 확인하세요." : "다음 두 수 앞을 보고 지금 필요한 길을 고르세요.";
@@ -3799,9 +4660,28 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     if (!state.run || state.run.completed) return;
     renderRoute();
     $("#roguelike-route-modal").classList.add("open");
-    const tier = currentRouteTier();
-    if (tier) void audioDirector.playBgm(`act-${tier.act}`);
+    playRoguelikeBgm();
     saveActiveRun();
+  }
+
+  function currentRoguelikeBgmTarget() {
+    const run = state.run;
+    if (!run) return null;
+    const tier = currentRouteTier();
+    const node = tier?.choices.find((candidate) => candidate.id === run.currentNodeId);
+    const fightingBoss = Boolean(run.currentEncounterId && node?.type === "boss");
+    const zone = fightingBoss ? (run.act === 3 ? "final-boss" : "boss") : `act-${run.act || tier?.act || 1}`;
+    const rotationStep = fightingBoss ? (run.currentNodeId || run.battleIndex || 0) : Math.floor((run.combatsWon || 0) / 2);
+    return { zone, rotationKey: `${run.seed}:${zone}:${rotationStep}` };
+  }
+
+  function playRoguelikeBgm({ immediate = false } = {}) {
+    const run = state.run;
+    const target = currentRoguelikeBgmTarget();
+    if (!run || !target) return;
+    const forceRotate = run.currentBgmRotationKey !== target.rotationKey;
+    run.currentBgmRotationKey = target.rotationKey;
+    void audioDirector.playBgm(target.zone, { immediate, rotationKey: target.rotationKey, forceRotate });
   }
 
   function chooseRoguelikeNode(id) {
@@ -3854,6 +4734,17 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     state.lastActivatedIdiomId = null;
     state.lastTurnElementDamage = {};
     state.lastMatchGroupSizes = [];
+    state.lastPlayerHealing = 0;
+    state.healingFieldTurns = 0;
+    state.healingFieldAmount = 0;
+    state.phoenixRebirthReady = 0;
+    state.damageSplitHits = 0;
+    state.damageSplitRatio = 0;
+    state.deferredDamage = 0;
+    state.deferredDamageTicks = 0;
+    state.boundEnemyIntentTurns = 0;
+    state.combatObjective = null;
+    state.rareEncounter = null;
     resetTurnTotals();
     state.turn = 1;
     state.queue = [];
@@ -3864,10 +4755,67 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     }
   }
 
+  function setupRareEncounter(node, enemy) {
+    const run = state.run;
+    if (!run || !node || !enemy) return null;
+    // Keep the very first combat as the readable onboarding fight. The next
+    // normal battle remains the first rare candidate and receives the 35%
+    // early-window correction.
+    if ((run.combatsWon || 0) === 0) return null;
+    const candidatesSeen = Math.max(0, Number(run.rareCandidatesSeen) || 0);
+    const decision = rollRareEncounter({
+      node,
+      runSeed: run.seed,
+      act: run.act,
+      nodeId: node.id,
+      battleIndex: run.battleIndex,
+      candidateIndex: candidatesSeen,
+      candidatesSeen,
+      rareEncounterSeen: run.rareEncounterSeen,
+      elapsedMs: Date.now() - (run.startedAt || Date.now())
+    });
+    if (decision.eligible) run.rareCandidatesSeen = candidatesSeen + 1;
+    if (!decision.appears) return null;
+
+    run.rareEncounterSeen = true;
+    const gimmickRoll = deterministicRareRoll({
+      runSeed: `${run.seed}|rare-gimmick`,
+      act: run.act,
+      nodeId: node.id,
+      battleIndex: run.battleIndex,
+      candidateIndex: candidatesSeen + 97
+    });
+    const gimmicks = Object.values(RARE_GIMMICKS);
+    const gimmick = gimmicks[Math.min(gimmicks.length - 1, Math.floor(gimmickRoll * gimmicks.length))];
+    const idiomIds = getCurrentIdioms().map((idiom) => idiom.id);
+    const weaknessRoll = deterministicRareRoll({
+      runSeed: `${run.seed}|rare-weakness`, act: run.act, nodeId: node.id,
+      battleIndex: run.battleIndex, candidateIndex: candidatesSeen + 193
+    });
+    const weaknessIdiomId = idiomIds.length ? idiomIds[Math.min(idiomIds.length - 1, Math.floor(weaknessRoll * idiomIds.length))] : null;
+    const rare = createRareEncounterState({
+      encounterId: enemy.id,
+      gimmick,
+      maxHp: enemy.hp,
+      escapeTurns: run.act >= 3 ? 3 : 4,
+      shield: Math.round(enemy.hp * (run.act >= 3 ? .42 : .34)),
+      weaknessIdiomId,
+      weaknessMultiplier: 1.5
+    });
+    rare.enemyHp = state.enemyHp;
+    rare.spawnReason = decision.reason;
+    rare.spawnChance = decision.chance;
+    state.rareEncounter = rare;
+    if (gimmick === RARE_GIMMICKS.TALISMAN_SHIELD) state.enemyShield = rare.talismanShield;
+    addLog(`<strong>희귀 자령 출현</strong> · ${rare.escapeCountdown}턴 후 도주 · ${rareGimmickLabel(rare)} · 놓쳐도 행로는 계속됩니다.`, "enemy");
+    return rare;
+  }
+
   function startRoguelikeBattle() {
     if (!state.run) return;
     state.wave = state.run.combatsWon;
     state.run.battleIndex = state.run.combatsWon;
+    resetEncounterState();
     const enemy = currentEnemy();
     state.run.encounteredJaryeongIds = [...new Set([...(state.run.encounteredJaryeongIds || []), enemy.jaryeongId])];
     rememberMeta("seenJaryeongs", enemy.jaryeongId);
@@ -3879,19 +4827,19 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     const openingDamage = (state.run.pendingFlags?.openingDamage || 0) + (consumedStoneBreak ? 24 : 0);
     const eliteDanger = isElite ? state.run.pendingFlags?.eliteDanger?.ratio || 0 : 0;
     state.enemyHp = Math.max(1, enemy.hp - openingDamage);
-    resetEncounterState();
     state.enemyDamageMultiplier = 1 + eliteDanger;
     if (isElite && state.run.pendingFlags?.eliteDanger) delete state.run.pendingFlags.eliteDanger;
     refreshRotatingIdioms({ force: true });
     state.board = createBoard();
     state.shield = Math.min(Math.round(state.run.maxHp * RUN_LIMITS.maxShieldRatio), state.shield + (state.run.startShield || 0));
+    setupRareEncounter(currentNode, enemy);
+    state.combatObjective = chooseCombatObjective(enemy);
+    recordCombatObjectiveEvent({ type: COMBAT_OBJECTIVE_EVENT.BATTLE_STARTED, shield: state.shield });
     resetEnemyPlan();
     addLog(`<strong>고정</strong> ${getFixedIdioms().map((idiom) => idiom.name).join(" · ")} / <strong>순환</strong> ${getRotatingIdioms().map((idiom) => idiom.name).join(" · ")} · 순환식은 ${state.idiomRecipeInterval}턴 후 교체`, "start");
     if (openingDamage) addLog(`<strong>선제 부적</strong> · 전투 시작 피해 ${openingDamage}`, "alchemy");
     if (eliteDanger) addLog(`<strong>봉인된 우물의 대가</strong> · 이번 정예의 공격 피해 +${Math.round(eliteDanger * 100)}%`, "enemy");
-    if (currentRouteTier()?.choices.find((node) => node.id === state.run.currentNodeId)?.type === "boss") {
-      void audioDirector.playBgm(state.run.act === 3 ? "final-boss" : "boss");
-    }
+    playRoguelikeBgm();
     updateAll();
   }
 
@@ -3928,6 +4876,7 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
       volume: CHARACTER_VOLUMES[run.characterVolumeIndex],
       idioms: run.idiomBookIds.map((id) => ALL_IDIOMS.find((candidate) => candidate.id === id)).filter(Boolean),
       jaryeongs: getPartyJaryeongs(),
+      fallbackCharacters: CHARACTER_POOL,
       rng: run.rng,
       targetSize: 125
     });
@@ -3966,7 +4915,7 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
           break;
         }
         case "removeIdiom": {
-          if (run.idiomBookIds.length > 3) {
+          if (run.idiomBookIds.length > RUN_LIMITS.initialIdiomCount) {
             const removed = run.idiomBookIds.at(-1);
             run.idiomBookIds = run.idiomBookIds.filter((id) => id !== removed);
             run.activeIdiomIds = run.activeIdiomIds.filter((id) => id !== removed);
@@ -4045,8 +4994,11 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     $("#node-title").textContent = title;
     $("#node-copy").textContent = description;
     $("#node-choices").innerHTML = nodeChoices(node).map((choice) => {
-      const disabled = choice.cost && state.run.ink < choice.cost;
-      return `<button type="button" data-node-choice="${choice.id}" ${disabled ? "disabled" : ""}><span>${choice.label}</span>${choice.cost ? `<b>먹 ${choice.cost}${disabled ? " · 부족" : ""}</b>` : "<b>선택 →</b>"}</button>`;
+      const lacksInk = choice.cost && state.run.ink < choice.cost;
+      const lacksIdioms = choice.minIdioms && state.run.idiomBookIds.length < choice.minIdioms;
+      const disabled = lacksInk || lacksIdioms;
+      const reason = lacksIdioms ? `성어 ${choice.minIdioms}개 필요` : lacksInk ? "먹 부족" : "선택 →";
+      return `<button type="button" data-node-choice="${choice.id}" ${disabled ? "disabled" : ""}><span>${choice.label}</span>${choice.cost ? `<b>먹 ${choice.cost}${lacksInk ? " · 부족" : ""}</b>` : `<b>${reason}</b>`}</button>`;
     }).join("");
     $("#roguelike-node-modal").classList.add("open");
     saveActiveRun();
@@ -4071,7 +5023,7 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     const node = tier?.choices.find((candidate) => candidate.id === state.run?.currentNodeId);
     if (!node) return;
     const choice = nodeChoices(node).find((candidate) => candidate.id === id);
-    if (!choice || (choice.cost && state.run.ink < choice.cost)) return;
+    if (!choice || (choice.cost && state.run.ink < choice.cost) || (choice.minIdioms && state.run.idiomBookIds.length < choice.minIdioms)) return;
     applyRunEffects(choice.effects || []);
     state.run.rewardHistory.push(`${node.type}:${choice.id}`);
     $("#roguelike-node-modal").classList.remove("open");
@@ -4083,7 +5035,27 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     const enemy = currentEnemy();
     const enemyJaryeong = getJaryeong(enemy?.jaryeongId);
     const run = state.run;
-    const jaryeongReward = { type: "jaryeong", ...enemyJaryeong };
+    const fragmentSource = enemy?.kind === "boss" ? "boss" : enemy?.kind === "elite" ? "elite" : enemy?.rare ? "rare" : "normal";
+    const fragmentAmount = getFragmentAwardAmount(fragmentSource) || 2;
+    const targetFragmentId = metaProgress.jaryeongMeta?.targetJaryeongId;
+    const pityGuaranteed = Boolean(targetFragmentId
+      && metaProgress.jaryeongMeta?.targetFragmentMisses >= TARGET_FRAGMENT_PITY_MISSES
+      && ["rare", "elite", "boss"].includes(fragmentSource));
+    const fragmentJaryeong = pityGuaranteed ? getJaryeong(targetFragmentId) || enemyJaryeong : enemyJaryeong;
+    const fragmentReward = fragmentJaryeong && fragmentSource !== "boss" ? {
+      id: `fragment:${fragmentJaryeong.id}:${fragmentSource}`,
+      type: "fragment",
+      jaryeongId: fragmentJaryeong.id,
+      requestedJaryeongId: enemyJaryeong?.id || fragmentJaryeong.id,
+      element: fragmentJaryeong.element,
+      glyph: fragmentJaryeong.hanja,
+      name: `${fragmentJaryeong.name} 부적 조각`,
+      rarity: pityGuaranteed ? "목표 천장 확정" : fragmentSource === "boss" ? "보스 확정" : fragmentSource === "elite" ? "정예 보상" : fragmentSource === "rare" ? "희귀 보상" : "전투 보상",
+      desc: `${fragmentJaryeong.hanja}령 소환·각성에 쓰는 조각 ${fragmentAmount}개${pityGuaranteed ? " · 목표 자령 보장" : ""}`,
+      fragmentSource,
+      fragmentAmount,
+      pityGuaranteed
+    } : null;
     const idiomPool = ALL_IDIOMS.filter((idiom) => !run.idiomBookIds.includes(idiom.id));
     const idiom = randomOf(idiomPool);
     const idiomReward = idiom ? { type: "idiom", ...idiom } : {
@@ -4099,7 +5071,7 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     if (state.playerHp / run.maxHp < .35 && randomValue() < .55) utility = { id: "warm-ink-recovery", type: "heal", name: "따뜻한 먹", glyph: "墨", rarity: "회복", desc: "체력 28 회복 · 보호막 8", effects: [{ type: "heal", amount: 28 }, { type: "shield", amount: 8 }] };
     else if (utility) utility = { ...utility, type: "relic" };
     else utility = { id: "quiet-ink-recovery", type: "heal", name: "고요한 먹", glyph: "墨", rarity: "회복", desc: "체력 20 회복 · 먹 4", effects: [{ type: "heal", amount: 20 }, { type: "gainInk", amount: 4 }] };
-    const rewards = [jaryeongReward, idiomReward, utility].filter(Boolean);
+    const rewards = [fragmentReward, idiomReward, utility].filter(Boolean);
     const preview = getRunRelicEffect("rewardPreview");
     if (preview) {
       const extraPool = relicPool.filter((relic) => !rewards.some((reward) => reward.id === relic.id));
@@ -4114,17 +5086,29 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     const run = state.run;
     if (!run) return;
     const enemy = currentEnemy();
-    $("#roguelike-reward-copy").textContent = `${run.combatsWon}번째 전투 보상 · ${enemy?.name || "야생 자령"} 계약, 성어, 유물·회복 중 하나를 선택하세요.`;
+    $("#roguelike-reward-copy").textContent = enemy?.kind === "boss"
+      ? `${run.combatsWon}번째 전투 보상 · 보스 조각은 이미 획득했습니다. 성어, 유물·회복 중 하나를 선택하세요.`
+      : `${run.combatsWon}번째 전투 보상 · ${enemy?.name || "야생 자령"} 부적 조각, 성어, 유물·회복 중 하나를 선택하세요.`;
     const rewardCards = $("#roguelike-reward-cards");
     rewardCards.classList.toggle("has-four", run.rewardChoices.length >= 4);
     rewardCards.innerHTML = run.rewardChoices.map((reward) => {
+      if (reward.type === "fragment") {
+        const current = metaProgress.jaryeongMeta?.fragments?.[reward.jaryeongId] || 0;
+        return `<button type="button" class="roguelike-choice reward-choice jaryeong-reward-choice" data-roguelike-reward="${escapeHtml(reward.id)}">
+          <span class="jaryeong-choice-glyph ${reward.element}">${escapeHtml(reward.glyph || "符")}</span>
+          <span class="roguelike-choice-meta"><em>${escapeHtml(reward.rarity)}</em><strong>${escapeHtml(reward.name)}</strong><small>현재 ${current}개 · 획득 +${reward.fragmentAmount}</small></span>
+          <span class="roguelike-choice-desc"><b>부적 소환 재료</b><br />${escapeHtml(reward.desc)}<br /><small>런이 끝나도 영구 보존됩니다.</small></span>
+        </button>`;
+      }
       if (reward.type === "jaryeong") {
         const owned = run.partyJaryeongIds.includes(reward.id);
         const level = run.jaryeongLevels[reward.id] || 0;
+        const procEffect = ELEMENT_PROC_RULES[reward.element].effect;
+        const procReward = owned ? `${procEffect} 발동률 +1%p` : `${procEffect} 발동률 +3%p`;
         return `<button type="button" class="roguelike-choice reward-choice jaryeong-reward-choice" data-roguelike-reward="${reward.id}">
           <span class="jaryeong-choice-glyph sprite-choice ${reward.element}"><img class="sprite-body" src="${reward.asset?.idle || ""}" alt="${reward.name} · 아직 부적 없는 야생 자령" /></span>
           <span class="roguelike-choice-meta"><em>${ELEMENT_RULES[reward.element].label} · ${owned ? `중복 강화 Lv.${level + 1}` : "부적 계약 후보"}</em><strong>${reward.name}</strong><small>${reward.hanja} · ${reward.reading} · 공격 ${reward.attack}</small></span>
-          <span class="roguelike-choice-desc"><b>${reward.skillName}</b><br />${reward.skillDesc}<br /><small>${reward.personality}</small></span>
+          <span class="roguelike-choice-desc"><b>${reward.skillName}</b><br />${reward.skillDesc}<br /><strong>${procReward}</strong><br /><small>${reward.personality}</small></span>
         </button>`;
       }
       if (reward.type === "idiom" || reward.type === "idiom-upgrade") {
@@ -4175,8 +5159,8 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     const run = state.run;
     const candidate = getJaryeong(run?.pendingContractJaryeongId);
     if (!run || !candidate) return;
-    $("#contract-title").textContent = `${candidate.name} 부적 계약`;
-    $("#contract-copy").textContent = "팀이 가득 차 새 자령을 바로 편성할 수 없습니다. 기존 자령과 교체하거나, 중복 강화·부적 조각으로 바꾸세요.";
+    $("#contract-title").textContent = `이전 저장 · ${candidate.name} 보상`;
+    $("#contract-copy").textContent = `이전 버전의 미완료 보상입니다. 교체하면 ${ELEMENT_PROC_RULES[candidate.element].effect} 발동률 +3%p, 중복 강화는 기존 자령의 발동률 +1%p를 얻습니다. 신규 런에서는 부적 조각으로 대체됩니다.`;
     $("#contract-candidate").innerHTML = `<span class="jaryeong-choice-glyph ${candidate.element}">${candidate.hanja}</span><span class="contract-candidate-copy"><strong>${candidate.name} · ${candidate.hanja}</strong><small>${candidate.reading} · ${candidate.skillName}<br />${candidate.skillDesc}</small></span>`;
     $("#contract-party-options").innerHTML = run.partyJaryeongIds.map((id, index) => {
       const jaryeong = getJaryeong(id);
@@ -4210,10 +5194,12 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     const replacedId = run.partyJaryeongIds[slotIndex];
     run.partyJaryeongIds[slotIndex] = candidate.id;
     run.jaryeongLevels[candidate.id] = 1;
+    run.jaryeongAwakenings = run.jaryeongAwakenings || {};
+    run.jaryeongAwakenings[candidate.id] = metaProgress.jaryeongMeta?.owned?.[candidate.id]?.awakening || 0;
     run.skillCharges[candidate.id] = 0;
     run.rewardHistory.push(`contract-replace:${candidate.id}:${replacedId}`);
     rebuildRunCharacterPool();
-    addLog(`<strong>${candidate.name} 부적 계약</strong> · ${getJaryeong(replacedId)?.name || "기존 자령"}과 교체했습니다.`, "victory");
+    addLog(`<strong>${candidate.name} 부적 계약</strong> · ${getJaryeong(replacedId)?.name || "기존 자령"}과 교체 · ${ELEMENT_PROC_RULES[candidate.element].effect} 발동률 +3%p`, "victory");
     advanceAfterRoguelikeReward();
   }
 
@@ -4225,7 +5211,7 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     run.jaryeongLevels[targetId] = (run.jaryeongLevels[targetId] || 1) + 1;
     run.rewardHistory.push(`contract-duplicate:${candidate.id}:${targetId}`);
     rebuildRunCharacterPool();
-    addLog(`<strong>${candidate.name} 계약을 공명으로 전환</strong> · ${getJaryeong(targetId)?.name || "기존 자령"} Lv.${run.jaryeongLevels[targetId]}`, "victory");
+    addLog(`<strong>${candidate.name} 계약을 공명으로 전환</strong> · ${getJaryeong(targetId)?.name || "기존 자령"} Lv.${run.jaryeongLevels[targetId]} · 해당 속성 발동률 +1%p`, "victory");
     advanceAfterRoguelikeReward();
   }
 
@@ -4246,17 +5232,32 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     if (state.mode !== "roguelike" || !state.run?.pendingReward) return;
     const reward = state.run.rewardChoices.find((candidate) => candidate.id === id);
     if (!reward) return;
-    if (reward.type === "jaryeong") {
+    if (reward.type === "fragment") {
+      const result = awardTalismanFragments(metaProgress.jaryeongMeta, {
+        jaryeongId: reward.jaryeongId,
+        source: reward.fragmentSource
+      });
+      if (!result.ok) return;
+      metaProgress.jaryeongMeta = result.state;
+      const awardedJaryeong = getJaryeong(result.award.jaryeongId);
+      rememberMeta("seenJaryeongs", result.award.jaryeongId);
+      saveMetaProgress();
+      state.run.rewardHistory.push(`fragment:${result.award.jaryeongId}:${result.award.amount}`);
+      const pityNotice = result.award.guaranteedByPity ? " · 목표 자령 천장 발동" : "";
+      addLog(`<strong>${awardedJaryeong?.name || reward.name}</strong> 획득 · 영구 조각 +${result.award.amount} · 누적 ${result.award.total}${pityNotice}`, "victory");
+    } else if (reward.type === "jaryeong") {
       const existingIndex = state.run.partyJaryeongIds.indexOf(id);
       if (existingIndex >= 0) {
         state.run.jaryeongLevels[id] = (state.run.jaryeongLevels[id] || 1) + 1;
-        addLog(`<strong>${reward.hanja}령 중복 획득</strong> · 이번 런 공격력이 강화되었습니다.`, "victory");
+        addLog(`<strong>${reward.hanja}령 중복 획득</strong> · 공격력 강화 · ${ELEMENT_PROC_RULES[reward.element].effect} 발동률 +1%p`, "victory");
       } else if (state.run.partyJaryeongIds.length < 5) {
         state.run.partyJaryeongIds.push(id);
         state.run.jaryeongLevels[id] = 1;
+        state.run.jaryeongAwakenings = state.run.jaryeongAwakenings || {};
+        state.run.jaryeongAwakenings[id] = metaProgress.jaryeongMeta?.owned?.[id]?.awakening || 0;
         state.run.skillCharges[id] = 0;
         rememberMeta("seenJaryeongs", id);
-        addLog(`<strong>${reward.name} 부적 계약</strong> · ${reward.hanja} · ${reward.skillName}`, "victory");
+        addLog(`<strong>${reward.name} 부적 계약</strong> · ${reward.hanja} · ${reward.skillName} · ${ELEMENT_PROC_RULES[reward.element].effect} 발동률 +3%p`, "victory");
       } else {
         state.run.pendingContractJaryeongId = reward.id;
         renderJaryeongContract();
@@ -4324,10 +5325,18 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     $("#roguelike-result-battles").textContent = state.run?.combatsWon || 0;
     $("#roguelike-result-combos").textContent = state.totalCombos;
     $("#roguelike-result-idioms").textContent = state.totalIdioms;
-    $("#roguelike-result-build").textContent = state.run ? `리더 ${getLeaderJaryeong()?.name || "-"} · ${getPartyJaryeongs().map((jaryeong) => jaryeong.name).join(" · ")} · 계약 ${state.run.rewardHistory.filter((entry) => entry.startsWith("jaryeong:") || entry.startsWith("contract-")).length}회 · 성어 ${state.run.idiomBookIds.map((id) => ALL_IDIOMS.find((idiom) => idiom.id === id)?.name).filter(Boolean).join(" · ")}` : "-";
+    const fragmentRewards = (state.run?.rewardHistory || []).filter((entry) => entry.startsWith("fragment:") || entry.startsWith("boss-fragment:") || entry.startsWith("objective-fragment:"));
+    const fragmentTotal = fragmentRewards.reduce((sum, entry) => sum + (Number(entry.split(":").at(-1)) || 0), 0);
+    const fragmentNames = [...new Set(fragmentRewards.map((entry) => getJaryeong(entry.split(":")[1])?.name).filter(Boolean))];
+    $("#roguelike-result-fragments").textContent = fragmentTotal;
+    $("#roguelike-result-build").textContent = state.run ? `리더 ${getLeaderJaryeong()?.name || "-"} · ${getPartyJaryeongs().map((jaryeong) => jaryeong.name).join(" · ")} · 희귀 진정 ${state.run.rareEncountersDefeated || 0} / 도주 ${state.run.rareEncountersEscaped || 0} · 부적 조각 ${fragmentTotal}개${fragmentNames.length ? ` (${fragmentNames.join(" · ")})` : ""} · 성어 ${state.run.idiomBookIds.map((id) => ALL_IDIOMS.find((idiom) => idiom.id === id)?.name).filter(Boolean).join(" · ")}` : "-";
+    $("#roguelike-result-party").innerHTML = getPartyJaryeongs().map((jaryeong, index) => `<span class="${jaryeong.element}"><small>${index === 0 ? "리더" : index + 1}</small>${tamedSpriteMarkup(jaryeong, { alt: jaryeong.name })}<b>${escapeHtml(jaryeong.name)}</b></span>`).join("");
     $("#roguelike-revive-result-button").hidden = !canRevive;
     const resultCard = $("#roguelike-result-modal .roguelike-result-card");
-    if (resultCard) resultCard.style.setProperty("--result-scene", `url("${won ? ASSET_MANIFEST.backgrounds.victory : ASSET_MANIFEST.backgrounds.defeat}")`);
+    if (resultCard) {
+      resultCard.dataset.outcome = won ? "victory" : "defeat";
+      resultCard.style.setProperty("--result-scene", `url("${won ? ASSET_MANIFEST.backgrounds.victory : ASSET_MANIFEST.backgrounds.defeat}")`);
+    }
     $("#roguelike-result-modal").classList.add("open");
     audioDirector.playSfx(won ? "victory" : "defeat");
     if (won) void audioDirector.playBgm("victory");
@@ -4335,20 +5344,79 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     else saveActiveRun({ allowGameOver: true });
   }
 
+  function grantCombatObjectiveVictoryReward(enemy) {
+    if (state.mode !== "roguelike" || !state.run || !state.combatObjective) return null;
+    recordCombatObjectiveEvent({
+      type: COMBAT_OBJECTIVE_EVENT.BATTLE_WON,
+      turn: state.turn,
+      shield: state.shield
+    });
+    const objective = state.combatObjective;
+    if (!isCombatObjectiveComplete(objective) || objective.rewardGranted) return null;
+    const reward = resolveCombatObjectiveReward(objective, { encounteredJaryeongId: enemy?.jaryeongId });
+    if (!reward) return null;
+    let receipt = null;
+    if (reward.kind === "ink") {
+      state.run.ink += reward.amount;
+      receipt = { kind: "ink", amount: reward.amount };
+      addLog(`<strong>작은 목표 보상</strong> · ${objective.title} · 먹 +${reward.amount}`, "victory");
+    } else if (reward.kind === "jaryeong-fragments" && reward.jaryeongId) {
+      const result = awardTalismanFragments(metaProgress.jaryeongMeta, {
+        jaryeongId: reward.jaryeongId,
+        source: "normal"
+      });
+      if (result.ok) {
+        metaProgress.jaryeongMeta = result.state;
+        rememberMeta("seenJaryeongs", result.award.jaryeongId);
+        saveMetaProgress();
+        receipt = { kind: "jaryeong-fragments", jaryeongId: result.award.jaryeongId, amount: result.award.amount };
+        state.run.rewardHistory.push(`objective-fragment:${result.award.jaryeongId}:${result.award.amount}`);
+        addLog(`<strong>작은 목표 보상</strong> · ${getJaryeong(result.award.jaryeongId)?.name || enemy?.name || "자령"} 부적 조각 +${result.award.amount}`, "victory");
+      }
+    }
+    if (!receipt) return null;
+    state.combatObjective = { ...state.combatObjective, rewardGranted: true, rewardReceipt: receipt };
+    state.run.rewardHistory.push(`objective:${objective.id}:${receipt.kind}:${receipt.amount}`);
+    renderCombatMission();
+    return receipt;
+  }
+
   async function nextWave() {
     const defeated = currentEnemy();
     addLog(`<strong>${defeated.name}</strong>의 기운을 진정시켰습니다.`, "victory");
     if (state.mode === "roguelike") {
+      grantCombatObjectiveVictoryReward(defeated);
+      if (state.rareEncounter?.status === "active") {
+        state.rareEncounter = {
+          ...state.rareEncounter,
+          status: "defeated",
+          enemyHp: 0,
+          outcome: { kind: "defeated", success: true, rewardEligible: true, runContinues: true, runEnded: false }
+        };
+        state.run.rareEncountersDefeated = (state.run.rareEncountersDefeated || 0) + 1;
+        state.run.rewardHistory.push(`rare-defeated:${defeated.jaryeongId || defeated.id}`);
+      }
       state.run.combatsWon++;
       state.run.battleIndex = state.run.combatsWon;
+      if (defeated.kind === "boss" && defeated.jaryeongId) {
+        const fragmentResult = awardTalismanFragments(metaProgress.jaryeongMeta, {
+          jaryeongId: defeated.jaryeongId,
+          source: "boss"
+        });
+        if (fragmentResult.ok) {
+          metaProgress.jaryeongMeta = fragmentResult.state;
+          const awardedJaryeong = getJaryeong(fragmentResult.award.jaryeongId);
+          rememberMeta("seenJaryeongs", fragmentResult.award.jaryeongId);
+          saveMetaProgress();
+          state.run.rewardHistory.push(`boss-fragment:${fragmentResult.award.jaryeongId}:${fragmentResult.award.amount}`);
+          addLog(`<strong>보스 부적 조각 확정</strong> · ${awardedJaryeong?.name || defeated.name} +${fragmentResult.award.amount} · 누적 ${fragmentResult.award.total}${fragmentResult.award.guaranteedByPity ? " · 목표 자령 천장 발동" : ""}`, "victory");
+        }
+      }
       await wait(400);
       const tier = currentRouteTier();
       const node = tier?.choices.find((candidate) => candidate.id === state.run.currentNodeId);
       if (node?.type === "boss" && node.act === 3) {
-        state.run.completedNodeIds.push(node.id);
-        state.run.routeIndex = state.run.route.length;
-        state.run.currentEncounterId = null;
-        finishRoguelikeRun(true);
+        completeCurrentRunNode();
       } else {
         openRoguelikeReward();
       }
@@ -4379,6 +5447,17 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
   }
 
   async function handleDefeat() {
+    if (state.phoenixRebirthReady > 0) {
+      const counterDamage = state.phoenixRebirthReady;
+      state.phoenixRebirthReady = 0;
+      state.playerHp = Math.max(1, Math.ceil(maxPlayerHp() * .35));
+      state.gameOver = false;
+      const dealt = applyTrueDamage(counterDamage, "봉염 귀환");
+      addLog(`<strong>봉염 귀환</strong> · 체력 ${state.playerHp}로 부활 · 반격 ${dealt}`, "fire");
+      updateAll();
+      if (state.enemyHp <= 0) await nextWave();
+      return;
+    }
     if (!state.reviveUsed) {
       state.gameOver = true;
       state.resolving = false;
@@ -4401,6 +5480,8 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     $("#result-combos").textContent = state.totalCombos;
     $("#result-idioms").textContent = state.totalIdioms;
     $("#revive-result-button").hidden = !canRevive;
+    const resultCard = $("#result-modal .result-card");
+    if (resultCard) resultCard.dataset.outcome = won ? "victory" : "defeat";
     $("#result-modal").classList.add("open");
   }
 
@@ -4412,6 +5493,7 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     entry.innerHTML = `<b>${glyphs[type] || "記"}</b><p>${html}</p>`;
     log.prepend(entry);
     while (log.children.length > 7) log.lastElementChild.remove();
+    syncCombatHud();
   }
 
   const REVIVE_TRACE = { char: "字", reading: "글자 자", hun: "글자", eum: "자", width: 720, height: 460 };
@@ -4740,7 +5822,9 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
       "settings-modal": closeSettings,
       "idiom-detail-modal": closeIdiomDetail,
       "debug-modal": closeDebug,
-      "codex-modal": closeCodex
+      "codex-modal": closeCodex,
+      "jaryeong-meta-modal": closeJaryeongMeta,
+      "jaryeong-summon-result-modal": () => $("#jaryeong-summon-result-modal").classList.remove("open")
     };
     const close = closers[dialog.id];
     if (!close) return false;
@@ -4757,6 +5841,7 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
   }
 
   function enterPuzzleMode() {
+    closeCombatHudPanels();
     closeGameOverlays();
     $("#main-menu").classList.remove("open");
     document.body.classList.remove("menu-mode", "pang-mode", "roguelike-mode");
@@ -4769,6 +5854,7 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
   }
 
   function enterPangMode() {
+    closeCombatHudPanels();
     closeGameOverlays();
     $("#main-menu").classList.remove("open");
     document.body.classList.remove("menu-mode", "puzzle-mode", "roguelike-mode");
@@ -4781,6 +5867,7 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
   }
 
   function enterRoguelikeMode() {
+    closeCombatHudPanels();
     closeGameOverlays();
     $("#main-menu").classList.remove("open");
     document.body.classList.remove("menu-mode", "puzzle-mode", "pang-mode");
@@ -4791,11 +5878,16 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     $("#mode-title").textContent = "연성행로";
     renderVolumeOptions();
     syncRunSaveControls();
+    const savedRun = readActiveRunSave();
+    renderPreparedParty(savedRun?.run?.partyJaryeongIds || null);
     updateRoguelikeHud();
+    $("#roguelike-intro-modal").classList.remove("help-context");
+    $("#roguelike-help-return").hidden = true;
     $("#roguelike-intro-modal").classList.add("open");
   }
 
   function returnToMenu() {
+    closeCombatHudPanels();
     saveActiveRun({ allowGameOver: state.gameOver && !state.run?.completed });
     clearInterval(state.timerId); clearInterval(state.pangTimerId);
     state.timerId = null; state.pangTimerId = null;
@@ -4808,6 +5900,8 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     document.body.classList.remove("puzzle-mode", "pang-mode", "roguelike-mode");
     document.body.classList.add("menu-mode");
     $("#main-menu").classList.add("open");
+    renderPreparedParty();
+    syncRunSaveControls();
     void audioDirector.playBgm("menu", { immediate: true });
   }
 
@@ -4854,6 +5948,10 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     $("#settings-button").addEventListener("click", openSettings);
     $("#menu-settings-button").addEventListener("click", openSettings);
     $("#settings-close").addEventListener("click", closeSettings);
+    $("#hud-party-button")?.addEventListener("click", toggleCombatParty);
+    document.querySelectorAll("[data-hud-drawer]").forEach((button) => button.addEventListener("click", () => setCombatHudDrawer(button.dataset.hudDrawer)));
+    $("#hud-drawer-close")?.addEventListener("click", () => setCombatHudDrawer(null));
+    $("#hud-help-dock-button")?.addEventListener("click", () => $("#help-button")?.click());
     $("#idiom-detail-close").addEventListener("click", closeIdiomDetail);
     const openIdiomFromCard = (event) => {
       const card = event.target.closest("[data-idiom-detail]");
@@ -4891,6 +5989,8 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     $("#debug-show-reward").addEventListener("click", debugShowReward);
     $("#debug-validate-data").addEventListener("click", debugValidateData);
     document.querySelectorAll("[data-reading-mode]").forEach((button) => button.addEventListener("click", () => setReadingMode(button.dataset.readingMode)));
+    document.querySelectorAll("[data-idiom-speed]").forEach((button) => button.addEventListener("click", () => setIdiomSpeed(button.dataset.idiomSpeed)));
+    document.querySelectorAll("[data-idiom-display]").forEach((button) => button.addEventListener("click", () => setIdiomDisplayMode(button.dataset.idiomDisplay)));
     $("#result-menu").addEventListener("click", returnToMenu);
     $("#pang-result-menu").addEventListener("click", returnToMenu);
     $("#roguelike-result-menu").addEventListener("click", returnToMenu);
@@ -4919,6 +6019,65 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     document.querySelectorAll("[data-codex-tab]").forEach((button) => button.addEventListener("click", () => selectCodexTab(button.dataset.codexTab)));
     $("#codex-search").addEventListener("input", renderCodex);
     $("#codex-volume").addEventListener("change", renderCodex);
+    $("#jaryeong-meta-button").addEventListener("click", () => openJaryeongMeta("collection"));
+    $("#prep-edit-party-button").addEventListener("click", () => openJaryeongMeta("party"));
+    $("#jaryeong-meta-close").addEventListener("click", closeJaryeongMeta);
+    document.querySelectorAll("[data-jaryeong-meta-view]").forEach((button) => button.addEventListener("click", () => setJaryeongMetaView(button.dataset.jaryeongMetaView)));
+    $("#jaryeong-meta-modal .jaryeong-meta-tabs").addEventListener("keydown", (event) => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+      const tabs = [...document.querySelectorAll("[data-jaryeong-meta-view]")];
+      const currentIndex = Math.max(0, tabs.indexOf(document.activeElement));
+      const nextIndex = event.key === 'Home' ? 0
+        : event.key === 'End' ? tabs.length - 1
+          : (currentIndex + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+      event.preventDefault();
+      setJaryeongMetaView(tabs[nextIndex].dataset.jaryeongMetaView);
+      tabs[nextIndex].focus();
+    });
+    $("#jaryeong-element-filters").addEventListener("click", (event) => {
+      const filter = event.target.closest("[data-meta-element]");
+      if (!filter) return;
+      jaryeongMetaElement = filter.dataset.metaElement;
+      document.querySelectorAll("[data-meta-element]").forEach((button) => button.classList.toggle("active", button === filter));
+      renderJaryeongCollection();
+    });
+    $("#jaryeong-meta-grid").addEventListener("click", (event) => {
+      const choice = event.target.closest("[data-meta-jaryeong]");
+      if (!choice) return;
+      jaryeongMetaSelectedId = choice.dataset.metaJaryeong;
+      renderJaryeongCollection();
+      restoreMetaFocus(`[data-meta-jaryeong="${jaryeongMetaSelectedId}"]`);
+    });
+    $("#jaryeong-meta-detail").addEventListener("click", (event) => {
+      const target = event.target.closest("[data-meta-target]");
+      if (target) targetJaryeongFragments(target.dataset.metaTarget);
+    });
+    $("#jaryeong-party-slots").addEventListener("click", (event) => {
+      const slot = event.target.closest("[data-party-slot]");
+      if (!slot) return;
+      jaryeongPartySlot = Number(slot.dataset.partySlot) || 0;
+      renderJaryeongParty();
+      restoreMetaFocus(`[data-party-slot="${jaryeongPartySlot}"]`);
+    });
+    $("#jaryeong-party-pool").addEventListener("click", (event) => {
+      const choice = event.target.closest("[data-party-jaryeong]");
+      if (choice) choosePartyJaryeong(choice.dataset.partyJaryeong);
+    });
+    $("#jaryeong-party-save").addEventListener("click", saveJaryeongParty);
+    $("#jaryeong-summon-targets").addEventListener("click", (event) => {
+      const choice = event.target.closest("[data-summon-target]");
+      if (!choice) return;
+      jaryeongMetaSelectedId = choice.dataset.summonTarget;
+      renderJaryeongSummon();
+      restoreMetaFocus(`[data-summon-target="${jaryeongMetaSelectedId}"]`);
+    });
+    $("#jaryeong-summon-ritual").addEventListener("click", (event) => {
+      const target = event.target.closest("[data-meta-target]");
+      const summon = event.target.closest("[data-summon-jaryeong]");
+      if (target) targetJaryeongFragments(target.dataset.metaTarget);
+      if (summon) summonSelectedJaryeong(summon.dataset.summonJaryeong);
+    });
+    $("#summon-result-close").addEventListener("click", () => $("#jaryeong-summon-result-modal").classList.remove("open"));
     $("#bgm-enabled").addEventListener("change", (event) => {
       audioDirector.setSettings({ bgmEnabled: event.target.checked });
       if (event.target.checked) void audioDirector.playBgm(state.mode === "roguelike" && state.run ? `act-${state.run.act || 1}` : "menu", { immediate: true });
@@ -4948,7 +6107,7 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
       const skill = event.target.closest("[data-jaryeong-skill]");
       if (skill) {
         event.stopPropagation();
-        useJaryeongSkill(skill.dataset.jaryeongSkill);
+        void useJaryeongSkill(skill.dataset.jaryeongSkill);
       }
     });
     $("#revive-canvas").addEventListener("pointerdown", beginTrace);
@@ -4959,13 +6118,27 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     $("#trace-submit").addEventListener("click", submitTrace);
     $("#help-button").addEventListener("click", () => {
       if (state.mode === "puzzle") $("#intro-modal").classList.add("open");
-      else if (state.mode === "roguelike") $("#roguelike-intro-modal").classList.add("open");
+      else if (state.mode === "roguelike") {
+        const modal = $("#roguelike-intro-modal");
+        const inBattle = Boolean(state.run?.currentEncounterId);
+        modal.classList.toggle("help-context", inBattle);
+        $("#roguelike-help-return").hidden = !inBattle;
+        modal.classList.add("open");
+        (inBattle ? $("#roguelike-help-return") : $("#roguelike-start-button"))?.focus({ preventScroll: true });
+      }
+    });
+    $("#roguelike-help-return").addEventListener("click", () => {
+      const modal = $("#roguelike-intro-modal");
+      modal.classList.remove("open", "help-context");
+      $("#roguelike-help-return").hidden = true;
+      $("#help-button")?.focus({ preventScroll: true });
+      audioDirector.playSfx("ui-cancel");
     });
     $("#reset-button").addEventListener("click", resetCurrentMode);
     $("#replay-button").addEventListener("click", () => { $("#result-modal").classList.remove("open"); resetGame(); });
     $("#pang-replay-button").addEventListener("click", () => { preparePangMode(); beginPangRun(); });
     $("#roguelike-replay-button").addEventListener("click", () => { $("#roguelike-result-modal").classList.remove("open"); beginRoguelikeRun(); });
-    ["settings-close", "idiom-detail-close", "debug-close", "codex-close", "puzzle-intro-menu", "pang-intro-menu", "roguelike-intro-menu"].forEach((id) => {
+    ["settings-close", "idiom-detail-close", "debug-close", "codex-close", "jaryeong-meta-close", "summon-result-close", "puzzle-intro-menu", "pang-intro-menu", "roguelike-intro-menu"].forEach((id) => {
       $(`#${id}`)?.addEventListener("click", () => audioDirector.playSfx("ui-cancel"));
     });
     initializeDialogAccessibility();
@@ -4976,10 +6149,13 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
   bindEvents();
   window.setInterval(tickIdleSprites, 720);
   loadReadingMode();
+  loadIdiomSpeed();
+  loadIdiomDisplayMode();
   syncAudioControls();
   syncRunSaveControls();
   renderVolumeOptions();
   renderMenuSpiritParade();
+  renderPreparedParty();
   resetGame();
   returnToMenu();
 })();

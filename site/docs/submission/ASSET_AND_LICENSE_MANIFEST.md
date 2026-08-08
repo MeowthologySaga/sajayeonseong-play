@@ -7,9 +7,9 @@
 
 | 구분 | 수량 | 런타임 경로 | 제작·처리 방식 |
 |---|---:|---|---|
-| 자령 애니메이션 | 15종 × 4프레임 | `assets/sprites/wild/jaryeongs/` | OpenAI 이미지 생성 → 마젠타 키 제거 → 프레임 분할·중심 정렬·가장자리 QC |
+| 자령 애니메이션 | 30종 × 4프레임 | `assets/sprites/wild/jaryeongs/` | OpenAI 이미지 생성 → 마젠타 키 제거 → 프레임 분할·중심 정렬·가장자리 QC |
 | 보스 애니메이션 | 3종 × 6프레임 | `assets/sprites/wild/bosses/` | OpenAI 이미지 생성 → 마젠타 키 제거 → 프레임 분할·중심 정렬·가장자리 QC |
-| 자령 한자 부적 | 15종 | `assets/ui/talismans/` | 브라우저별 글꼴 오차를 피하도록 안전영역 검증 후 PNG로 베이크 |
+| 자령 한자 부적 | 30종 | `assets/ui/talismans/` | 브라우저별 글꼴 오차를 피하도록 안전영역 검증 후 PNG로 베이크 |
 | 16:9 배경 | 6장 | `assets/backgrounds/` | OpenAI 이미지 생성, 메뉴·3막·승리·패배 장면용 |
 | BGM | 7곡 | `assets/audio/bgm/` | Suno instrumental 생성 → 게임용 정규화 |
 | 효과음 | 23개 | `assets/audio/sfx/` | Suno Sounds 후보 2개씩 비교 → 선택·트림·피크 정규화 |

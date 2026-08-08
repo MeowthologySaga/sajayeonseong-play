@@ -7,7 +7,7 @@ export const IMMEDIATE_RUN_EFFECT_TYPES = Object.freeze([
 ]);
 
 export const RUNTIME_RELIC_EFFECT_TYPES = Object.freeze([
-  "bossReflect", "burnEcho", "emergencyIdiom", "firstIdiomCharge", "firstWaterDelay",
+  "bossReflect", "burnEcho", "elementProcChance", "emergencyIdiom", "firstIdiomCharge",
   "guardedDamageReduction", "metalPierce", "overhealShield", "rainbowCharge", "refreshOldest",
   "rewardPreview", "roleChainDamage", "thirdIdiomDamage", "turnSevenDelay"
 ]);
@@ -32,11 +32,11 @@ export function validateRunEffectCoverage({ relics = [], events = [] } = {}) {
   };
 }
 
-export function findRunRelicEffect(relics = [], relicIds = [], type = "") {
+export function findRunRelicEffect(relics = [], relicIds = [], type = "", predicate = null) {
   const owned = new Set(relicIds || []);
   for (const relic of relics || []) {
     if (!owned.has(relic.id)) continue;
-    const effect = (relic.effects || []).find((candidate) => candidate.type === type);
+    const effect = (relic.effects || []).find((candidate) => candidate.type === type && (!predicate || predicate(candidate, relic)));
     if (effect) return { ...effect, relicId: relic.id, relicName: relic.name };
   }
   return null;

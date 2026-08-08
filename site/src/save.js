@@ -26,7 +26,7 @@ export function describeRunSaveStage(payload) {
   if (run.pendingContractJaryeongId) return { id: "contract", label: "자령 계약 선택" };
   if (run.pendingReward) return { id: "reward", label: "전투 보상 선택" };
   if (!run.leaderJaryeongId) return { id: "leader", label: "리더 선택" };
-  if ((run.idiomBookIds?.length || 0) < 3) return { id: "draft", label: "시작 성어 선택" };
+  if ((run.idiomBookIds?.length || 0) < RUN_LIMITS.initialIdiomCount) return { id: "draft", label: "시작 성어 선택" };
   if (run.currentEncounterId) {
     return { id: "battle", label: `${node?.label || "전투"} · ${Math.max(1, Number(battle.turn) || 1)}턴` };
   }
@@ -63,6 +63,21 @@ export function validateRunSave(payload, now = Date.now()) {
     if (!Array.isArray(battle.queue) || battle.queue.length > RUN_LIMITS.maxQueueMax) errors.push("문자 큐 범위 오류");
     if (battle.board?.length && (battle.board.length !== 5 || battle.board.some((row) => !Array.isArray(row) || row.length !== 6))) errors.push("보드 크기 오류");
     if (!Array.isArray(battle.lockedTiles) || !Array.isArray(battle.freshQueueIds) || !Array.isArray(battle.usedStageIdiomIds) || !Array.isArray(battle.usedRotatingIdiomIds)) errors.push("Set/Map 복원 데이터 오류");
+    if (battle.combatObjective != null && (
+      typeof battle.combatObjective !== "object"
+      || Array.isArray(battle.combatObjective)
+      || !Number.isInteger(battle.combatObjective.version)
+      || typeof battle.combatObjective.type !== "string"
+      || !["active", "completed", "failed"].includes(battle.combatObjective.status)
+    )) errors.push("전투 목표 상태 오류");
+    if (battle.rareEncounter != null && (
+      typeof battle.rareEncounter !== "object"
+      || Array.isArray(battle.rareEncounter)
+      || !Number.isInteger(battle.rareEncounter.version)
+      || typeof battle.rareEncounter.gimmick !== "string"
+      || !["active", "defeated", "escaped"].includes(battle.rareEncounter.status)
+      || !isFiniteNumber(battle.rareEncounter.escapeCountdown)
+    )) errors.push("희귀 조우 상태 오류");
   }
   return { ok: errors.length === 0, errors };
 }

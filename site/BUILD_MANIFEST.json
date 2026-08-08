@@ -7,13 +7,13 @@
     "hanja": 1135,
     "hunEum": 1135,
     "idioms": 75,
-    "jaryeongs": 15,
-    "encounters": 15,
+    "jaryeongs": 30,
+    "encounters": 30,
     "relics": 18,
     "events": 12
   },
   "qa": {
-    "automatedTests": 29,
+    "automatedTests": 98,
     "simulatedSeeds": 10000,
     "targetRunMinutes": [
       18,
@@ -24,8 +24,8 @@
     "https://fonts.googleapis.com (font stylesheet; system font fallback remains playable)",
     "https://fonts.gstatic.com (font files; system font fallback remains playable)"
   ],
-  "fileCount": 147,
-  "totalBytes": 37216791,
+  "fileCount": 229,
+  "totalBytes": 41944491,
   "files": [
     {
       "path": "assets/audio/bgm/act1-mistwood-loop.mp3",
@@ -318,6 +318,26 @@
       "sha256": "b15095f942883e4a23c7711cc4d08b5675f8240c06c1bbb4c781f168275fbe54"
     },
     {
+      "path": "assets/sprites/wild/jaryeongs/earth-pottery/combat-1.png",
+      "bytes": 62376,
+      "sha256": "f6161e932a669aecb6aad00c7af31deceb4d9b76c9d9bf8fd0f2d98f3f4bb0aa"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/earth-pottery/combat-2.png",
+      "bytes": 66034,
+      "sha256": "46f946dcd7162912feb609b6b2ee2b7ab34954860139819fe001f14abe848c70"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/earth-pottery/combat-3.png",
+      "bytes": 50681,
+      "sha256": "04577ed0aed4fc8c6b9531848ddcdc9c3faedf16d8ad8758161e159edf53b734"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/earth-pottery/combat-4.png",
+      "bytes": 54572,
+      "sha256": "b740a82e0e74b4d8f0a1a4048e7832c787ae1bb5937d2bdfa28b015d3e38716b"
+    },
+    {
       "path": "assets/sprites/wild/jaryeongs/earth-stone/combat-1.png",
       "bytes": 57348,
       "sha256": "6deba8bf18a292a73102e4674313cfe76106a6d16e8fe407245988e76fb56d56"
@@ -358,6 +378,66 @@
       "sha256": "3d2fbdaafd5ee38b298bd9d4d12c181572ea5f183809bf7be486d05d374dcd64"
     },
     {
+      "path": "assets/sprites/wild/jaryeongs/earth-tortoise/combat-1.png",
+      "bytes": 102922,
+      "sha256": "67f751e010021c7434221518a7497fe2d8730b68c34f96c5221917da19c7f380"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/earth-tortoise/combat-2.png",
+      "bytes": 105723,
+      "sha256": "8823ff591784976bf5bfbebcefd1032f2f41ed7b1d23608c034746e34a56622e"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/earth-tortoise/combat-3.png",
+      "bytes": 100433,
+      "sha256": "9f3052df95602280926419286f79998b29fd99f4161d147f7f1964018c7f8484"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/earth-tortoise/combat-4.png",
+      "bytes": 97954,
+      "sha256": "ed3753dcc9bbf6a78613def4b618351710210a80e18d74bdc8b5fe16f5c08e1f"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/earth-valley/combat-1.png",
+      "bytes": 53158,
+      "sha256": "f983f182b561953b42a5838c394e964888342ff6ba37ea43c23f07ebeea29e39"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/earth-valley/combat-2.png",
+      "bytes": 51442,
+      "sha256": "2bf0319855fcaa2365bd56397792771228b036046d2d14c4c0c7d6a3c6f7e971"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/earth-valley/combat-3.png",
+      "bytes": 51285,
+      "sha256": "5bf944c5ce6fa5b872c2a589cd6e49eff10b81372d6322d4f1581b369fb4c0bc"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/earth-valley/combat-4.png",
+      "bytes": 50239,
+      "sha256": "8398a5ce1287daa8197a95b5eb3b680181445083a3f77d9d9b8af54413c6b735"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/fire-fox/combat-1.png",
+      "bytes": 97492,
+      "sha256": "f3e8c5d01013e87e1b8679589e824015626557fb3fb5d87672816e5608fe1b86"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/fire-fox/combat-2.png",
+      "bytes": 97089,
+      "sha256": "b95ca9dd6f11a22bdbed766b8b188599c215055364f1c237fe06f1f384bbc2f5"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/fire-fox/combat-3.png",
+      "bytes": 85665,
+      "sha256": "785025ee08ff69f998f74ea36aca4b7e1a92c6afde5262422ed9ad3a0a138edb"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/fire-fox/combat-4.png",
+      "bytes": 77752,
+      "sha256": "efad0fa2a3afde914aeb7d20a324140b3ecced9ab5faf4857c94cf6c53d32dc2"
+    },
+    {
       "path": "assets/sprites/wild/jaryeongs/fire-hwa/combat-1.png",
       "bytes": 60899,
       "sha256": "22b6fbf1bcb2e6aca89c847e0c4db6970ce0d9e306f80e6fbf01e63e5dc44e3d"
@@ -376,6 +456,26 @@
       "path": "assets/sprites/wild/jaryeongs/fire-hwa/combat-4.png",
       "bytes": 59732,
       "sha256": "c3df0cd214c0be60cb66cff022f1bbba1db79c912a58295eb6e2218bce654ddf"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/fire-lantern/combat-1.png",
+      "bytes": 73163,
+      "sha256": "1b5e7335a331170f99f4d0320a413a29efc5ba43e6a588a1802ebbc33d3e9548"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/fire-lantern/combat-2.png",
+      "bytes": 65034,
+      "sha256": "9461bad5b68c68b89300c1990b54bbc32c05801deba8e3fec0e48fba732cd8fe"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/fire-lantern/combat-3.png",
+      "bytes": 49045,
+      "sha256": "0230f9b232e399018d2e2c245c3e322af87f616cdbce421800caf2e2c8542851"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/fire-lantern/combat-4.png",
+      "bytes": 40658,
+      "sha256": "b05595c8f4031378d58b7361b92a252bd28f2ef0b36429a4143d1c4867998835"
     },
     {
       "path": "assets/sprites/wild/jaryeongs/fire-light/combat-1.png",
@@ -398,6 +498,26 @@
       "sha256": "02939a361e0014f9267452901ae1f09f8801ab861fb86f9671a09c4445ac573d"
     },
     {
+      "path": "assets/sprites/wild/jaryeongs/fire-phoenix/combat-1.png",
+      "bytes": 92929,
+      "sha256": "8eb959363b0ba01caa610c697fde6bb9050726de6c96fd83ced8b308a6ba4996"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/fire-phoenix/combat-2.png",
+      "bytes": 98544,
+      "sha256": "fb51bf3c22b3cab7ab0d6fb1525ee9a75946d0468b7e9e7f4d917f4949c2211a"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/fire-phoenix/combat-3.png",
+      "bytes": 85468,
+      "sha256": "a75236ceaff912a6fd68af201322022e8ec7b18d3ebbb9d6c6061c79c36314a0"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/fire-phoenix/combat-4.png",
+      "bytes": 77362,
+      "sha256": "212d8f4cff52e5d116d58361410bef44ee38909e819cd78c6aae196cae7dd848"
+    },
+    {
       "path": "assets/sprites/wild/jaryeongs/fire-sun/combat-1.png",
       "bytes": 58698,
       "sha256": "5ee6d4a6f14fc66fc474005689c534f49920cc901ada618c95dd571f94a050c3"
@@ -416,6 +536,46 @@
       "path": "assets/sprites/wild/jaryeongs/fire-sun/combat-4.png",
       "bytes": 55143,
       "sha256": "5f6a5562342f94dd18ba20f85cbe1743bbac8861742780cc9dbd6b4f4b82e970"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/metal-bell/combat-1.png",
+      "bytes": 61507,
+      "sha256": "a166ef1fd5aaa3e7098cd458add8d32feaaf8d10ffecad88c2c4bdf86f7cfc12"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/metal-bell/combat-2.png",
+      "bytes": 63650,
+      "sha256": "04e441ee9cd43437298ae71f39aa83cc24aee01fc0eff7f9eeab8fcf97c68841"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/metal-bell/combat-3.png",
+      "bytes": 59361,
+      "sha256": "9f53f8385e81b672f78465ba00b7dba49d97beaebe99a9df800f75d2373a5108"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/metal-bell/combat-4.png",
+      "bytes": 49858,
+      "sha256": "b61f68e416a2a14fec763fa914159bfbd186f3e2b7b595a18cd0db024843745e"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/metal-chain/combat-1.png",
+      "bytes": 49700,
+      "sha256": "0ed6cf161c8ce438e1c0829b022b59e8bd4a326cd17aa1a960851e83e21ff47d"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/metal-chain/combat-2.png",
+      "bytes": 51070,
+      "sha256": "4a9abd6c778b4e4de78ddc6f91449bf14c57d0c6baa4282dd163f024fc996f8a"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/metal-chain/combat-3.png",
+      "bytes": 46215,
+      "sha256": "dbd5fde8de21dee034cd3cf970530ecd82ce357e0d5554e5504a40b32a20a5fc"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/metal-chain/combat-4.png",
+      "bytes": 51318,
+      "sha256": "e3a3bb9c060224621f0d1061c8000f0f94b0f1af9fe1f0877358fc10e1076e06"
     },
     {
       "path": "assets/sprites/wild/jaryeongs/metal-gold/combat-1.png",
@@ -458,6 +618,26 @@
       "sha256": "d0e220c0059123d17862fdcb0a1ed55c5b176a8829760cee04e282bb76f70aa3"
     },
     {
+      "path": "assets/sprites/wild/jaryeongs/metal-mirror/combat-1.png",
+      "bytes": 85593,
+      "sha256": "1ed81fe57da7bcb5e100bd3fea77df4114c76968b12ca36be0d3090ee17f26b7"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/metal-mirror/combat-2.png",
+      "bytes": 82221,
+      "sha256": "29fc3a96dc125d26f548bc3af895a6e46d7f6214d6cbca7bb1a5ff51910572a0"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/metal-mirror/combat-3.png",
+      "bytes": 98595,
+      "sha256": "6c622b8682d26a1e127c11a25144c633813c92e110c3113510880231c7a745dd"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/metal-mirror/combat-4.png",
+      "bytes": 79504,
+      "sha256": "1ac7ca98d41369860a1d2392c6e4997ee13b099b5243307c5356e55ec313f78b"
+    },
+    {
       "path": "assets/sprites/wild/jaryeongs/metal-sword/combat-1.png",
       "bytes": 53843,
       "sha256": "778a2bf533d95975a2f29009d43b562c1984659db479dd2f6887d12d2f3f68a1"
@@ -476,6 +656,66 @@
       "path": "assets/sprites/wild/jaryeongs/metal-sword/combat-4.png",
       "bytes": 57960,
       "sha256": "1d38a72093446ff577a4931239d0084f2aa19a0c60466adf1ba51c5f2053303f"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/water-abyss/combat-1.png",
+      "bytes": 60158,
+      "sha256": "34f4dc02ec510081d2678646d7e38539cd05247413ddeae5a6e6eef15a35a487"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/water-abyss/combat-2.png",
+      "bytes": 60303,
+      "sha256": "553638d894f2d170fb24e357cea78e6f323a0f69e2a7ace320fe52e037eb8998"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/water-abyss/combat-3.png",
+      "bytes": 58178,
+      "sha256": "61121b7216711c3025c37a770988ee67323082b9a370dad3a478309787fc0fa3"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/water-abyss/combat-4.png",
+      "bytes": 53708,
+      "sha256": "7618039f9f8f4794a31115d2cfb8e9c616971e3249f9ca31749509ae2000c53d"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/water-ice/combat-1.png",
+      "bytes": 33181,
+      "sha256": "669a8a5853e9e19a1a5bc13c1a4b668690c5397f5ce9bc8c24a38f7a16da66f2"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/water-ice/combat-2.png",
+      "bytes": 34096,
+      "sha256": "2cb0beb15f6105b49d65824ea0d56ef74d5f3821bae0a742610763a440187dc4"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/water-ice/combat-3.png",
+      "bytes": 30961,
+      "sha256": "297bd5b26c9054736e0c55c3885815c6650b5eb4133c5018a5dbece521db7515"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/water-ice/combat-4.png",
+      "bytes": 27407,
+      "sha256": "8c2255123c95ae3ec9c8496b57a8282ed34a8c879d7041625b1b27b8be475f90"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/water-mist/combat-1.png",
+      "bytes": 57717,
+      "sha256": "54e4d94850b77c9612e4ff2f3aea5e885da1a0bc5e3fa66dc1a663ec22209a7a"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/water-mist/combat-2.png",
+      "bytes": 61754,
+      "sha256": "0b6811fd658b69cd5429858698b1961677f05705fa7e0d06b2f3953f94c33054"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/water-mist/combat-3.png",
+      "bytes": 45293,
+      "sha256": "2db45d2794d47e113862f57e475fd7dd43920f6450edba7a903467f86f5e21f5"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/water-mist/combat-4.png",
+      "bytes": 54719,
+      "sha256": "dbb3d8ce3585b8356a0ecb4107de433365b4ccbf07a7b3be6a69ba387c18a3d2"
     },
     {
       "path": "assets/sprites/wild/jaryeongs/water-rain/combat-1.png",
@@ -538,6 +778,46 @@
       "sha256": "75934e9aa8da63a53366d191b3b2db6e8d6d5c9d64171816e6d570ea77b7dc07"
     },
     {
+      "path": "assets/sprites/wild/jaryeongs/wood-bamboo/combat-1.png",
+      "bytes": 46775,
+      "sha256": "865a7bdc5b44a14981da884fd498c35c80474cbcd16397736ba4bbb1b6ed298d"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/wood-bamboo/combat-2.png",
+      "bytes": 49282,
+      "sha256": "f5ad7472ba50cec49dccd77098e5920c6969005e2d9c76199614f70da79b82e8"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/wood-bamboo/combat-3.png",
+      "bytes": 35552,
+      "sha256": "dc3f7860f7e61d85af6fe5f957b397dc9e2e2712451b1eadf7dd9091b400c1f1"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/wood-bamboo/combat-4.png",
+      "bytes": 27910,
+      "sha256": "c87e0d39f5d49c9fabc771add38e0539132c2bb3488774e72f4620fa34ca8b84"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/wood-forest/combat-1.png",
+      "bytes": 106297,
+      "sha256": "28e90c1ba4ca041891e6d0801b3c7b33cd65b9a635577f380e3594f6780fb6d0"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/wood-forest/combat-2.png",
+      "bytes": 101389,
+      "sha256": "d6c237e5d958e871f5ef2308235d62f32aabe87ed3a6ee4701209549469d4a75"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/wood-forest/combat-3.png",
+      "bytes": 87366,
+      "sha256": "2fddb02f97a96d37033208530ad822f873414286d33993b5ed3549be96d64fcf"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/wood-forest/combat-4.png",
+      "bytes": 84651,
+      "sha256": "c9ba8e513a68bee36198b88e60e5cd2cd5bd2bff0a03381a11398f6a0b10c923"
+    },
+    {
       "path": "assets/sprites/wild/jaryeongs/wood-life/combat-1.png",
       "bytes": 71149,
       "sha256": "053a6bb35edce8a8ad4f9790a20accc0caf536692eae51f181bb8f2fd403594f"
@@ -578,6 +858,26 @@
       "sha256": "7938069c6c446925090538fd5db83bbbd8b18b122dfb1cc2cd741b8e54a62688"
     },
     {
+      "path": "assets/sprites/wild/jaryeongs/wood-orchid/combat-1.png",
+      "bytes": 116285,
+      "sha256": "e26a801e0ee7fbacf4ffc380c6385445c0bacfe518ffb4c098dec71537fd99ef"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/wood-orchid/combat-2.png",
+      "bytes": 117615,
+      "sha256": "ba890589b904469d58f9a7fd78fb92f15d51da769f4e95a076e733c8db144170"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/wood-orchid/combat-3.png",
+      "bytes": 99715,
+      "sha256": "cbc56f591398e5a8bc353f5dd236f0ef58586d125119e7a41c66b42005fcc2bf"
+    },
+    {
+      "path": "assets/sprites/wild/jaryeongs/wood-orchid/combat-4.png",
+      "bytes": 81274,
+      "sha256": "70810f70b1a98d8fd8ea9902b698eb8bf2b38cca23afb9032f5ca8f19387785a"
+    },
+    {
       "path": "assets/sprites/wild/jaryeongs/wood-tree/combat-1.png",
       "bytes": 83446,
       "sha256": "84be4967e283c279db9c5cdf674c895f2926b0e079b653e3cd05eed8e9f12fb5"
@@ -603,6 +903,11 @@
       "sha256": "29f20c6bd66cdc8b4d1a3791c09abb2b8b5417243627dd6daf08ff33ebc2b126"
     },
     {
+      "path": "assets/ui/talismans/earth-pottery.png",
+      "bytes": 27644,
+      "sha256": "ac2848979bd4e1e0434bb19343d34c8b7beb9383c876e6dcfad36940377903df"
+    },
+    {
       "path": "assets/ui/talismans/earth-stone.png",
       "bytes": 26633,
       "sha256": "ce5b1b0c2ddd9a3c3f42c04e6fb86bf2b92153f30fe1589f96d53d24dd1ee2da"
@@ -613,9 +918,29 @@
       "sha256": "9aa45f13160940061367f2a18c4a00b8e32c37f1ed81e75f446b2c064763eb06"
     },
     {
+      "path": "assets/ui/talismans/earth-tortoise.png",
+      "bytes": 27577,
+      "sha256": "deb188fdeb91aacab6ab9594e60de243c8b80e607243529c35d36620bba0de04"
+    },
+    {
+      "path": "assets/ui/talismans/earth-valley.png",
+      "bytes": 27849,
+      "sha256": "38e376bdf71a71fffa206f34136a8db1340ceaae687f38d46ba73ef1c57c4212"
+    },
+    {
+      "path": "assets/ui/talismans/fire-fox.png",
+      "bytes": 28235,
+      "sha256": "7dcca66fbacc11889c4f43b6985d2b7ae3af8ce67a713e17f6c05846830a6d91"
+    },
+    {
       "path": "assets/ui/talismans/fire-hwa.png",
       "bytes": 27593,
       "sha256": "5d6f9f54fde042975ce89b39cf531a75e0850f74d02b8ebe9aee9716856e08ea"
+    },
+    {
+      "path": "assets/ui/talismans/fire-lantern.png",
+      "bytes": 28631,
+      "sha256": "cfe4b311b157875515ae6af3a9acef1e45dc951f2fe12943966a9f072786434f"
     },
     {
       "path": "assets/ui/talismans/fire-light.png",
@@ -623,9 +948,24 @@
       "sha256": "21b3bca30dfce587590f53451bf09fdde1ddcad9ed34fd3e760f27e75da7c741"
     },
     {
+      "path": "assets/ui/talismans/fire-phoenix.png",
+      "bytes": 27735,
+      "sha256": "71f9692e30576f846f5a743fde1eda4cf6418c7a5080b688da894d2728a14a11"
+    },
+    {
       "path": "assets/ui/talismans/fire-sun.png",
       "bytes": 26031,
       "sha256": "abb0f48ae9e7be0818ebe3fe4f01631552c5cd8780159f948106cdc649ec851b"
+    },
+    {
+      "path": "assets/ui/talismans/metal-bell.png",
+      "bytes": 28125,
+      "sha256": "bffb332b1843f2807059ab883805e63a949dee05c65b9082f774b649b7764edf"
+    },
+    {
+      "path": "assets/ui/talismans/metal-chain.png",
+      "bytes": 28427,
+      "sha256": "7317d3ad31a6a0026029264dac5c1edacbd2c1e16324b734a4ec89459c51e136"
     },
     {
       "path": "assets/ui/talismans/metal-gold.png",
@@ -638,9 +978,29 @@
       "sha256": "c255514abfa0565c449f3b73847ef12871796d3b53583acf34a32a77d0fa2f95"
     },
     {
+      "path": "assets/ui/talismans/metal-mirror.png",
+      "bytes": 28244,
+      "sha256": "f661c33c9efb28e599b4cdf9767ac93a2bd0415daf45715dd450b18bfa8371ac"
+    },
+    {
       "path": "assets/ui/talismans/metal-sword.png",
       "bytes": 27972,
       "sha256": "3d0c0aa66d1012c3529f7ecc333ec6aa21a1e45d1dcb3aa1362b44739c417496"
+    },
+    {
+      "path": "assets/ui/talismans/water-abyss.png",
+      "bytes": 27331,
+      "sha256": "2550191fdf4d6dcf865ba9a6392d413f3bcf7674213bda46a79e98ab196e9e2b"
+    },
+    {
+      "path": "assets/ui/talismans/water-ice.png",
+      "bytes": 27645,
+      "sha256": "e2102270a86d8cac91464ca465c5fc3064c9b912fea86edc363de6c1d5d686f4"
+    },
+    {
+      "path": "assets/ui/talismans/water-mist.png",
+      "bytes": 29160,
+      "sha256": "57146e592feafd312ad6fc07a29872d144f208b13f02f21ef53422a4a04ee53c"
     },
     {
       "path": "assets/ui/talismans/water-rain.png",
@@ -658,6 +1018,16 @@
       "sha256": "a7f4dbe5a7b9967fe4de93bdb71ca36e1ba53d5243620541fe28abead8eb2fc3"
     },
     {
+      "path": "assets/ui/talismans/wood-bamboo.png",
+      "bytes": 26945,
+      "sha256": "76b0aec6cd705161c00b0e399d3f0d08e9c1a0a46ddfd23ef182d2f1d7784b6c"
+    },
+    {
+      "path": "assets/ui/talismans/wood-forest.png",
+      "bytes": 28224,
+      "sha256": "70ce20d5cce054eb40cdcec93b21262a77d314e3fd724a6a632070eb63068536"
+    },
+    {
       "path": "assets/ui/talismans/wood-life.png",
       "bytes": 26619,
       "sha256": "89dd7468d3589be6329c060a8d8106b8375aea650a1829bb41fbd2535229f10c"
@@ -666,6 +1036,11 @@
       "path": "assets/ui/talismans/wood-mok.png",
       "bytes": 27154,
       "sha256": "c6a5e42cf2282b9a260a7da8928c030cd28c938d646d807607b3e8622d696588"
+    },
+    {
+      "path": "assets/ui/talismans/wood-orchid.png",
+      "bytes": 27783,
+      "sha256": "1f984943a9b526fa751f2c52f4f9cda59af15939b70b5f6f4a5aad954c6ea714"
     },
     {
       "path": "assets/ui/talismans/wood-tree.png",
@@ -685,42 +1060,52 @@
     {
       "path": "docs/submission/ASSET_AND_LICENSE_MANIFEST.md",
       "bytes": 3855,
-      "sha256": "d1d57f8a4261930c81bbf7800aef9583dc2459f49e02cf494cb830c44142ecf5"
+      "sha256": "d13b6c4d062934bf2fe217b99c6ff5829cc283062eae128c262a632ec84ef29c"
     },
     {
       "path": "docs/submission/SUBMISSION_QA_REPORT.md",
-      "bytes": 5022,
-      "sha256": "ed40653a53996cd5ce72fa8a70f7ace50637bcc0979a1b0d52afda28b91f97a6"
+      "bytes": 6066,
+      "sha256": "c585a871edc70a7814b32fbb970f0f6698a221ae28bb55829173e35dca1c7e70"
     },
     {
       "path": "game.js",
-      "bytes": 250654,
-      "sha256": "ba36ff06f301ef8e1f208bddb420d78bff28e6108fe5e2a06359d1ea99fe9018"
+      "bytes": 333657,
+      "sha256": "5dac4fd82617687826ce28348f0eae98ee576d6d7ab1d299c2dcedaca778d421"
     },
     {
       "path": "index.html",
-      "bytes": 34468,
-      "sha256": "d3755bfccc05564cfb33c6be191e92ee3925f34b2cd2428033e2a0b0d32f2ff0"
+      "bytes": 42162,
+      "sha256": "455f8450875bc6346eda090927c6c13d5ee574b82e012e8cef5fa0e877306d6b"
     },
     {
       "path": "README.md",
       "bytes": 5831,
-      "sha256": "d434a946df775930ac73174935d89f354ff33f595f20c4797d7fef654f8360d8"
+      "sha256": "c61c31c7157a267884e470aeb462eeb2bdfc38a94efb363d194f0159814cfabe"
     },
     {
       "path": "src/assets.js",
-      "bytes": 2450,
-      "sha256": "f7d26b2c4442aac646360374bdfd182751f1d076efa87a986465f36e453cfe39"
+      "bytes": 3916,
+      "sha256": "608d8a0064cfd8c1012842d51a8222e2cde2fdb1eb7c786c16d170f8ac3cae94"
     },
     {
       "path": "src/audio.js",
-      "bytes": 12328,
-      "sha256": "a1ea88369d8c50ff601b32614a8134f6066b1bc6e32a9ae0ae160d5afcef56bd"
+      "bytes": 16090,
+      "sha256": "83bd437f4fd5f95faf2c62bc345b62dac13e9f71f8cb929b24619ff5966b1d84"
+    },
+    {
+      "path": "src/background-rotation.js",
+      "bytes": 4047,
+      "sha256": "049e1c4d1e97360fb99dd5a35b06f3f37eac1ab8ff2d7fbe5dac75bc94910597"
+    },
+    {
+      "path": "src/combat-objectives.js",
+      "bytes": 10511,
+      "sha256": "26a3c7aa90158b6fcbef3146b1306c10163bcc150f63ba475224ecb194ffac79"
     },
     {
       "path": "src/content.js",
-      "bytes": 15049,
-      "sha256": "9151ce2577b7dc171cdb5e01d432f8a0963639a5c8dd705a1de63209d7c7fa12"
+      "bytes": 16981,
+      "sha256": "cfe49a348c1e28350c169a699a805867f9a995e199f25e13ab36a7a7882ec5f2"
     },
     {
       "path": "src/drag-path.js",
@@ -728,9 +1113,34 @@
       "sha256": "4b6f5e95e514f491dc9656268d0438b3f4522f007b93b317d22064a87175e50d"
     },
     {
+      "path": "src/element-procs.js",
+      "bytes": 2832,
+      "sha256": "fdd3db95ca66db55112dba15ae1cba603354466f6baf8a1ff10c36d895eaa68c"
+    },
+    {
+      "path": "src/first-battle-onboarding.js",
+      "bytes": 10074,
+      "sha256": "49cfff7d25881624f12af039c90f0f16b24de5769330bd4c85560221819126be"
+    },
+    {
+      "path": "src/jaryeong-meta.js",
+      "bytes": 16484,
+      "sha256": "6f205630002c0a90e723a43604481dfbab8862c536dceb10df95aabb0cfc8692"
+    },
+    {
+      "path": "src/presentation-settings.js",
+      "bytes": 855,
+      "sha256": "184e1969f18b9be25fe9f969cc4dcacd3b38367eaaebb73c3b93063d2a392060"
+    },
+    {
+      "path": "src/rare-encounters.js",
+      "bytes": 9693,
+      "sha256": "b139055b207196ebb812ff8da8351e7dac51c8a4f1819f9dd3d42bb86f1b969a"
+    },
+    {
       "path": "src/relics.js",
-      "bytes": 3268,
-      "sha256": "36f2dd4c5390ec19afe31cf280bc734dd016f90f2122ab9342ef46902335d419"
+      "bytes": 3335,
+      "sha256": "ac25fe58b73689980b95040588023c2f3bf3cbf04e13c7887ce194f6f983da12"
     },
     {
       "path": "src/revive.js",
@@ -739,23 +1149,23 @@
     },
     {
       "path": "src/run-engine.js",
-      "bytes": 15262,
-      "sha256": "2ca368ed9a66621af6475ea768d26f8a4446ebfc281f3d3fcdd67a1b13a6ce7a"
+      "bytes": 16801,
+      "sha256": "4b3d0949a373a899505d2dfb409377aeb436e9e4fb996d956091e33164886489"
     },
     {
       "path": "src/save.js",
-      "bytes": 4971,
-      "sha256": "bc59fdec224a8ca15330ac987ba08980df914d1ffca826cca0b9cfa765cf6f9f"
+      "bytes": 5834,
+      "sha256": "75fc2ccf444ed6703929795c11b13d3900c8ecfbc723eacbed20b74738fb072f"
     },
     {
       "path": "src/talisman-anchors.js",
-      "bytes": 6488,
-      "sha256": "f6d52dd6a2fce69397dc12fc15a1dfd354c57d761e411d01c0828b11da39e71a"
+      "bytes": 12220,
+      "sha256": "fad94c12165819ce576fe1c6b4cb66b947cf639d0136c4c322151363865ec76c"
     },
     {
       "path": "styles.css",
-      "bytes": 125094,
-      "sha256": "6da9c494c881804f3206a959d318f27754d578ccdc1eb04744d58dc90b947683"
+      "bytes": 174443,
+      "sha256": "2a78968b344193f05934b6cb706ea1c02abc74b6dd6dc81c5b8635e3b6b44cdb"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",

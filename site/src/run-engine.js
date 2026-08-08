@@ -1,4 +1,7 @@
+import { calculateElementProcChance } from "./element-procs.js";
+
 export const RUN_LIMITS = Object.freeze({
+  initialIdiomCount: 1,
   baseQueueMax: 14,
   maxQueueMax: 18,
   maxDelay: 2,
@@ -105,7 +108,7 @@ export function buildCharacterVolumes(characters = []) {
   return volumes;
 }
 
-export function buildRunCharacterPool({ volume, idioms = [], jaryeongs = [], rng, targetSize = 125 }) {
+export function buildRunCharacterPool({ volume, idioms = [], jaryeongs = [], fallbackCharacters = [], rng, targetSize = 125 }) {
   const required = new Set([
     ...idioms.flatMap((idiom) => idiom.chars || [...(idiom.hanja || "")]),
     ...jaryeongs.map((entry) => entry?.hanja).filter(Boolean)
@@ -117,6 +120,17 @@ export function buildRunCharacterPool({ volume, idioms = [], jaryeongs = [], rng
   for (const char of volumeChars.slice(baseCount)) {
     if (pool.length >= RUN_LIMITS.minRunPool) break;
     pool.push(char);
+  }
+  if (pool.length < RUN_LIMITS.minRunPool) {
+    const used = new Set(pool);
+    const supplements = [...new Set(fallbackCharacters
+      .map((entry) => typeof entry === "string" ? entry : entry?.hanja)
+      .filter((char) => char && !used.has(char)))];
+    for (const char of shuffleWithRng(supplements, rng)) {
+      if (pool.length >= RUN_LIMITS.minRunPool) break;
+      pool.push(char);
+      used.add(char);
+    }
   }
   return [...new Set(pool)].slice(0, RUN_LIMITS.maxRunPool);
 }
@@ -279,7 +293,7 @@ export function validateGameCatalog({ characters = [], idioms = [], jaryeongs = 
   uniqueCheck(encounters, "id", "조우");
   if (characters.length !== 1135) errors.push(`한자 ${characters.length}/1135`);
   if (idioms.length !== 75) errors.push(`성어 ${idioms.length}/75`);
-  if (jaryeongs.length !== 15) errors.push(`자령 ${jaryeongs.length}/15`);
+  if (jaryeongs.length !== 30) errors.push(`자령 ${jaryeongs.length}/30`);
   if (relics.length < 18) errors.push(`유물 ${relics.length}/18`);
   if (events.length < 12) errors.push(`이벤트 ${events.length}/12`);
   if (encounters.filter((entry) => entry.kind === "battle").length < 9) errors.push("일반 조우 9종 미만");
@@ -294,7 +308,7 @@ export function validateGameCatalog({ characters = [], idioms = [], jaryeongs = 
 
 const BOT_PROFILES = Object.freeze({
   random: { damage: 1, defense: 1, control: 1, economy: 1 },
-  damage: { damage: 1.13, defense: .94, control: .92, economy: .97 },
+  damage: { damage: 1.07, defense: .98, control: .97, economy: .97 },
   turtle: { damage: .94, defense: 1.1, control: 1, economy: .96 },
   control: { damage: .96, defense: 1, control: 1.14, economy: .95 },
   idiom: { damage: 1.03, defense: .97, control: .96, economy: 1.16 }
@@ -303,17 +317,29 @@ const BOT_PROFILES = Object.freeze({
 export function simulateBalance({ runs = 10000, seed = "balance-v1", content }) {
   const rng = createSeededRng(seed);
   const profiles = Object.keys(BOT_PROFILES);
+  const encounterById = new Map((content.encounters || []).map((entry) => [entry.id, entry]));
   const results = Object.fromEntries(profiles.map((profile) => [profile, { runs: 0, wins: 0, turns: 0 }]));
   let infiniteLoops = 0;
   for (let runIndex = 0; runIndex < runs; runIndex++) {
     const profileId = profiles[runIndex % profiles.length];
     const profile = BOT_PROFILES[profileId];
+    const waterBuild = profileId === "control"
+      ? { partyMembers: 2, partyLevelSum: 4, leaderMatches: true, affinityStacks: 1, focusStacks: 1 }
+      : { partyMembers: 1, partyLevelSum: 1, leaderMatches: false };
+    const waterProcChance = calculateElementProcChance("water", waterBuild).chance;
     const maxHp = 118;
     let hp = maxHp;
     let turns = 0;
     let won = true;
-    for (const encounter of content.encounters.filter((entry) => ["battle", "elite", "boss"].includes(entry.kind))) {
-      if (encounter.act > 3 || (encounter.kind === "battle" && randomFrom(rng) < .48)) continue;
+    // 확장된 전체 카탈로그를 한 런에서 전부 싸우게 하지 않고,
+    // 실제 15노드 경로에서 고른 9~11개 전투만 시뮬레이션한다.
+    const route = createRunRoute(rng, { encounters: content.encounters || [], events: content.events || [] });
+    const encounters = route
+      .map((tier) => pickWithRng(tier.choices || [], rng))
+      .filter((node) => ["battle", "elite", "boss"].includes(node?.type))
+      .map((node) => encounterById.get(node.contentId))
+      .filter(Boolean);
+    for (const encounter of encounters) {
       let enemyHp = encounter.maxHp;
       let guard = 0;
       while (enemyHp > 0 && hp > 0 && guard++ < 40) {
@@ -321,7 +347,10 @@ export function simulateBalance({ runs = 10000, seed = "balance-v1", content }) 
         const damage = (42 + randomFrom(rng) * 26) * profile.damage * (1 + profile.economy * .12) * boardLuck;
         enemyHp -= damage;
         if (enemyHp > 0) {
-          const actionDelayed = randomFrom(rng) < Math.min(.28, .08 * profile.control);
+          // All builds can earn guaranteed control from idioms and charged
+          // Jaryeong skills. Water-match procs add a smaller, build-sensitive
+          // opportunity on top instead of replacing those shared tools.
+          const actionDelayed = randomFrom(rng) < Math.min(.12, .07 + waterProcChance * .05 * profile.control);
           const prevented = Math.min(.72, .2 * profile.defense + .16 * profile.control);
           if (!actionDelayed) hp -= Math.max(1, encounter.damage * (1 - prevented) * (.62 + randomFrom(rng) * .24));
           hp = Math.min(maxHp, hp + 2.3 * profile.defense + .6 * profile.economy);
@@ -330,7 +359,7 @@ export function simulateBalance({ runs = 10000, seed = "balance-v1", content }) 
       }
       if (guard >= 40) infiniteLoops++;
       if (hp <= 0) { won = false; break; }
-      hp = Math.min(maxHp, hp + 16 + profile.defense * 4.5);
+      hp = Math.min(maxHp, hp + 13 + profile.defense * 4.5);
     }
     const bucket = results[profileId];
     bucket.runs++;

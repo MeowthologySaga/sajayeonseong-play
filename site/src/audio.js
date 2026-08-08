@@ -5,6 +5,10 @@ export class AudioDirector {
     this.unlocked = false;
     this.currentBgm = null;
     this.currentBgmId = null;
+    this.currentBgmTrackKey = null;
+    this.currentBgmPoolKey = null;
+    this.bgmRotationCursor = new Map();
+    this.lastBgmTrackByPool = new Map();
     this.lastPlayed = new Map();
     this.pool = new Map();
     this.missingAssets = new Set();
@@ -160,31 +164,121 @@ export class AudioDirector {
     (presets[id] || presets["ui-confirm"])();
   }
 
-  async playBgm(zone, { immediate = false } = {}) {
+  bgmTrackKey(entry) {
+    return entry?.src || entry?.id || "";
+  }
+
+  bgmCandidates(zone) {
+    const entries = Array.isArray(this.manifest?.bgm) ? this.manifest.bgm : [];
+    const matches = entries.filter((entry) => entry?.zone === zone || entry?.id === zone);
+    const expanded = [];
+    const seen = new Set();
+
+    const add = (entry, parent, variantIndex = null) => {
+      const variant = typeof entry === "string" ? { src: entry } : entry;
+      if (!variant || typeof variant !== "object") return;
+      const baseId = parent?.id || parent?.zone || zone;
+      const candidate = {
+        ...parent,
+        ...variant,
+        id: variant.id || (variantIndex === null ? baseId : `${baseId}-variant-${variantIndex + 1}`),
+        zone: variant.zone || parent?.zone || zone
+      };
+      delete candidate.variants;
+      if (!candidate.src) return;
+      const key = this.bgmTrackKey(candidate);
+      if (seen.has(key)) return;
+      seen.add(key);
+      expanded.push(candidate);
+    };
+
+    matches.forEach((entry) => {
+      if (entry.src) add(entry, entry);
+      if (Array.isArray(entry.variants)) {
+        entry.variants.forEach((variant, index) => add(variant, entry, index));
+      }
+    });
+    return expanded;
+  }
+
+  stableBgmIndex(value, length) {
+    if (length <= 1) return 0;
+    let hash = 2166136261;
+    for (const character of String(value)) {
+      hash ^= character.codePointAt(0);
+      hash = Math.imul(hash, 16777619);
+    }
+    return (hash >>> 0) % length;
+  }
+
+  orderedBgmCandidates(zone, candidates, { rotationKey, seed } = {}) {
+    if (candidates.length <= 1) return candidates.slice();
+    const poolKey = String(zone);
+    const stableKey = rotationKey ?? seed;
+    const start = stableKey === undefined
+      ? (this.bgmRotationCursor.get(poolKey) || 0) % candidates.length
+      : this.stableBgmIndex(`${poolKey}:${stableKey}`, candidates.length);
+    const ordered = candidates.map((_, offset) => candidates[(start + offset) % candidates.length]);
+    const lastKey = this.lastBgmTrackByPool.get(poolKey);
+    if (this.bgmTrackKey(ordered[0]) === lastKey) ordered.push(ordered.shift());
+    return ordered;
+  }
+
+  rememberBgmSelection(zone, entry, candidates) {
+    const poolKey = String(zone);
+    const trackKey = this.bgmTrackKey(entry);
+    this.lastBgmTrackByPool.set(poolKey, trackKey);
+    const index = candidates.findIndex((candidate) => this.bgmTrackKey(candidate) === trackKey);
+    this.bgmRotationCursor.set(poolKey, index < 0 ? 0 : (index + 1) % candidates.length);
+  }
+
+  async playBgm(zone, { immediate = false, rotationKey, seed, forceRotate = false } = {}) {
     if (!this.unlocked || !this.settings.bgmEnabled) return;
-    const entry = this.manifest.bgm.find((candidate) => candidate.zone === zone || candidate.id === zone);
-    if (!entry) return;
-    if (entry.id === this.currentBgmId) {
+    const candidates = this.bgmCandidates(zone);
+    if (!candidates.length) return;
+    if (!forceRotate && this.currentBgm && candidates.some((entry) => this.bgmTrackKey(entry) === this.currentBgmTrackKey)) {
       if (this.currentBgm?.paused) await this.currentBgm.play().catch(() => {});
       return;
     }
+    if (!forceRotate && !this.currentBgm && this.fallbackBgm && this.currentBgmPoolKey === String(zone) && this.currentBgmId) return;
+
     const previous = this.currentBgm;
-    const next = new Audio(entry.src);
-    next.loop = entry.loop !== false;
-    next.preload = "auto";
-    next.volume = immediate ? this.bgmVolume(entry.volume) : 0;
-    try {
-      await next.play();
-      this.stopFallbackBgm();
-    } catch {
-      this.missingAssets.add(entry.src);
+    const ordered = this.orderedBgmCandidates(zone, candidates, { rotationKey, seed });
+    let entry = null;
+    let next = null;
+    for (const candidate of ordered) {
+      if (this.missingAssets.has(candidate.src)) continue;
+      const audio = new Audio(candidate.src);
+      audio.loop = candidate.loop !== false;
+      audio.preload = "auto";
+      audio.volume = immediate ? this.bgmVolume(candidate.volume) : 0;
+      audio.addEventListener?.("error", () => this.missingAssets.add(candidate.src), { once: true });
+      try {
+        await audio.play();
+        entry = candidate;
+        next = audio;
+        break;
+      } catch {
+        this.missingAssets.add(candidate.src);
+        try { audio.pause(); } catch {}
+      }
+    }
+    if (!entry || !next) {
+      previous?.pause();
       this.currentBgm = null;
-      this.currentBgmId = entry.id;
-      this.startFallbackBgm(entry.zone || entry.id);
+      this.currentBgmId = ordered[0]?.id || null;
+      this.currentBgmTrackKey = null;
+      this.currentBgmPoolKey = String(zone);
+      this.startFallbackBgm(ordered[0]?.zone || zone);
       return;
     }
+
+    this.stopFallbackBgm();
     this.currentBgm = next;
     this.currentBgmId = entry.id;
+    this.currentBgmTrackKey = this.bgmTrackKey(entry);
+    this.currentBgmPoolKey = String(zone);
+    this.rememberBgmSelection(zone, entry, candidates);
     if (immediate) { previous?.pause(); return; }
     const duration = 3000;
     const startedAt = performance.now();
@@ -203,6 +297,8 @@ export class AudioDirector {
     this.stopFallbackBgm();
     this.currentBgm = null;
     this.currentBgmId = null;
+    this.currentBgmTrackKey = null;
+    this.currentBgmPoolKey = null;
   }
 
   startFallbackBgm(zone) {

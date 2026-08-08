@@ -1,16 +1,29 @@
 import { TALISMAN_ANCHORS } from "./talisman-anchors.js";
 
 const JARYEONG_IDS = [
-  "wood-mok", "wood-tree", "wood-life", "fire-hwa", "fire-light", "fire-sun", "earth-to", "earth-stone", "earth-mountain",
-  "metal-gold", "metal-sword", "metal-jade", "water-sui", "water-rain", "water-sea"
+  "wood-mok", "wood-tree", "wood-life", "wood-bamboo", "wood-orchid", "wood-forest", "fire-hwa", "fire-light", "fire-sun", "fire-lantern", "fire-fox", "fire-phoenix",
+  "earth-to", "earth-stone", "earth-mountain", "earth-pottery", "earth-tortoise", "earth-valley", "metal-gold", "metal-sword", "metal-jade", "metal-bell", "metal-mirror", "metal-chain",
+  "water-sui", "water-rain", "water-sea", "water-abyss", "water-ice", "water-mist"
 ];
 
 const JARYEONG_ART_SOURCE = Object.freeze({
   "wood-mok": "wood-mok", "wood-tree": "wood-tree", "wood-life": "wood-life",
+  "wood-bamboo": "wood-bamboo",
+  "wood-orchid": "wood-orchid",
+  "wood-forest": "wood-forest",
   "fire-hwa": "fire-hwa", "fire-light": "fire-light", "fire-sun": "fire-sun",
+  "fire-lantern": "fire-lantern",
+  "fire-fox": "fire-fox",
+  "fire-phoenix": "fire-phoenix",
   "earth-to": "earth-to", "earth-stone": "earth-stone", "earth-mountain": "earth-mountain",
+  "earth-pottery": "earth-pottery",
+  "earth-tortoise": "earth-tortoise",
+  "earth-valley": "earth-valley",
   "metal-gold": "metal-gold", "metal-sword": "metal-sword", "metal-jade": "metal-jade",
-  "water-sui": "water-sui", "water-rain": "water-rain", "water-sea": "water-sea"
+  "metal-bell": "metal-bell",
+  "metal-mirror": "metal-mirror",
+  "metal-chain": "metal-chain",
+  "water-sui": "water-sui", "water-rain": "water-rain", "water-sea": "water-sea", "water-abyss": "water-abyss", "water-ice": "water-ice", "water-mist": "water-mist"
 });
 
 function jaryeongAsset(id) {
@@ -49,6 +62,26 @@ export const ASSET_MANIFEST = Object.freeze({
     act3: "assets/backgrounds/act3-moonmetal.png",
     victory: "assets/backgrounds/victory-scroll.png",
     defeat: "assets/backgrounds/defeat-broken-seal.png"
+  },
+  backgroundPools: {
+    fallback: "assets/backgrounds/act1-mistwood.png",
+    act1: [
+      "assets/backgrounds/act1-mistwood.png",
+      "assets/backgrounds/act1-mistwood-bridge.png"
+    ],
+    act1Boss: ["assets/backgrounds/act1-mistwood-boss-grove.png"],
+    act2: [
+      "assets/backgrounds/act2-emberstone.png",
+      "assets/backgrounds/act2-emberstone-quarry.png",
+      "assets/backgrounds/act2-emberstone-foundry.png"
+    ],
+    act2Boss: ["assets/backgrounds/act2-emberstone-boss-altar.png"],
+    act3: [
+      "assets/backgrounds/act3-moonmetal.png",
+      "assets/backgrounds/act3-moonmetal-mirror-lake.png",
+      "assets/backgrounds/act3-moonmetal-observatory.png"
+    ],
+    act3Boss: ["assets/backgrounds/act3-moonmetal-boss-gate.png"]
   },
   ui: {
     talisman: "assets/ui/taming-talisman/clean.png",

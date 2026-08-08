@@ -13,7 +13,7 @@
     "events": 12
   },
   "qa": {
-    "automatedTests": 23,
+    "automatedTests": 29,
     "simulatedSeeds": 10000,
     "targetRunMinutes": [
       18,
@@ -24,8 +24,8 @@
     "https://fonts.googleapis.com (font stylesheet; system font fallback remains playable)",
     "https://fonts.gstatic.com (font files; system font fallback remains playable)"
   ],
-  "fileCount": 146,
-  "totalBytes": 37211024,
+  "fileCount": 147,
+  "totalBytes": 37216791,
   "files": [
     {
       "path": "assets/audio/bgm/act1-mistwood-loop.mp3",
@@ -689,18 +689,18 @@
     },
     {
       "path": "docs/submission/SUBMISSION_QA_REPORT.md",
-      "bytes": 4600,
-      "sha256": "7bfedb9b8562c13ff9b6e4a8003b3a5f0b4b682e714b9af60a402d882db80295"
+      "bytes": 5022,
+      "sha256": "ed40653a53996cd5ce72fa8a70f7ace50637bcc0979a1b0d52afda28b91f97a6"
     },
     {
       "path": "game.js",
-      "bytes": 248294,
-      "sha256": "1f28c33bc310b08944ab2553c8d5c4d616664dbfcea46e51b5faba7e74f55602"
+      "bytes": 250654,
+      "sha256": "ba36ff06f301ef8e1f208bddb420d78bff28e6108fe5e2a06359d1ea99fe9018"
     },
     {
       "path": "index.html",
-      "bytes": 33951,
-      "sha256": "e0e53f805e4f92565757062337f56250a3b69227732c8ceeda4522df42687122"
+      "bytes": 34468,
+      "sha256": "d3755bfccc05564cfb33c6be191e92ee3925f34b2cd2428033e2a0b0d32f2ff0"
     },
     {
       "path": "README.md",
@@ -719,8 +719,13 @@
     },
     {
       "path": "src/content.js",
-      "bytes": 15048,
-      "sha256": "87bb73de5771a64a25fa61552d3fdc28326c784b6a910ac77a313e38fa007e59"
+      "bytes": 15049,
+      "sha256": "9151ce2577b7dc171cdb5e01d432f8a0963639a5c8dd705a1de63209d7c7fa12"
+    },
+    {
+      "path": "src/drag-path.js",
+      "bytes": 820,
+      "sha256": "4b6f5e95e514f491dc9656268d0438b3f4522f007b93b317d22064a87175e50d"
     },
     {
       "path": "src/relics.js",
@@ -729,8 +734,8 @@
     },
     {
       "path": "src/revive.js",
-      "bytes": 1326,
-      "sha256": "19b05644c7d711bef7bc1ec7160c6751f0ac407987b1ce53d6a361763bdbe21a"
+      "bytes": 1769,
+      "sha256": "367418ac1efbf337153f678fa89b0de8d25d1a2bcd4dbe878b8ebdf6ed75dcad"
     },
     {
       "path": "src/run-engine.js",
@@ -749,8 +754,8 @@
     },
     {
       "path": "styles.css",
-      "bytes": 123890,
-      "sha256": "4d3bcafdfbc474d0bcf994cc5258d5e380a9725eeffde0148e33fccc94aed639"
+      "bytes": 125094,
+      "sha256": "6da9c494c881804f3206a959d318f27754d578ccdc1eb04744d58dc90b947683"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",

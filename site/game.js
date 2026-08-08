@@ -1,9 +1,10 @@
-import { AUDIO_MANIFEST, buildIdiomSpecs, ENCOUNTER_CATALOG, EVENT_CATALOG, RELIC_CATALOG, RUN_CONTENT } from "./src/content.js";
+import { AUDIO_MANIFEST, buildIdiomSpecs, ENCOUNTER_CATALOG, EVENT_CATALOG, RELIC_CATALOG, RUN_CONTENT } from "./src/content.js?v=20260807-audio-2";
 import { ASSET_MANIFEST } from "./src/assets.js";
 import { AudioDirector } from "./src/audio.js";
+import { interpolateGridPath } from "./src/drag-path.js?v=20260807-drag-1";
 import { buildCharacterVolumes, buildRunCharacterPool, chooseRotatingRecipes, createRunRoute, createSeededRng, pickWithRng, randomFrom, RUN_LIMITS, shuffleWithRng, validateGameCatalog } from "./src/run-engine.js?v=20260807-recipes-1";
 import { decodeRunSave, describeRunSaveStage, encodeRunSave, RUN_SAVE_KEY } from "./src/save.js?v=20260807-save-2";
-import { buildReviveCharacterPool, passesReviveTrace, scoreReviveTrace } from "./src/revive.js?v=20260807-revive-2";
+import { buildReviveCharacterPool, passesReviveTrace, scoreReviveTrace } from "./src/revive.js?v=20260807-revive-3";
 import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELIC_EFFECT_TYPES } from "./src/relics.js?v=20260807-relics-1";
 
 (function () {
@@ -2082,7 +2083,37 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
       if (now - lastPuzzleSwapSoundAt < 160) return;
       lastPuzzleSwapSoundAt = now;
     }
-    audioDirector.playSfx(step > 1 ? "combo-low" : "tile-swap");
+    audioDirector.playSfx(state.mode === "pang" && step > 1 ? "combo-low" : "tile-swap");
+  }
+
+  function projectPointerToBoard(clientX, clientY) {
+    const board = $("#board");
+    const first = board?.querySelector('[data-row="0"][data-col="0"]');
+    const last = board?.querySelector(`[data-row="${ROWS - 1}"][data-col="${COLS - 1}"]`);
+    if (!board || !first || !last) return null;
+
+    const boardRect = board.getBoundingClientRect();
+    const firstCenterX = boardRect.left + first.offsetLeft + first.offsetWidth / 2;
+    const firstCenterY = boardRect.top + first.offsetTop + first.offsetHeight / 2;
+    const lastCenterX = boardRect.left + last.offsetLeft + last.offsetWidth / 2;
+    const lastCenterY = boardRect.top + last.offsetTop + last.offsetHeight / 2;
+    const minX = Math.min(firstCenterX, lastCenterX);
+    const maxX = Math.max(firstCenterX, lastCenterX);
+    const minY = Math.min(firstCenterY, lastCenterY);
+    const maxY = Math.max(firstCenterY, lastCenterY);
+    const x = clamp(clientX, minX, maxX);
+    const y = clamp(clientY, minY, maxY);
+    const colProgress = maxX === minX ? 0 : (x - minX) / (maxX - minX);
+    const rowProgress = maxY === minY ? 0 : (y - minY) / (maxY - minY);
+
+    return {
+      x,
+      y,
+      cell: {
+        r: clamp(Math.round(rowProgress * (ROWS - 1)), 0, ROWS - 1),
+        c: clamp(Math.round(colProgress * (COLS - 1)), 0, COLS - 1)
+      }
+    };
   }
 
   function beginDrag(event) {
@@ -2108,7 +2139,9 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     state.dragMoved = false;
     state.dragPreview = { ...state.board[state.selected.r][state.selected.c] };
     state.moveStartedAt = performance.now();
-    state.pointerX = event.clientX; state.pointerY = event.clientY;
+    const projected = projectPointerToBoard(event.clientX, event.clientY);
+    state.pointerX = projected?.x ?? event.clientX;
+    state.pointerY = projected?.y ?? event.clientY;
     tile.classList.add("selected", "dragging-source");
     setDragPreview(state.dragPreview, tile.getBoundingClientRect());
     ensureAudioContext();
@@ -2219,25 +2252,15 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
 
   function dragMove(event) {
     if (!state.dragging || state.resolving) return;
-    if (state.mode === "puzzle" || state.mode === "roguelike") {
-      state.pointerX = event.clientX; state.pointerY = event.clientY;
-      const limit = state.currentMoveLimit || getMoveSeconds();
-      updateCursorTimer(Math.max(0, limit - (performance.now() - state.moveStartedAt) / 1000));
-      const ghost = $("#drag-ghost");
-      if (ghost) { ghost.style.left = `${state.pointerX}px`; ghost.style.top = `${state.pointerY}px`; }
-    }
-    const hovered = document.elementFromPoint(event.clientX, event.clientY)?.closest(".tile");
-    if (!hovered) return;
-    const next = { r: +hovered.dataset.row, c: +hovered.dataset.col };
-    if (isTileLocked(next.r, next.c)) return;
-    const current = state.selected;
-    const rowDistance = Math.abs(next.r - current.r);
-    const colDistance = Math.abs(next.c - current.c);
-    const validStep = state.mode === "puzzle" || state.mode === "roguelike"
-      ? Math.max(rowDistance, colDistance) === 1
-      : rowDistance + colDistance === 1;
-    if (!validStep) return;
     if (state.mode === "pang") {
+      const hovered = document.elementFromPoint(event.clientX, event.clientY)?.closest(".tile");
+      if (!hovered) return;
+      const next = { r: +hovered.dataset.row, c: +hovered.dataset.col };
+      if (isTileLocked(next.r, next.c)) return;
+      const current = state.selected;
+      const rowDistance = Math.abs(next.r - current.r);
+      const colDistance = Math.abs(next.c - current.c);
+      if (rowDistance + colDistance !== 1) return;
       if (state.pangMoved) return;
       swapCells(current, next);
       state.pangTarget = { ...next };
@@ -2246,11 +2269,35 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
       renderBoard();
       return;
     }
-    swapCells(current, next);
+
+    const projected = projectPointerToBoard(event.clientX, event.clientY);
+    if (!projected) return;
+    state.pointerX = projected.x;
+    state.pointerY = projected.y;
+    const limit = state.currentMoveLimit || getMoveSeconds();
+    updateCursorTimer(Math.max(0, limit - (performance.now() - state.moveStartedAt) / 1000));
+    const ghost = $("#drag-ghost");
+    if (ghost) {
+      ghost.style.left = `${state.pointerX}px`;
+      ghost.style.top = `${state.pointerY}px`;
+    }
+
+    const current = state.selected;
+    const path = interpolateGridPath(current, projected.cell);
+    if (!path.length) return;
+    let cursor = current;
+    let swapCount = 0;
+    for (const next of path) {
+      if (isTileLocked(next.r, next.c)) break;
+      swapCells(cursor, next);
+      cursor = next;
+      swapCount++;
+    }
+    if (!swapCount) return;
     state.dragMoved = true;
-    state.selected = next;
-    renderBoard({ animateSwap: true });
-    playSwapSound(Math.max(rowDistance, colDistance));
+    state.selected = cursor;
+    renderBoard({ animateSwap: true, animateSwapDuration: swapCount > 1 ? 150 : 185 });
+    playSwapSound(swapCount);
   }
 
   async function endDrag() {
@@ -4367,7 +4414,7 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
     while (log.children.length > 7) log.lastElementChild.remove();
   }
 
-  const REVIVE_TRACE = { char: "字", reading: "글자 자", width: 720, height: 460 };
+  const REVIVE_TRACE = { char: "字", reading: "글자 자", hun: "글자", eum: "자", width: 720, height: 460 };
   const trace = {
     drawing: false,
     strokes: [],
@@ -4381,12 +4428,20 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
   };
 
   function chooseReviveTraceCharacter() {
-    const choice = randomOf(REVIVE_CHARACTER_POOL) || { char: "福", reading: "복 복" };
+    const choice = randomOf(REVIVE_CHARACTER_POOL) || { char: "福", reading: "복 복", hun: "복", eum: "복" };
     REVIVE_TRACE.char = choice.char;
     REVIVE_TRACE.reading = choice.reading;
-    $("#revive-title").textContent = `${choice.char} 자를 따라 다시 빚으세요`;
-    $("#revive-canvas").setAttribute("aria-label", `${choice.char}, ${choice.reading} 따라쓰기`);
-    $("#trace-stage").setAttribute("aria-label", `반투명한 ${choice.char}, ${choice.reading} 자를 따라 그리기`);
+    REVIVE_TRACE.hun = choice.hun;
+    REVIVE_TRACE.eum = choice.eum;
+    $("#revive-title").textContent = `${choice.char}자를 따라 써 보세요`;
+    $("#revive-study-char").textContent = choice.char;
+    $("#revive-hun").textContent = choice.hun;
+    $("#revive-eum").textContent = choice.eum;
+    $("#revive-hun-eum").textContent = choice.reading;
+    const studyLabel = `${choice.char}, 훈 ${choice.hun}, 음 ${choice.eum}, 훈음 ${choice.reading}`;
+    $("#revive-reading-guide").setAttribute("aria-label", studyLabel);
+    $("#revive-canvas").setAttribute("aria-label", `${studyLabel} 따라쓰기`);
+    $("#trace-stage").setAttribute("aria-label", `반투명한 ${studyLabel} 글자를 따라 그리기`);
   }
 
   function traceFont() {
@@ -4776,7 +4831,8 @@ import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELI
       void audioDirector.playBgm(state.mode === "roguelike" && state.run ? `act-${state.run.act || 1}` : "menu", { immediate: true });
     }, { once: true, capture: true });
     document.addEventListener("pointerover", (event) => {
-      const button = event.target.closest?.("button:not(:disabled)");
+      if (event.pointerType && event.pointerType !== "mouse") return;
+      const button = event.target.closest?.("button:not(:disabled):not(.tile)");
       if (button && !button.contains(event.relatedTarget)) audioDirector.playSfx("ui-hover");
     });
     document.addEventListener("keydown", handleDialogKeyboard);

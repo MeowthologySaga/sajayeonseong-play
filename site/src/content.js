@@ -147,7 +147,7 @@ export const AUDIO_MANIFEST = Object.freeze({
     { id: "victory", zone: "victory", src: "assets/audio/bgm/victory-result.mp3", volume: .58, loop: false }
   ],
   sfx: [
-    ["ui-hover","ui-hover.mp3",.25,55],["ui-confirm","ui-confirm.mp3",.42,70],["ui-cancel","ui-cancel.mp3",.35,70],
+    ["ui-hover","ui-hover.mp3",.18,350],["ui-confirm","ui-confirm.mp3",.42,70],["ui-cancel","ui-cancel.mp3",.35,70],
     ["tile-pick","tile-pick.mp3",.32,45],["tile-swap","tile-swap.mp3",.3,42],["tile-match","tile-match.mp3",.38,65],
     ["combo-low","combo-low.mp3",.4,90],["combo-high","combo-high.mp3",.52,110],["idiom-ready","idiom-ready.mp3",.52,160],
     ["idiom-cast","idiom-cast.mp3",.64,220],["hit-wood","hit-wood.mp3",.42,80],["hit-fire","hit-fire.mp3",.44,80],

@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=20260807-competition-13" />
+    <link rel="stylesheet" href="styles.css?v=20260807-competition-14" />
   </head>
   <body>
     <div class="grain" aria-hidden="true"></div>
@@ -418,8 +418,14 @@
     <div id="revive-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="revive-title">
       <div class="modal-card revive-card">
         <p class="eyebrow">한 번뿐인 자형 재연성</p>
-        <h2 id="revive-title">한자를 따라 다시 빚으세요</h2>
-        <p>반투명한 글자 위를 천천히 따라 그어 보세요. 획이 조금 달라도 대강의 유사도로 판정합니다.</p>
+        <h2 id="revive-title">한자를 따라 써 보세요</h2>
+        <p id="revive-instructions">반투명한 글자 위를 천천히 따라 그어 보세요. 획이 조금 달라도 대강의 유사도로 판정합니다.</p>
+        <div id="revive-reading-guide" class="revive-reading-guide" role="group" aria-label="출제 한자의 훈과 음" aria-live="polite">
+          <strong id="revive-study-char" class="revive-study-char">字</strong>
+          <span><small>훈 · 뜻</small><b id="revive-hun">글자</b></span>
+          <span><small>음 · 소리</small><b id="revive-eum">자</b></span>
+          <span class="revive-hun-eum"><small>훈음</small><b id="revive-hun-eum">글자 자</b></span>
+        </div>
         <div id="trace-stage" class="trace-stage" aria-label="반투명한 한자를 따라 그리기">
           <canvas id="revive-canvas" class="revive-canvas" width="720" height="460" aria-label="한자 따라쓰기"></canvas>
         </div>
@@ -482,6 +488,6 @@
 
     <script src="data/sajayeonseong-hanja-v2.js?v=20260807-data-2"></script>
     <script src="data/hanja-hun-eum.js?v=20260807-hun-1"></script>
-    <script type="module" src="game.js?v=20260807-competition-18"></script>
+    <script type="module" src="game.js?v=20260807-competition-20"></script>
   </body>
 </html>

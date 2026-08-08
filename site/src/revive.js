@@ -5,6 +5,19 @@ export const REVIVE_TRACE_LIMITS = Object.freeze({
   minScore: 0.25
 });
 
+export function splitHunEum(value = "") {
+  const hunEum = String(value).trim().replace(/\s+/g, " ");
+  const parts = hunEum.split(" ").filter(Boolean);
+  if (parts.length < 2) {
+    return { hunEum, hun: "훈 정보 확인 중", eum: parts[0] || "음 정보 확인 중" };
+  }
+  return {
+    hunEum,
+    hun: parts.slice(0, -1).join(" "),
+    eum: parts.at(-1)
+  };
+}
+
 export function buildReviveCharacterPool(characters = [], readingByHanja = {}) {
   const seen = new Set();
   return characters.flatMap((entry) => {
@@ -20,8 +33,9 @@ export function buildReviveCharacterPool(characters = [], readingByHanja = {}) {
       || ""
     ).trim();
     if (!reading) return [];
+    const { hunEum, hun, eum } = splitHunEum(reading);
     seen.add(char);
-    return [{ char, reading }];
+    return [{ char, reading: hunEum, hun, eum }];
   });
 }
 

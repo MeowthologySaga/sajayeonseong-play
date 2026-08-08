@@ -157,9 +157,13 @@ export const AUDIO_MANIFEST = Object.freeze({
     { id: "menu", zone: "menu", src: "assets/audio/bgm/menu-workshop-loop.mp3", volume: .55, loop: true },
     { id: "act-1", zone: "act-1", src: "assets/audio/bgm/act1-mistwood-loop.mp3", volume: .52, loop: true },
     { id: "act-2", zone: "act-2", src: "assets/audio/bgm/act2-emberstone-loop.mp3", volume: .52, loop: true },
+    { id: "act-2-cinder-forge", zone: "act-2", src: "assets/audio/bgm/act2-cinder-forge-loop.mp3", volume: .52, loop: true },
     { id: "act-3", zone: "act-3", src: "assets/audio/bgm/act3-moonmetal-loop.mp3", volume: .52, loop: true },
+    { id: "act-3-mirror-ruins", zone: "act-3", src: "assets/audio/bgm/act3-mirror-ruins-loop.mp3", volume: .52, loop: true },
     { id: "elite-boss", zone: "boss", src: "assets/audio/bgm/elite-boss-loop.mp3", volume: .58, loop: true },
+    { id: "elite-boss-iron-seal", zone: "boss", src: "assets/audio/bgm/elite-boss-iron-seal-loop.mp3", volume: .58, loop: true },
     { id: "final-boss", zone: "final-boss", src: "assets/audio/bgm/final-boss-loop.mp3", volume: .6, loop: true },
+    { id: "final-boss-eclipsed-script", zone: "final-boss", src: "assets/audio/bgm/final-boss-eclipsed-script-loop.mp3", volume: .6, loop: true },
     { id: "victory", zone: "victory", src: "assets/audio/bgm/victory-result.mp3", volume: .58, loop: false }
   ],
   sfx: [

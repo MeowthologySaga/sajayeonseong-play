@@ -988,8 +988,9 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
     [
       "lastPlayerHealing", "healingFieldTurns", "healingFieldAmount", "phoenixRebirthReady",
       "damageSplitHits", "damageSplitRatio", "deferredDamage", "deferredDamageTicks",
-      "boundEnemyIntentTurns"
+      "boundEnemyIntentTurns", "weakenedTurns"
     ].forEach((key) => { state[key] = Number(state[key]) || 0; });
+    if (state.weakened && state.weakenedTurns <= 0) state.weakenedTurns = 1;
     state.freshQueueIds = new Set(battle.freshQueueIds || []);
     state.usedStageIdiomIds = new Set(battle.usedStageIdiomIds || []);
     state.usedRotatingIdiomIds = new Set(battle.usedRotatingIdiomIds || []);
@@ -1255,16 +1256,33 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
 
   function tileKey(row, col) { return `${row},${col}`; }
 
-  function lockRandomTiles(count = 2, turns = 1) {
+  async function lockRandomTiles(count = 2, turns = 1) {
     if (state.mode !== "puzzle" && state.mode !== "roguelike") return 0;
     if (!(state.lockedTiles instanceof Map)) state.lockedTiles = new Map();
     const beforeCount = state.lockedTiles.size;
     const cells = [];
-    for (let row = 0; row < ROWS; row++) for (let col = 0; col < COLS; col++) cells.push([row, col]);
-    shuffled(cells).slice(0, Math.min(count, cells.length)).forEach(([row, col]) => state.lockedTiles.set(tileKey(row, col), turns));
+    for (let row = 0; row < ROWS; row++) for (let col = 0; col < COLS; col++) {
+      if (!isTileLocked(row, col)) cells.push([row, col]);
+    }
+    const targets = shuffled(cells).slice(0, Math.min(count, cells.length));
+    const enemy = $("#enemy-sprite");
+    if (enemy && targets.length) {
+      await Promise.all(targets.map(async ([row, col], index) => {
+        const tile = $("#board")?.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+        if (!tile) return;
+        await wait(index * 90);
+        await launchCombatProjectile(enemy, tile, { kind: "seal", label: "封", duration: 620 });
+      }));
+    }
+    targets.forEach(([row, col]) => state.lockedTiles.set(tileKey(row, col), turns));
     const appliedCount = Math.max(0, state.lockedTiles.size - beforeCount);
     if (appliedCount) recordCombatObjectiveEvent({ type: COMBAT_OBJECTIVE_EVENT.SEALS_APPLIED, count: appliedCount });
     renderBoard();
+    targets.forEach(([row, col]) => {
+      const tile = $("#board")?.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+      tile?.classList.add("seal-landing");
+      window.setTimeout(() => tile?.classList.remove("seal-landing"), 520);
+    });
     return appliedCount;
   }
 
@@ -1282,7 +1300,7 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
 
   function cleansePlayerStatuses() {
     let removed = 0;
-    if (state.weakened) { state.weakened = false; removed++; }
+    if (state.weakened) { state.weakened = false; state.weakenedTurns = 0; removed++; }
     if (state.healReductionTurns > 0) { state.healReductionTurns = 0; state.healReductionRatio = 0; removed++; }
     if (state.lockedTiles instanceof Map && state.lockedTiles.size) {
       const removedLocks = state.lockedTiles.size;
@@ -1514,7 +1532,7 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
     const entries = [];
     if (state.enemyBurn) entries.push({ className: "status-burn", text: `🔥 화상 ${state.enemyBurn}` });
     if (state.delayed) entries.push({ className: "status-delay", text: `⌛ 행동 지연 ${state.delayed}턴` });
-    if (state.weakened) entries.push({ className: "status-weakened", text: "☄ 기력 약화 · 내 피해 -25%" });
+    if (state.weakened) entries.push({ className: "status-weakened", text: `☄ 기력 약화 ${state.weakenedTurns || 1}회 · 내 피해 -25%` });
     if (state.healReductionTurns) entries.push({ className: "status-weakened", text: `☄ 회복 약화 ${state.healReductionTurns}턴 · 회복 -${Math.round((state.healReductionRatio || 0) * 100)}%` });
     if (state.enemyVulnerableTurns) entries.push({ className: "status-weakened", text: `◌ 취약 ${state.enemyVulnerableTurns}턴 · 피해 +${Math.round((state.enemyVulnerableRatio || 0) * 100)}%` });
     if (state.enemySilenced) entries.push({ className: "status-delay", text: `🔇 침묵 ${state.enemySilenced}턴` });
@@ -1634,7 +1652,7 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
       const procBonus = Math.round((jaryeong.procChanceBonus + Math.max(0, level - 1 + awakening) * .01) * 100);
       const skillReady = charge >= 5 && !state.resolving && !state.gameOver;
       slot.classList.toggle("skill-ready", skillReady);
-      slot.innerHTML = `<span class="jaryeong-avatar ${jaryeong.element}">${tamedSpriteMarkup(jaryeong)}</span><span class="jaryeong-slot-copy"><b>${jaryeong.name} <small>Lv.${level}${awakening ? ` · 覺${awakening}` : ""}</small></b><em><strong>${escapeHtml(jaryeong.skillName)}</strong> · ${escapeHtml(jaryeong.skillDesc)}</em></span><button type="button" class="jaryeong-skill-button${skillReady ? " ready" : ""}" data-jaryeong-skill="${jaryeong.id}" ${skillReady ? "" : "disabled"} aria-label="${escapeHtml(`${jaryeong.name}의 ${jaryeong.skillName}. ${jaryeong.skillDesc}. 기운 ${charge}/5`)}"><b>${escapeHtml(jaryeong.skillName)}</b><span>${charge}/5</span></button>`;
+      slot.innerHTML = `<span class="jaryeong-avatar ${jaryeong.element}">${tamedSpriteMarkup(jaryeong)}</span><span class="jaryeong-slot-copy"><b>${jaryeong.name} <small>Lv.${level}${awakening ? ` · 覺${awakening}` : ""}</small></b><em><strong>${escapeHtml(jaryeong.skillName)}</strong> · ${escapeHtml(jaryeong.skillDesc)}</em></span><button type="button" class="jaryeong-skill-button${skillReady ? " ready" : ""}" data-jaryeong-skill="${jaryeong.id}" data-skill-key="${index + 1}" ${skillReady ? "" : "disabled"} aria-label="${escapeHtml(`${index + 1}번. ${jaryeong.name}의 ${jaryeong.skillName}. ${jaryeong.skillDesc}. 기운 ${charge}/5`)}"><kbd>${index + 1}</kbd><b>${escapeHtml(jaryeong.skillName)}</b><span>${charge}/5</span></button>`;
       slot.title = `${jaryeong.skillName} · ${jaryeong.skillDesc} · 각성당 공격 +3% · 편성 공명: ${ELEMENT_PROC_RULES[jaryeong.element].effect} 발동률 +${procBonus}%p`;
       fragment.appendChild(slot);
     }
@@ -2373,9 +2391,10 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
     const meaningText = idiomMeaningText(idiom);
     const missingChars = idiom.chars.filter((char, index) => !availability[index]);
     const requirementText = ready ? "발동 준비" : `필요 ${missingChars.join("·")}`;
+    const upgrade = state.run?.idiomUpgrades?.[idiom.id] || 0;
     const tooltip = `${idiom.sourceHanja} · ${idiom.pronunciation || idiom.name}\n뜻: ${meaningText}\n효과: ${effectText}`;
     return `<button type="button" class="idiom-card ${setKind} ${ready ? "ready" : ""}" data-idiom-detail="${escapeHtml(idiom.id)}" title="${escapeHtml(tooltip)}" aria-label="${escapeHtml(`${idiom.name}. ${requirementText}. 효과: ${effectText}. 눌러서 뜻 보기`)}">
-      <div class="idiom-title"><strong>${escapeHtml(idiom.name)}</strong><em class="idiom-requirement">${escapeHtml(requirementText)}</em></div>
+      <div class="idiom-title"><strong>${escapeHtml(idiom.name)}</strong>${upgrade ? `<i class="idiom-level">Lv.${upgrade + 1} · ${100 + upgrade * 15}%</i>` : ""}<em class="idiom-requirement">${escapeHtml(requirementText)}</em></div>
       <div class="idiom-slots">${idiom.chars.map((char, i) => `<span class="idiom-slot ${availability[i] ? "collected" : ""}" title="${escapeHtml(`${char} · ${HANJA_READINGS[char]}`)}"><b>${char}</b><small>${escapeHtml(HANJA_READINGS[char])}</small></span>`).join("")}</div>
       <p class="idiom-effect"><b>효과</b> ${escapeHtml(effectText)}</p>
     </button>`;
@@ -2392,8 +2411,9 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
     const ready = preview?.ready ?? collected === idiom.chars.length;
     const effectText = idiomEffectText(idiom);
     const meaningText = idiomMeaningText(idiom);
+    const upgrade = state.run?.idiomUpgrades?.[idiom.id] || 0;
     wrap.innerHTML = `<button type="button" class="idiom-focus-card ${setKind} ${ready ? "ready" : ""}" data-idiom-detail="${escapeHtml(idiom.id)}" title="${escapeHtml(`뜻: ${meaningText}`)}" aria-label="${escapeHtml(`${idiom.name}, ${collected}글자 수집. 효과: ${effectText}. 눌러서 뜻 보기`)}">
-      <span class="idiom-focus-heading"><em>${setKind === "rotating" ? "순환 학습" : "고정 학습"}</em><strong>${escapeHtml(idiom.name)}</strong><b>${ready ? "연성 가능" : `${collected}/4`}</b></span>
+      <span class="idiom-focus-heading"><em>${setKind === "rotating" ? "순환 학습" : "고정 학습"}</em><strong>${escapeHtml(idiom.name)}</strong>${upgrade ? `<i class="idiom-level">Lv.${upgrade + 1} · ${100 + upgrade * 15}%</i>` : ""}<b>${ready ? "연성 가능" : `${collected}/4`}</b></span>
       <span class="idiom-focus-glyphs">${idiom.chars.map((char, index) => `<span class="${availability[index] ? "collected" : ""}"><b>${escapeHtml(char)}</b><small>${escapeHtml(HANJA_READINGS[char])}</small></span>`).join("")}</span>
       <span class="idiom-focus-effect"><b>효과</b>${escapeHtml(effectText)}</span>
     </button>`;
@@ -2866,9 +2886,11 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
     $("#battle-feedback-title").textContent = title;
     $("#battle-feedback-detail").textContent = detail;
     feedback.classList.remove("player", "enemy", "show");
+    const duration = kind === "enemy" ? 3000 : 2100;
+    feedback.style.setProperty("--feedback-duration", `${duration}ms`);
     void feedback.offsetWidth;
     feedback.classList.add(kind === "enemy" ? "enemy" : "player", "show");
-    battleFeedbackTimer = window.setTimeout(() => feedback.classList.remove("show"), 1500);
+    battleFeedbackTimer = window.setTimeout(() => feedback.classList.remove("show"), duration);
   }
 
   function showPlayerHitFeedback(damage, absorbed = 0) {
@@ -2931,21 +2953,59 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
     });
   }
 
-  function animateSquadElement(element) {
-    const member = document.querySelector(`.squad-jaryeong.${element}`);
-    const jaryeong = getJaryeong(member?.dataset.squadJaryeong);
-    const img = member?.querySelector(".sprite-body");
-    if (!member || !img || !jaryeong?.asset?.attack) return;
-    img.src = jaryeong.asset.attack;
-    setTalismanFrame(member, jaryeong, "attack");
-    member.classList.remove("attacking");
-    void member.offsetWidth;
-    member.classList.add("attacking");
-    window.setTimeout(() => {
+  const COMBAT_PROJECTILE_COLORS = Object.freeze({
+    wood: "#70d98e", fire: "#ff704f", earth: "#d2aa62", metal: "#e7edf2", water: "#62b9f2", seal: "#e4513e"
+  });
+
+  async function launchCombatProjectile(fromElement, toElement, { element = "wood", kind = "attack", label = "" , duration = 480 } = {}) {
+    const layer = $("#combat-projectile-layer");
+    if (!layer || !fromElement || !toElement) return;
+    const from = fromElement.getBoundingClientRect();
+    const to = toElement.getBoundingClientRect();
+    const startX = from.left + from.width / 2;
+    const startY = from.top + from.height / 2;
+    const endX = to.left + to.width / 2;
+    const endY = to.top + to.height / 2;
+    const projectile = document.createElement("span");
+    projectile.className = `combat-projectile ${kind === "seal" ? "seal" : element}`;
+    projectile.textContent = label;
+    projectile.style.setProperty("--projectile-x", `${startX}px`);
+    projectile.style.setProperty("--projectile-y", `${startY}px`);
+    projectile.style.setProperty("--projectile-dx", `${endX - startX}px`);
+    projectile.style.setProperty("--projectile-dy", `${endY - startY}px`);
+    projectile.style.setProperty("--projectile-color", COMBAT_PROJECTILE_COLORS[kind === "seal" ? "seal" : element] || COMBAT_PROJECTILE_COLORS.wood);
+    projectile.style.setProperty("--projectile-duration", `${duration}ms`);
+    layer.appendChild(projectile);
+    await wait(duration);
+    projectile.remove();
+  }
+
+  async function animateSquadElement(element, memberId = null) {
+    const enemyTarget = $("#enemy-sprite");
+    const members = [...document.querySelectorAll(`.squad-jaryeong.${element}`)]
+      .filter((member) => !memberId || member.dataset.squadJaryeong === memberId);
+    if (!enemyTarget || !members.length) return;
+    await Promise.all(members.map(async (member, index) => {
+      const jaryeong = getJaryeong(member.dataset.squadJaryeong);
+      const img = member.querySelector(".sprite-body");
+      if (!img || !jaryeong?.asset?.attack) return;
+      await wait(index * 65);
+      img.src = jaryeong.asset.attack;
+      setTalismanFrame(member, jaryeong, "attack");
       member.classList.remove("attacking");
-      img.src = jaryeong.asset.idle;
-      setTalismanFrame(member, jaryeong, "idle");
-    }, 420);
+      void member.offsetWidth;
+      member.classList.add("attacking");
+      window.setTimeout(() => {
+        member.classList.remove("attacking");
+        img.src = jaryeong.asset.idle;
+        setTalismanFrame(member, jaryeong, "idle");
+      }, 560);
+      await launchCombatProjectile(member, enemyTarget, { element, duration: 480 });
+    }));
+    enemyTarget.classList.remove("projectile-hit");
+    void enemyTarget.offsetWidth;
+    enemyTarget.classList.add("projectile-hit");
+    window.setTimeout(() => enemyTarget.classList.remove("projectile-hit"), 320);
   }
 
   function updatePangHud() {
@@ -3186,11 +3246,11 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
     return 1;
   }
 
-  function applyElementMatchEffects(elementCounts, comboScale) {
+  async function applyElementMatchEffects(elementCounts, comboScale) {
     const activeElements = Object.entries(elementCounts).filter(([, count]) => count > 0).map(([element]) => element);
     const activeSet = new Set(activeElements);
     const leader = getLeaderJaryeong();
-    const total = { damage: 0, heal: 0, shield: 0, burn: 0, delay: 0, logs: [], procs: [], byElement: {} };
+    const total = { damage: 0, heal: 0, shield: 0, burn: 0, delay: 0, logs: [], procs: [], strikes: [], byElement: {} };
     activeElements.forEach((element) => {
       const count = elementCounts[element];
       const units = matchUnits(count);
@@ -3208,7 +3268,7 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
         const level = state.run?.jaryeongLevels?.[jaryeong.id] || 1;
         const awakening = state.run?.jaryeongAwakenings?.[jaryeong.id] || 0;
         return sum + jaryeong.attack * (1 + (level - 1) * .15 + awakening * .03);
-      }, 0) : ELEMENT_RULES[element].damage;
+      }, 0) : 0;
       const playerDamageBonus = state.nextPlayerDamageBonus || 0;
       const weaknessBonus = currentEnemy().weakElement === element ? (state.nextWeaknessDamageBonus || 0) : 0;
       const affinityStacks = state.run?.elementAffinity?.[element] || 0;
@@ -3218,6 +3278,7 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
       const damage = Math.round(attackBase * units * comboScale * leaderDamageBonus * buildMultiplier * (1 + synergyBonus * .18) * procDamageMultiplier * elementMultiplier(element, metalPiercing) * (1 + weaknessBonus) * (state.weakened ? .75 : 1) * (1 + playerDamageBonus) * (1 + (state.idiomGrowthStacks || 0) * .04));
       total.damage += damage;
       total.byElement[element] = (total.byElement[element] || 0) + damage;
+      if (damage > 0 && party.length) total.strikes.push({ element, damage, memberIds: party.map((jaryeong) => jaryeong.id) });
       chargePartyByElement(element, count);
       let procResult = `${procRule.effect} 미발동`;
       if (proc.activated && element === "wood") {
@@ -3248,9 +3309,7 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
         procResult = `관통 피해 +${Math.round((procRule.damageMultiplier - 1) * 100)}%${pierced ? ` · 보호막 ${pierced} 파괴` : ""}`;
       }
       total.procs.push({ ...proc, effectText: procResult });
-      total.logs.push(`${ELEMENT_RULES[element].label} ${damage}피해`);
-      animateSquadElement(element);
-      audioDirector.playSfx(`hit-${element}`);
+      total.logs.push(damage > 0 ? `${ELEMENT_RULES[element].label} ${damage}피해` : `${ELEMENT_RULES[element].label} 공격 자령 없음`);
     });
 
     const rainbow = getRunRelicEffect("rainbowCharge");
@@ -3264,7 +3323,13 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
       state.nextElementBoosts[synergy.buff] = (state.nextElementBoosts[synergy.buff] || 0) + 1;
       addLog(`<strong>${synergy.label} 상생</strong> · ${synergy.text}`, "combo");
     });
-    if (total.damage) applyDamage(total.damage, "내 공격 −", { feedbackKind: "player" });
+    for (const strike of total.strikes) {
+      const element = strike.element;
+      await animateSquadElement(element);
+      audioDirector.playSfx(`hit-${element}`);
+      applyDamage(strike.damage, `${ELEMENT_RULES[element].label} 자령 −`, { feedbackKind: "player" });
+      await wait(90);
+    }
     if (total.heal) healPlayer(total.heal);
     if (total.shield) gainShield(total.shield);
     if (total.delay) {
@@ -3292,6 +3357,9 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
     // 이전 저장의 Lv.5 각성 판정은 유지하면서, 영구 메타 각성도 전투 효과에 반영한다.
     const awakened = (state.run.jaryeongAwakenings?.[id] || 0) > 0 || level >= 5;
     state.run.skillCharges[id] = 0;
+    const offensiveSkill = /피해|공격|폭쇄|반동/.test(`${skill.name || ""} ${skill.description || ""}`)
+      || ["earth-mountain", "metal-chain", "metal-sword", "water-sea"].includes(jaryeong.id);
+    if (offensiveSkill) await animateSquadElement(jaryeong.element, jaryeong.id);
     switch (jaryeong.element) {
       case "wood":
         if (jaryeong.id === "wood-bamboo") {
@@ -3426,6 +3494,7 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
   async function resolveTurn() {
     state.resolving = true;
     state.freshQueueIds.clear();
+    deliverFirstBattleCharacters(state.turn);
     state.currentChargeBonus = state.nextChargeBonus || 0;
     state.nextChargeBonus = 0;
     resetTurnTotals();
@@ -3469,7 +3538,7 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
     if (cascade) {
       state.totalCombos += comboCount;
       const comboScale = 1 + Math.max(0, comboCount - 1) * .25;
-      const elemental = applyElementMatchEffects(elementCounts, comboScale);
+      const elemental = await applyElementMatchEffects(elementCounts, comboScale);
       const outcome = [`총 ${elemental.damage} 피해`];
       if (elemental.heal) outcome.push(`체력 +${elemental.heal}`);
       if (elemental.shield) outcome.push(`보호막 +${elemental.shield}`);
@@ -3504,6 +3573,10 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
     cleanQueue(activated.usedIds);
     state.turnsSinceIdiom = activated.activated.length ? 0 : (state.turnsSinceIdiom || 0) + 1;
     renderQueue(); renderIdioms(); updateVitals();
+    if (state.weakenedTurns > 0) {
+      state.weakenedTurns--;
+      if (!state.weakenedTurns) state.weakened = false;
+    }
     if (state.healReductionTurns > 0) {
       state.healReductionTurns--;
       if (!state.healReductionTurns) state.healReductionRatio = 0;
@@ -3511,6 +3584,7 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
     // Locks created by the previous enemy action remain through this player
     // move, then expire before the enemy can apply a fresh lock for next turn.
     reduceTileLocks();
+    advanceFirstBattleGuide(FIRST_BATTLE_ONBOARDING_EVENT.RESPONSE_CHOSEN);
 
     let enemyActed = false;
     if (state.enemyHp <= 0) {
@@ -3526,6 +3600,7 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
         addLog(`<strong>${hourglass.relicName}</strong> · 7턴째의 적 행동을 ${hourglass.turns || 1}턴 지연`, "water");
       }
       enemyActed = await enemyTurn();
+      if (enemyActed) advanceFirstBattleGuide(FIRST_BATTLE_ONBOARDING_EVENT.ENEMY_ACTION_RESOLVED);
     }
     if (!state.gameOver) {
       if (state.enemyVulnerableTurns > 0) state.enemyVulnerableTurns--;
@@ -3556,9 +3631,10 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
       state.queue = state.queue.filter((entry) => state.turn - entry.born < getQueueLife());
       if (state.queue.length > getQueueMax()) state.queue = state.queue.slice(-getQueueMax());
       state.freshQueueIds.clear();
+      deliverFirstBattleCharacters(state.turn);
       refreshRotatingIdioms({ announce: true });
-      updateAll();
       state.resolving = false;
+      updateAll();
     }
   }
 
@@ -3651,6 +3727,17 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
         shield: state.turnTotals?.shield || 0
       };
       applyBaseIdiomEffect(idiom, elementCounts, comboCount, { previousIdiomId, usedEntries });
+      const upgradeLevel = state.run?.idiomUpgrades?.[idiom.id] || 0;
+      if (upgradeLevel > 0) {
+        const ratio = upgradeLevel * .15;
+        const bonusDamage = Math.round(Math.max(0, (state.turnTotals?.damage || 0) - beforePowerTotals.damage) * ratio);
+        const bonusHeal = Math.round(Math.max(0, (state.turnTotals?.heal || 0) - beforePowerTotals.heal) * ratio);
+        const bonusShield = Math.round(Math.max(0, (state.turnTotals?.shield || 0) - beforePowerTotals.shield) * ratio);
+        if (bonusDamage) applyTrueDamage(bonusDamage, "심화 −");
+        if (bonusHeal) healPlayer(bonusHeal);
+        if (bonusShield) gainShield(bonusShield);
+        addLog(`<strong>${idiom.name} Lv.${upgradeLevel + 1}</strong> · 심화 수치 +${Math.round(ratio * 100)}%${bonusDamage || bonusHeal || bonusShield ? ` (피해 ${bonusDamage} · 회복 ${bonusHeal} · 보호 ${bonusShield})` : ""}`, "alchemy");
+      }
       if (pendingPower && state.run) {
         delete state.run.pendingFlags.nextIdiomPower;
         const bonusDamage = Math.round(Math.max(0, (state.turnTotals?.damage || 0) - beforePowerTotals.damage) * pendingPower);
@@ -3804,6 +3891,7 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
     if (id === "resetMind") {
       const removed = state.weakened ? 1 : 0;
       state.weakened = false;
+      state.weakenedTurns = 0;
       healPlayer(removed ? 12 : 18);
       if (removed) state.nextMoveBonus += .75;
       return;
@@ -3858,7 +3946,7 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
       return;
     }
     if (id === "swapView") {
-      if (state.weakened) state.weakened = false;
+      if (state.weakened) { state.weakened = false; state.weakenedTurns = 0; }
       else { state.nextEnemyDamageReduction = Math.max(state.nextEnemyDamageReduction || 0, .3); state.nextPlayerDamageBonus = Math.max(state.nextPlayerDamageBonus || 0, .15); }
       state.enemyVulnerableTurns = Math.max(state.enemyVulnerableTurns, 2);
       state.enemyVulnerableRatio = Math.max(state.enemyVulnerableRatio || 0, .2);
@@ -3929,6 +4017,7 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
     if (id === "fairAndSquare") {
       applyTrueDamage(26, "공정 −");
       state.weakened = false;
+      state.weakenedTurns = 0;
       gainShield(8);
       return;
     }
@@ -3981,11 +4070,9 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
       getPartyJaryeongs().filter((jaryeong) => jaryeong.element === best[0]).forEach((jaryeong) => chargeJaryeong(jaryeong.id, 1));
       return;
     }
-    const upgrade = state.run?.idiomUpgrades?.[idiom.id] || 0;
-    const multiplier = Math.min(RUN_LIMITS.maxDamageMultiplier, 1 + upgrade * .15);
     const ops = idiom.effectSpec?.ops || [{ type: "dealDamage", amount: idiom.tier === "희귀" ? 30 : idiom.tier === "중급" ? 22 : 16 }];
     ops.forEach((op) => {
-      const amount = Math.round((op.amount || 0) * multiplier);
+      const amount = Math.round(op.amount || 0);
       if (op.type === "dealDamage") applyTrueDamage(amount, "성어 −");
       else if (op.type === "gainShield") gainShield(amount);
       else if (op.type === "heal") healPlayer(amount);
@@ -3997,7 +4084,7 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
     });
   }
 
-  function applyEnemyIntentEffect(intent, silenced = false) {
+  async function applyEnemyIntentEffect(intent, silenced = false, context = {}) {
     const effect = intent?.effect;
     if (!effect) return silenced ? " · 부가효과 봉인" : "";
     if (silenced) return " · 부가효과 봉인";
@@ -4005,16 +4092,21 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
       case "weaken":
         audioDirector.playSfx("debuff");
         state.weakened = true;
+        state.weakenedTurns = Math.max(state.weakenedTurns || 0, effect.turns || 1);
         if (effect.healReduction) {
           state.healReductionTurns = Math.max(state.healReductionTurns, effect.turns || 1);
           state.healReductionRatio = Math.max(state.healReductionRatio || 0, effect.healReduction);
         }
         return effect.healReduction ? " · 회복 약화" : " · 기력 약화";
       case "lockTiles":
-        lockRandomTiles(effect.count || 2, effect.turns || 1);
+        await lockRandomTiles(effect.count || 2, effect.turns || 1);
         if (effect.healAmount) state.enemyHp = Math.min(currentEnemy().hp, state.enemyHp + effect.healAmount);
         return ` · 타일 ${effect.count || 2}개 봉인`;
       case "healEnemy":
+        state.enemyHp = Math.min(currentEnemy().hp, state.enemyHp + (effect.amount || 0));
+        return ` · 기운 ${effect.amount || 0} 회복`;
+      case "healEnemyUnlessBurning":
+        if (context.enemyWasBurning) return " · 화상으로 재생 차단";
         state.enemyHp = Math.min(currentEnemy().hp, state.enemyHp + (effect.amount || 0));
         return ` · 기운 ${effect.amount || 0} 회복`;
       case "gainEnemyShield":
@@ -4037,6 +4129,7 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
   }
 
   async function enemyTurn() {
+    const enemyWasBurning = state.enemyBurn > 0;
     if (state.enemyBurn > 0) {
       const burn = state.enemyBurn;
       state.enemyBurn = 0;
@@ -4064,6 +4157,8 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
     }
     const enemy = currentEnemy();
     const intent = currentEnemyIntent();
+    showBattleFeedback("enemy", `${intent.name} 준비`, intent.effectText || "적이 행동을 준비합니다.");
+    await wait(state.idiomSpeed === "slow" ? 680 : 340);
     setEnemyArtFrame(enemy.asset?.telegraph ? "telegraph" : "windup", 0);
     await wait(210);
     setEnemyArtFrame("attack", 360);
@@ -4105,7 +4200,7 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
       addLog(`<strong>협곡 분류</strong> · 체력 피해 ${deferred}을 3턴에 나누어 받습니다.`, "earth");
     }
     state.playerHp -= damage;
-    const effectSuffix = applyEnemyIntentEffect(intent, silenced);
+    const effectSuffix = await applyEnemyIntentEffect(intent, silenced, { enemyWasBurning });
     showPlayerHitFeedback(damage, absorbed);
     const enemyOutcome = [];
     if (absorbed) enemyOutcome.push(`보호막이 ${absorbed} 막음`);
@@ -4711,6 +4806,7 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
     state.resolving = false;
     state.delayed = pending.nextBattleDelay || 0;
     state.weakened = false;
+    state.weakenedTurns = 0;
     state.prepared = false;
     state.enemyBurn = 0;
     state.enemyShield = 0;
@@ -4745,6 +4841,7 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
     state.boundEnemyIntentTurns = 0;
     state.combatObjective = null;
     state.rareEncounter = null;
+    state.firstBattleOnboarding = null;
     resetTurnTotals();
     state.turn = 1;
     state.queue = [];
@@ -4753,6 +4850,71 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
       state.run.pendingFlags = remainingPending;
       state.run.leaderDelayUsed = false;
     }
+  }
+
+  function deliverFirstBattleCharacters(turn) {
+    const onboarding = state.firstBattleOnboarding;
+    if (!onboarding?.eligible || !onboarding.grantIssued || onboarding.finished) return [];
+    const deliveredTurns = new Set(onboarding.deliveredTurns || []);
+    if (deliveredTurns.has(turn)) return [];
+    const delivery = onboarding.plan?.characterSupply?.deliveries?.find((entry) => entry.turn === turn);
+    if (!delivery) return [];
+    const delivered = [];
+    delivery.characters.forEach((char) => {
+      if (state.queue.length >= getQueueMax()) state.queue.shift();
+      const entry = { id: uid(), char, born: state.turn };
+      state.queue.push(entry);
+      state.freshQueueIds.add(entry.id);
+      delivered.push(char);
+    });
+    onboarding.deliveredTurns = [...deliveredTurns, turn];
+    if (delivered.length) {
+      addLog(`<strong>첫 연성 지원</strong> · ${turn}턴 문자 ${delivered.join(" · ")} 공급`, "start");
+      showBattleFeedback("player", "첫 연성 지원", `${delivered.join(" · ")} 문자가 큐에 들어왔습니다.`);
+    }
+    return delivered;
+  }
+
+  function advanceFirstBattleGuide(type) {
+    if (!state.firstBattleOnboarding?.eligible || state.firstBattleOnboarding.finished) return;
+    state.firstBattleOnboarding = advanceFirstBattleOnboarding(state.firstBattleOnboarding, { type });
+    const hint = getCurrentFirstBattleHint(state.firstBattleOnboarding);
+    if (hint?.text) addLog(`<strong>첫 전투 안내</strong> · ${hint.text}`, "start");
+  }
+
+  function setupFirstBattleOnboarding(enemy, currentNode) {
+    if (!state.run) return;
+    const fixedIdioms = getFixedIdioms();
+    const leaderId = state.run.leaderJaryeongId || state.run.partyJaryeongIds?.[0] || null;
+    state.firstBattleOnboarding = createFirstBattleOnboarding({
+      seed: state.run.seed,
+      isNewRun: true,
+      isResume: false,
+      completedRuns: metaProgress.completedRuns || 0,
+      battleIndex: state.run.battleIndex || 0,
+      encounterKind: currentNode?.type || enemy?.kind || "battle",
+      isBoss: currentNode?.type === "boss" || enemy?.kind === "boss",
+      partyIds: state.run.partyJaryeongIds,
+      leaderId,
+      fixedIdioms,
+      availableCharacters: state.queue.map((entry) => entry.char),
+      enemyIntent: currentEnemyIntent()
+    });
+    const issued = issueFirstBattleOnboardingGrants(state.firstBattleOnboarding);
+    state.firstBattleOnboarding = issued.state;
+    if (!issued.grants) return;
+    state.firstBattleOnboarding.deliveredTurns = [];
+    const leaderGrant = issued.grants.leaderCharge;
+    if (leaderGrant?.jaryeongId && state.run.skillCharges) {
+      state.run.skillCharges[leaderGrant.jaryeongId] = Math.max(
+        state.run.skillCharges[leaderGrant.jaryeongId] || 0,
+        leaderGrant.charge || 5
+      );
+    }
+    deliverFirstBattleCharacters(1);
+    advanceFirstBattleGuide(FIRST_BATTLE_ONBOARDING_EVENT.INTENT_READ);
+    const skillName = getJaryeong(leaderId)?.skillName || "리더 기술";
+    addLog(`<strong>리더 기술 준비 완료</strong> · ${skillName}을 바로 눌러 시험할 수 있습니다.`, "alchemy");
   }
 
   function setupRareEncounter(node, enemy) {
@@ -4836,6 +4998,7 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
     state.combatObjective = chooseCombatObjective(enemy);
     recordCombatObjectiveEvent({ type: COMBAT_OBJECTIVE_EVENT.BATTLE_STARTED, shield: state.shield });
     resetEnemyPlan();
+    setupFirstBattleOnboarding(enemy, currentNode);
     addLog(`<strong>고정</strong> ${getFixedIdioms().map((idiom) => idiom.name).join(" · ")} / <strong>순환</strong> ${getRotatingIdioms().map((idiom) => idiom.name).join(" · ")} · 순환식은 ${state.idiomRecipeInterval}턴 후 교체`, "start");
     if (openingDamage) addLog(`<strong>선제 부적</strong> · 전투 시작 피해 ${openingDamage}`, "alchemy");
     if (eliteDanger) addLog(`<strong>봉인된 우물의 대가</strong> · 이번 정예의 공격 피해 +${Math.round(eliteDanger * 100)}%`, "enemy");
@@ -4883,9 +5046,52 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
     return run.characterPool;
   }
 
+  function upgradeOwnedIdiom(preferredId = null) {
+    const run = state.run;
+    if (!run) return null;
+    const candidates = run.idiomBookIds.filter((id) => (run.idiomUpgrades[id] || 0) < 2);
+    const targetId = candidates.includes(preferredId) ? preferredId : randomOf(candidates);
+    if (!targetId) return null;
+    const idiom = ALL_IDIOMS.find((candidate) => candidate.id === targetId);
+    const before = run.idiomUpgrades[targetId] || 0;
+    const after = Math.min(2, before + 1);
+    run.idiomUpgrades[targetId] = after;
+    return {
+      type: "idiom-upgrade",
+      targetId,
+      name: idiom?.name || "보유 성어",
+      chars: idiom?.chars || [],
+      before,
+      after,
+      beforeMultiplier: 100 + before * 15,
+      afterMultiplier: 100 + after * 15,
+      effectText: idiom ? idiomEffectText(idiom) : "성어 효과"
+    };
+  }
+
+  async function showSelectionReceipt(modalSelector, receipt) {
+    if (!receipt) return;
+    const modal = $(modalSelector);
+    const card = modal?.querySelector(".modal-card");
+    if (!card) return;
+    modal.querySelectorAll("button").forEach((button) => { button.disabled = true; });
+    card.querySelector(".selection-receipt")?.remove();
+    const panel = document.createElement("div");
+    panel.className = "selection-receipt";
+    panel.setAttribute("role", "status");
+    panel.setAttribute("aria-live", "assertive");
+    panel.innerHTML = `<small>강화 완료</small><strong>${escapeHtml(receipt.name)} · Lv.${receipt.before + 1} → Lv.${receipt.after + 1}</strong><span class="selection-receipt-glyphs">${receipt.chars.map((char) => `<b>${escapeHtml(char)}</b>`).join("")}</span><p>${escapeHtml(receipt.effectText)}</p><em>효과 수치 ${receipt.beforeMultiplier}% → ${receipt.afterMultiplier}%</em>`;
+    card.appendChild(panel);
+    requestAnimationFrame(() => panel.classList.add("show"));
+    audioDirector.playSfx("idiom-ready");
+    await wait(1800);
+    panel.remove();
+  }
+
   function applyRunEffects(effects = []) {
     const run = state.run;
-    if (!run) return;
+    if (!run) return [];
+    const receipts = [];
     effects.forEach((effect) => {
       switch (effect.type) {
         case "heal": state.playerHp = clamp(state.playerHp + (effect.amount || 0), 0, run.maxHp); break;
@@ -4910,8 +5116,8 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
         case "gainRelicId": gainRunRelic(null, effect.id); break;
         case "draftIdiom": gainRunIdiom(); break;
         case "upgradeIdiom": {
-          const target = randomOf(run.idiomBookIds);
-          if (target) run.idiomUpgrades[target] = Math.min(2, (run.idiomUpgrades[target] || 0) + 1);
+          const receipt = upgradeOwnedIdiom(effect.targetId);
+          if (receipt) receipts.push(receipt);
           break;
         }
         case "removeIdiom": {
@@ -4963,6 +5169,7 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
       }
     });
     state.shield = Math.min(Math.round(run.maxHp * RUN_LIMITS.maxShieldRatio), state.shield);
+    return receipts;
   }
 
   function nodeChoices(node) {
@@ -5018,14 +5225,20 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
     else openRoguelikeRoute();
   }
 
-  function chooseRunNodeChoice(id) {
+  async function chooseRunNodeChoice(id) {
     const tier = currentRouteTier();
     const node = tier?.choices.find((candidate) => candidate.id === state.run?.currentNodeId);
     if (!node) return;
     const choice = nodeChoices(node).find((candidate) => candidate.id === id);
     if (!choice || (choice.cost && state.run.ink < choice.cost) || (choice.minIdioms && state.run.idiomBookIds.length < choice.minIdioms)) return;
-    applyRunEffects(choice.effects || []);
+    const receipts = applyRunEffects(choice.effects || []);
     state.run.rewardHistory.push(`${node.type}:${choice.id}`);
+    const upgradeReceipt = receipts.find((receipt) => receipt.type === "idiom-upgrade");
+    if (upgradeReceipt) {
+      state.run.rewardHistory.push(`idiom-upgrade:${upgradeReceipt.targetId}:${upgradeReceipt.after}`);
+      addLog(`<strong>${upgradeReceipt.name}</strong> 강화 · Lv.${upgradeReceipt.before + 1} → Lv.${upgradeReceipt.after + 1} · 효과 수치 ${upgradeReceipt.beforeMultiplier}% → ${upgradeReceipt.afterMultiplier}%`, "alchemy");
+      await showSelectionReceipt("#roguelike-node-modal", upgradeReceipt);
+    }
     $("#roguelike-node-modal").classList.remove("open");
     audioDirector.playSfx("reward");
     completeCurrentRunNode();
@@ -5057,14 +5270,25 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
       pityGuaranteed
     } : null;
     const idiomPool = ALL_IDIOMS.filter((idiom) => !run.idiomBookIds.includes(idiom.id));
-    const idiom = randomOf(idiomPool);
-    const idiomReward = idiom ? { type: "idiom", ...idiom } : {
-      id: `upgrade-${randomOf(run.idiomBookIds)}`,
+    const idiom = run.idiomBookIds.length < RUN_LIMITS.idiomBookMax ? randomOf(idiomPool) : null;
+    const upgradableIdiomIds = run.idiomBookIds.filter((id) => (run.idiomUpgrades[id] || 0) < 2);
+    const upgradeTargetId = randomOf(upgradableIdiomIds);
+    const upgradeTarget = ALL_IDIOMS.find((candidate) => candidate.id === upgradeTargetId);
+    const idiomReward = idiom ? { type: "idiom", ...idiom } : upgradeTarget ? {
+      id: `upgrade-${upgradeTarget.id}`,
       type: "idiom-upgrade",
-      targetId: randomOf(run.idiomBookIds),
-      name: "성어 심화",
-      desc: "보유 성어 하나의 위력을 15% 높입니다.",
-      chars: ["鍊","成","深","化"]
+      targetId: upgradeTarget.id,
+      name: `${upgradeTarget.name} 심화`,
+      desc: `${idiomEffectText(upgradeTarget)} · 효과 수치 ${100 + (run.idiomUpgrades[upgradeTarget.id] || 0) * 15}% → ${115 + (run.idiomUpgrades[upgradeTarget.id] || 0) * 15}%`,
+      chars: upgradeTarget.chars
+    } : {
+      id: "mastered-idiom-recovery",
+      type: "heal",
+      name: "완성된 성어첩",
+      glyph: "成",
+      rarity: "숙련 완료",
+      desc: "모든 보유 성어가 최대 강화 · 체력 24 회복 · 먹 6",
+      effects: [{ type: "heal", amount: 24 }, { type: "gainInk", amount: 6 }]
     };
     const relicPool = RELIC_CATALOG.filter((relic) => !run.relicIds.includes(relic.id));
     let utility = randomOf(relicPool);
@@ -5112,15 +5336,17 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
         </button>`;
       }
       if (reward.type === "idiom" || reward.type === "idiom-upgrade") {
-        const effectText = reward.type === "idiom" ? idiomEffectText(reward) : reward.desc;
+        const upgradeTarget = reward.type === "idiom-upgrade" ? ALL_IDIOMS.find((idiom) => idiom.id === reward.targetId) : null;
+        const upgradeBefore = upgradeTarget ? (run.idiomUpgrades[upgradeTarget.id] || 0) : 0;
+        const effectText = reward.type === "idiom" ? idiomEffectText(reward) : `${upgradeTarget ? idiomEffectText(upgradeTarget) : reward.desc} · 효과 수치 ${100 + upgradeBefore * 15}% → ${115 + upgradeBefore * 15}%`;
         const meaningText = reward.type === "idiom" ? idiomMeaningText(reward) : "";
-        const roleText = reward.type === "idiom" ? (reward.role || "전투 효과") : "보유 성어 위력 강화";
+        const roleText = reward.type === "idiom" ? (reward.role || "전투 효과") : `Lv.${upgradeBefore + 1} → Lv.${upgradeBefore + 2}`;
         const tooltip = reward.type === "idiom"
           ? `${reward.name}\n효과: ${effectText}\n뜻: ${meaningText}`
           : `${reward.name}\n효과: ${effectText}`;
         return `<button type="button" class="roguelike-choice reward-choice idiom-reward-choice" data-roguelike-reward="${escapeHtml(reward.id)}" title="${escapeHtml(tooltip)}" aria-label="${escapeHtml(`${reward.name} 보상. 효과: ${effectText}${meaningText ? `. 뜻: ${meaningText}` : ""}`)}">
           <span class="roguelike-choice-glyphs">${(reward.chars || []).map((char) => `<b>${char}</b>`).join("")}</span>
-          <span class="roguelike-choice-meta"><em>${escapeHtml(reward.type === "idiom" ? `${reward.tier || "성어"} · ${reward.category || "연성"}` : "성어 강화")}</em><strong>${escapeHtml(reward.name)}</strong><small>${escapeHtml(roleText)}</small></span>
+          <span class="roguelike-choice-meta"><em>${escapeHtml(reward.type === "idiom" ? `${reward.tier || "성어"} · ${reward.category || "연성"}` : `${upgradeTarget?.name || "성어"} 강화`)}</em><strong>${escapeHtml(reward.name)}</strong><small>${escapeHtml(roleText)}</small></span>
           <span class="roguelike-choice-desc reward-idiom-copy"><b class="reward-effect-label">효과</b><span class="reward-idiom-effect">${escapeHtml(effectText)}</span>${meaningText ? `<small class="reward-idiom-meaning"><b>뜻</b> ${escapeHtml(meaningText)}</small>` : ""}</span>
         </button>`;
       }
@@ -5228,10 +5454,11 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
     advanceAfterRoguelikeReward();
   }
 
-  function chooseRoguelikeReward(id) {
+  async function chooseRoguelikeReward(id) {
     if (state.mode !== "roguelike" || !state.run?.pendingReward) return;
     const reward = state.run.rewardChoices.find((candidate) => candidate.id === id);
     if (!reward) return;
+    let selectionReceipt = null;
     if (reward.type === "fragment") {
       const result = awardTalismanFragments(metaProgress.jaryeongMeta, {
         jaryeongId: reward.jaryeongId,
@@ -5275,16 +5502,15 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
         rememberMeta("seenIdioms", reward.id);
         addLog(`<strong>${reward.name}</strong> 성어 획득 · ${reward.desc}`, "alchemy");
       } else {
-        const target = randomOf(state.run.idiomBookIds);
-        state.run.idiomUpgrades[target] = Math.min(2, (state.run.idiomUpgrades[target] || 0) + 1);
-        addLog("성어첩이 가득 차 무작위 성어를 강화했습니다.", "alchemy");
+        selectionReceipt = upgradeOwnedIdiom();
+        if (selectionReceipt) addLog(`<strong>${selectionReceipt.name}</strong> 강화 · Lv.${selectionReceipt.before + 1} → Lv.${selectionReceipt.after + 1} · 효과 수치 ${selectionReceipt.beforeMultiplier}% → ${selectionReceipt.afterMultiplier}%`, "alchemy");
       }
       state.run.rewardHistory.push(`idiom:${reward.id}`);
     } else if (reward.type === "idiom-upgrade") {
-      const target = reward.targetId || randomOf(state.run.idiomBookIds);
-      if (target) state.run.idiomUpgrades[target] = Math.min(2, (state.run.idiomUpgrades[target] || 0) + 1);
-      state.run.rewardHistory.push(`idiom-upgrade:${target}`);
-      addLog(`<strong>${ALL_IDIOMS.find((idiom) => idiom.id === target)?.name || "성어"}</strong> 심화`, "alchemy");
+      selectionReceipt = upgradeOwnedIdiom(reward.targetId);
+      if (!selectionReceipt) return;
+      state.run.rewardHistory.push(`idiom-upgrade:${selectionReceipt.targetId}:${selectionReceipt.after}`);
+      addLog(`<strong>${selectionReceipt.name}</strong> 강화 · Lv.${selectionReceipt.before + 1} → Lv.${selectionReceipt.after + 1} · 효과 수치 ${selectionReceipt.beforeMultiplier}% → ${selectionReceipt.afterMultiplier}%`, "alchemy");
     } else {
       if (reward.type === "relic" && !state.run.relicIds.includes(reward.id)) state.run.relicIds.push(reward.id);
       applyRunEffects(reward.effects || []);
@@ -5293,6 +5519,7 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
     }
     rebuildRunCharacterPool();
     audioDirector.playSfx("ui-confirm");
+    if (selectionReceipt) await showSelectionReceipt("#roguelike-reward-modal", selectionReceipt);
     advanceAfterRoguelikeReward();
   }
 
@@ -5383,6 +5610,11 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
 
   async function nextWave() {
     const defeated = currentEnemy();
+    if (state.firstBattleOnboarding?.eligible && !state.firstBattleOnboarding.finished) {
+      state.firstBattleOnboarding = advanceFirstBattleOnboarding(state.firstBattleOnboarding, {
+        type: FIRST_BATTLE_ONBOARDING_EVENT.BATTLE_ENDED
+      });
+    }
     addLog(`<strong>${defeated.name}</strong>의 기운을 진정시켰습니다.`, "victory");
     if (state.mode === "roguelike") {
       grantCombatObjectiveVictoryReward(defeated);
@@ -6010,7 +6242,7 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
     });
     $("#node-choices").addEventListener("click", (event) => {
       const choice = event.target.closest("[data-node-choice]");
-      if (choice) chooseRunNodeChoice(choice.dataset.nodeChoice);
+      if (choice) void chooseRunNodeChoice(choice.dataset.nodeChoice);
     });
     $("#route-seed-button").addEventListener("click", debugCopySeed);
     $("#roguelike-reward-reroll").addEventListener("click", rerollRoguelikeRewards);
@@ -6095,7 +6327,7 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
     });
     $("#roguelike-reward-cards").addEventListener("click", (event) => {
       const choice = event.target.closest("[data-roguelike-reward]");
-      if (choice) chooseRoguelikeReward(choice.dataset.roguelikeReward);
+      if (choice) void chooseRoguelikeReward(choice.dataset.roguelikeReward);
     });
     $("#contract-party-options").addEventListener("click", (event) => {
       const choice = event.target.closest("[data-contract-replace-index]");
@@ -6109,6 +6341,17 @@ import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE
         event.stopPropagation();
         void useJaryeongSkill(skill.dataset.jaryeongSkill);
       }
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.repeat || event.ctrlKey || event.altKey || event.metaKey) return;
+      if (state.mode !== "roguelike" || !state.run?.currentEncounterId || state.resolving || state.gameOver) return;
+      if (document.querySelector(".modal.open")) return;
+      if (event.target?.matches?.("input, textarea, select, [contenteditable='true']")) return;
+      const index = Number(event.key) - 1;
+      const id = state.run.partyJaryeongIds?.[index];
+      if (!id || (state.run.skillCharges?.[id] || 0) < 5) return;
+      event.preventDefault();
+      void useJaryeongSkill(id);
     });
     $("#revive-canvas").addEventListener("pointerdown", beginTrace);
     $("#revive-canvas").addEventListener("pointermove", moveTrace);

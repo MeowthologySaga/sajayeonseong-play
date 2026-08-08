@@ -24,8 +24,8 @@
     "https://fonts.googleapis.com (font stylesheet; system font fallback remains playable)",
     "https://fonts.gstatic.com (font files; system font fallback remains playable)"
   ],
-  "fileCount": 229,
-  "totalBytes": 41944491,
+  "fileCount": 233,
+  "totalBytes": 52508163,
   "files": [
     {
       "path": "assets/audio/bgm/act1-mistwood-loop.mp3",
@@ -33,9 +33,19 @@
       "sha256": "7878aa5d8a8ec7110dda39fc14f20a53a7426f698acac70726e1d3c70e21213b"
     },
     {
+      "path": "assets/audio/bgm/act2-cinder-forge-loop.mp3",
+      "bytes": 1074285,
+      "sha256": "d2bb4bb00565de9de108e2b5b20db756bdd81f0736da9ee0fe4d134b47d02554"
+    },
+    {
       "path": "assets/audio/bgm/act2-emberstone-loop.mp3",
       "bytes": 1385325,
       "sha256": "4c3efce4add93c8b681d5ea5957a502617e9696c608b364acc150b220b1c4ed2"
+    },
+    {
+      "path": "assets/audio/bgm/act3-mirror-ruins-loop.mp3",
+      "bytes": 3423213,
+      "sha256": "f8670d47196e0c99f08ec4224a379a900e7c52b1578550ecc6d5219bd4feac11"
     },
     {
       "path": "assets/audio/bgm/act3-moonmetal-loop.mp3",
@@ -43,9 +53,19 @@
       "sha256": "cf65e4717626b71987ac02cbc1cf85cda64143beee01374e93a03a94d1a6f3dc"
     },
     {
+      "path": "assets/audio/bgm/elite-boss-iron-seal-loop.mp3",
+      "bytes": 1751085,
+      "sha256": "c96274f8859771d78a93a9d6a3cd98cf79d2c5b23d11930a4111163cef101fe2"
+    },
+    {
       "path": "assets/audio/bgm/elite-boss-loop.mp3",
       "bytes": 1532781,
       "sha256": "2c01763a8a90f22fcc2ce1d13f2b105668b9d096af3d6d54decd0b58f84722f5"
+    },
+    {
+      "path": "assets/audio/bgm/final-boss-eclipsed-script-loop.mp3",
+      "bytes": 4288365,
+      "sha256": "7b470037649aa73fd7178b06434886c7786b6338f77aed01793691d4ef4ae95b"
     },
     {
       "path": "assets/audio/bgm/final-boss-loop.mp3",
@@ -1069,13 +1089,13 @@
     },
     {
       "path": "game.js",
-      "bytes": 333657,
-      "sha256": "5dac4fd82617687826ce28348f0eae98ee576d6d7ab1d299c2dcedaca778d421"
+      "bytes": 347750,
+      "sha256": "9b8efedacc66ca1a7c83e130d072c1e5780400c8753095cd0b9ef6588474d630"
     },
     {
       "path": "index.html",
       "bytes": 42162,
-      "sha256": "455f8450875bc6346eda090927c6c13d5ee574b82e012e8cef5fa0e877306d6b"
+      "sha256": "ac8393fa2158fb8b0b4b603dfeb56f3f76fc7fbd38615bfba80e27b1860a27f1"
     },
     {
       "path": "README.md",
@@ -1104,8 +1124,8 @@
     },
     {
       "path": "src/content.js",
-      "bytes": 16981,
-      "sha256": "cfe49a348c1e28350c169a699a805867f9a995e199f25e13ab36a7a7882ec5f2"
+      "bytes": 17510,
+      "sha256": "6690d43fcc4c4598c199fea9219126a0e90bb52f394bc7beca8f410a3149c510"
     },
     {
       "path": "src/drag-path.js",
@@ -1164,8 +1184,8 @@
     },
     {
       "path": "styles.css",
-      "bytes": 174443,
-      "sha256": "2a78968b344193f05934b6cb706ea1c02abc74b6dd6dc81c5b8635e3b6b44cdb"
+      "bytes": 186545,
+      "sha256": "adc14268c0390ab3d30e9a03420bb387ae80c12f4d9f683a82dda33cf64d75cf"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",

@@ -120,6 +120,67 @@ function initialProgress(type) {
   }
 }
 
+function isPlainObject(value) {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+export function normalizeCombatObjectiveState(rawState) {
+  try {
+    assertObjectiveState(rawState);
+  } catch {
+    return null;
+  }
+  if (!["active", "completed", "failed"].includes(rawState.status)) return null;
+  const definition = COMBAT_OBJECTIVE_DEFINITIONS[rawState.type];
+  if (!definition) return null;
+  const target = {
+    ...clonePlain(definition.target),
+    ...(isPlainObject(rawState.target) ? clonePlain(rawState.target) : {})
+  };
+  const progress = {
+    ...initialProgress(rawState.type),
+    ...(isPlainObject(rawState.progress) ? clonePlain(rawState.progress) : {})
+  };
+
+  if (rawState.type === COMBAT_OBJECTIVE_TYPE.ELEMENT_PROCS) {
+    if (!COMBAT_OBJECTIVE_ELEMENTS.includes(target.element)) return null;
+    target.count = positiveInteger(target.count, definition.target.count);
+    progress.count = Math.min(target.count, nonNegativeInteger(progress.count, 0));
+  } else if (rawState.type === COMBAT_OBJECTIVE_TYPE.IDIOM_ACTIVATIONS) {
+    target.count = positiveInteger(target.count, definition.target.count);
+    progress.count = Math.min(target.count, nonNegativeInteger(progress.count, 0));
+  } else if (rawState.type === COMBAT_OBJECTIVE_TYPE.SHIELD_VICTORY) {
+    target.minimumShield = positiveInteger(target.minimumShield, definition.target.minimumShield);
+    progress.won = Boolean(progress.won);
+    progress.samples = nonNegativeInteger(progress.samples, 0);
+    progress.minimumShield = progress.minimumShield == null ? null : Math.max(0, Number(progress.minimumShield) || 0);
+    progress.shieldBroken = Boolean(progress.shieldBroken);
+  } else if (rawState.type === COMBAT_OBJECTIVE_TYPE.CLEAR_SEALS) {
+    target.minimumSeals = positiveInteger(target.minimumSeals, definition.target.minimumSeals);
+    progress.applied = nonNegativeInteger(progress.applied, 0);
+    progress.removed = nonNegativeInteger(progress.removed, 0);
+    progress.remaining = nonNegativeInteger(progress.remaining, 0);
+  } else if (rawState.type === COMBAT_OBJECTIVE_TYPE.TURN_LIMIT_VICTORY) {
+    target.turnLimit = positiveInteger(target.turnLimit, definition.target.turnLimit);
+    progress.won = Boolean(progress.won);
+    progress.victoryTurn = progress.victoryTurn == null ? null : positiveInteger(progress.victoryTurn);
+  }
+
+  return {
+    ...rawState,
+    version: COMBAT_OBJECTIVE_VERSION,
+    title: typeof rawState.title === "string" && rawState.title ? rawState.title : definition.title,
+    description: typeof rawState.description === "string" && rawState.description ? rawState.description : definition.description,
+    target,
+    reward: {
+      ...clonePlain(definition.reward),
+      ...(isPlainObject(rawState.reward) ? clonePlain(rawState.reward) : {})
+    },
+    progress,
+    eventCount: nonNegativeInteger(rawState.eventCount, 0)
+  };
+}
+
 function assertObjectiveState(state) {
   if (!state || typeof state !== "object" || state.version !== COMBAT_OBJECTIVE_VERSION) {
     throw new TypeError("Invalid combat objective state");
@@ -240,8 +301,8 @@ export function selectCombatObjective(input = {}) {
  * Applies one combat-domain event without mutating the supplied state.
  */
 export function applyCombatObjectiveEvent(rawState, event = {}) {
-  assertObjectiveState(rawState);
-  const state = clonePlain(rawState);
+  const state = normalizeCombatObjectiveState(rawState);
+  if (!state) throw new TypeError("Invalid combat objective state");
   if (state.status !== "active" || !event || typeof event.type !== "string") return state;
   state.eventCount = nonNegativeInteger(state.eventCount, 0) + 1;
 

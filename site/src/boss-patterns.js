@@ -1,4 +1,5 @@
 const BOSS_IDS = Object.freeze(["forest-boss", "crimson-boss", "moon-boss"]);
+const BARRIER_ELEMENTS = Object.freeze(["wood", "fire", "earth", "metal", "water"]);
 
 const BASIC_ACTION = Object.freeze({
   id: "basic-strike",
@@ -42,8 +43,8 @@ export const BOSS_PATTERN_CATALOG = Object.freeze({
         id: "forest-life-barrier",
         name: "生木結界 · 생목결계",
         kind: "barrier",
-        telegraph: "껍질이 벌어지며 불씨를 두려워하는 생목 결계가 자랍니다.",
-        effect: { type: "elementBarrier", requiredElement: "fire", hp: 32, durationTurns: 3 },
+        telegraph: "껍질이 벌어지며 두꺼운 생목 보호막이 자랍니다.",
+        effect: { type: "gainEnemyShield", amount: 32 },
         schedule: { firstTurn: 3, interval: 7, telegraphTurns: 1 }
       },
       {
@@ -192,19 +193,29 @@ export function getBossTurnPlan(encounterOrId, requestedTurn) {
  * is fully blocked. Matching damage breaks the barrier first and only overflow
  * reaches the boss.
  */
+export function normalizeElementBarrierStatus(rawBarrier) {
+  if (!rawBarrier || typeof rawBarrier !== "object" || Array.isArray(rawBarrier)) return null;
+  if (!BARRIER_ELEMENTS.includes(rawBarrier.requiredElement)) return null;
+  const hp = Math.max(0, Number(rawBarrier.hp) || 0);
+  const remainingTurns = Math.max(0, Math.floor(Number(rawBarrier.remainingTurns) || 0));
+  if (hp <= 0 || remainingTurns <= 0) return null;
+  return { requiredElement: rawBarrier.requiredElement, hp, remainingTurns };
+}
+
 export function resolveElementBarrierDamage({ barrier, attackElement, damage }) {
   const incoming = Math.max(0, Number(damage) || 0);
-  if (!barrier || (Number(barrier.remainingTurns) || 0) <= 0 || (Number(barrier.hp) || 0) <= 0) {
+  const activeBarrier = normalizeElementBarrierStatus(barrier);
+  if (!activeBarrier) {
     return { barrier: null, barrierDamage: 0, bossDamage: incoming, blockedDamage: 0, matched: true, broken: false };
   }
-  if (attackElement !== barrier.requiredElement) {
-    return { barrier: { ...barrier }, barrierDamage: 0, bossDamage: 0, blockedDamage: incoming, matched: false, broken: false };
+  if (attackElement !== activeBarrier.requiredElement) {
+    return { barrier: activeBarrier, barrierDamage: 0, bossDamage: 0, blockedDamage: incoming, matched: false, broken: false };
   }
-  const hp = Math.max(0, Number(barrier.hp) || 0);
+  const hp = activeBarrier.hp;
   const barrierDamage = Math.min(hp, incoming);
   const remainingHp = hp - barrierDamage;
   return {
-    barrier: remainingHp > 0 ? { ...barrier, hp: remainingHp } : null,
+    barrier: remainingHp > 0 ? { ...activeBarrier, hp: remainingHp } : null,
     barrierDamage,
     bossDamage: Math.max(0, incoming - barrierDamage),
     blockedDamage: 0,
@@ -216,11 +227,11 @@ export function resolveElementBarrierDamage({ barrier, attackElement, damage }) 
 export function createElementBarrierStatus(actionOrEffect) {
   const effect = actionOrEffect?.effect || actionOrEffect;
   if (effect?.type !== "elementBarrier") return null;
-  return {
+  return normalizeElementBarrierStatus({
     requiredElement: effect.requiredElement,
     hp: Math.max(1, Math.floor(Number(effect.hp) || 1)),
     remainingTurns: Math.max(1, Math.floor(Number(effect.durationTurns) || 1))
-  };
+  });
 }
 
 /** Makes a three-player-turn tile-seal status from integration-selected tiles. */

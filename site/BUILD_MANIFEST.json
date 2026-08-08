@@ -24,8 +24,8 @@
     "https://fonts.googleapis.com (font stylesheet; system font fallback remains playable)",
     "https://fonts.gstatic.com (font files; system font fallback remains playable)"
   ],
-  "fileCount": 238,
-  "totalBytes": 52720197,
+  "fileCount": 271,
+  "totalBytes": 70116055,
   "files": [
     {
       "path": "assets/audio/bgm/act1-mistwood-loop.mp3",
@@ -198,14 +198,54 @@
       "sha256": "52b54c0fe14b17e92a9fc977a9cde1a2f984de57b4cd90d3d7340229da3e9a56"
     },
     {
+      "path": "assets/backgrounds/act1-mistwood-boss-grove.png",
+      "bytes": 2106591,
+      "sha256": "1dea7e6bca89aa729a7823deecee293f7b58025b4a908efe0a324f5e62cf9fa6"
+    },
+    {
+      "path": "assets/backgrounds/act1-mistwood-bridge.png",
+      "bytes": 2160235,
+      "sha256": "08dc9c88d3647a5afbec2b78e9d91868446b020961b4aa50463bfc2893aedd63"
+    },
+    {
       "path": "assets/backgrounds/act1-mistwood.png",
       "bytes": 2061784,
       "sha256": "311fa7d6479216fd4a67c3026e46eee3667c908d3d85e365f3fa48366925fda5"
     },
     {
+      "path": "assets/backgrounds/act2-emberstone-boss-altar.png",
+      "bytes": 1794789,
+      "sha256": "d5d2dc2a5cbb70a7cabcfdfc6724744e0c2d2bed309227f94733091efed71c4b"
+    },
+    {
+      "path": "assets/backgrounds/act2-emberstone-foundry.png",
+      "bytes": 1754833,
+      "sha256": "0c1e86229d03c1439e5a7375e0689242528f87edec97cb7697eaae6c4b9c2855"
+    },
+    {
+      "path": "assets/backgrounds/act2-emberstone-quarry.png",
+      "bytes": 1832253,
+      "sha256": "bbbcae16e10679b3dd71fa7b52f5d0984cf544f873c9029e96c3facd62825ae6"
+    },
+    {
       "path": "assets/backgrounds/act2-emberstone.png",
       "bytes": 1869029,
       "sha256": "47390855d64c56a2aadc19d26e18f1bef2daa679ca49891ed72f3dc035d6b2e1"
+    },
+    {
+      "path": "assets/backgrounds/act3-moonmetal-boss-gate.png",
+      "bytes": 1923060,
+      "sha256": "e492f29a278d09a40f6e8835b5e0a29b01e7742daeb5d191cd68eb8324ffde85"
+    },
+    {
+      "path": "assets/backgrounds/act3-moonmetal-mirror-lake.png",
+      "bytes": 1806654,
+      "sha256": "8e96097da5a5e9ecbc271c5795ed916b5fb8336e6fff7110bda4aefc4c07f2ba"
+    },
+    {
+      "path": "assets/backgrounds/act3-moonmetal-observatory.png",
+      "bytes": 2003512,
+      "sha256": "c39db771fd9f8bdfdd6f3372d54ce8467fa0bc65bf95751324ae5cbdac436fd5"
     },
     {
       "path": "assets/backgrounds/act3-moonmetal.png",
@@ -918,6 +958,126 @@
       "sha256": "15a044a0bc93a3b2ab43c6f0c3cf5162b9c76759bb0bee14c3885c9e4f694ce8"
     },
     {
+      "path": "assets/ui/hud/idiom-seal-frame/sheet-transparent.png",
+      "bytes": 19173,
+      "sha256": "d263fffbc309a6f8c4582f1c894b71460763099d5a98e2990c0c7c4464c7e58b"
+    },
+    {
+      "path": "assets/ui/idiom-reward-v1/idiom-reward-scroll.png",
+      "bytes": 88841,
+      "sha256": "54fe7e9b6e0da2fe36e1ee952862638ebc7e017be570753e903a4ef9c4b97e0a"
+    },
+    {
+      "path": "assets/ui/relics-v1/artisan-brush.png",
+      "bytes": 56515,
+      "sha256": "00fccaca71fce8c1b613f534f33a35e1ab95489bfe9e5be394ce5be85c1dcc79"
+    },
+    {
+      "path": "assets/ui/relics-v1/bronze-seal.png",
+      "bytes": 90758,
+      "sha256": "1d9ca55a970c410ed756f4ba8b09f39309c9a0d6efaed73c79ac81e54073a32d"
+    },
+    {
+      "path": "assets/ui/relics-v1/cloud-inkstone.png",
+      "bytes": 100508,
+      "sha256": "7c3eecb404e9c3e691bc32c1158b9ee62f4c94122053f87474e5f00ce2d39236"
+    },
+    {
+      "path": "assets/ui/relics-v1/echo-bell.png",
+      "bytes": 72198,
+      "sha256": "9affa9523aa1378ee04d405d48a13e22431779c9c1a2fc86e2a163f780728ea3"
+    },
+    {
+      "path": "assets/ui/relics-v1/ember-jar.png",
+      "bytes": 96370,
+      "sha256": "183fa3bd9118a209ba36b3783ab3fccafb10a7ea7dbf8972523d76ccae2668a6"
+    },
+    {
+      "path": "assets/ui/relics-v1/empty-slip.png",
+      "bytes": 72620,
+      "sha256": "8fe1936e7ed38b7b0b0b7dc2378b59c8718156456a1d3e85d2b64ffc7f4ae96d"
+    },
+    {
+      "path": "assets/ui/relics-v1/five-color-cord.png",
+      "bytes": 75052,
+      "sha256": "8f64574480c8eea7a9fd2168d80bb8ce88525f897b052f98db66f95727eed709"
+    },
+    {
+      "path": "assets/ui/relics-v1/golden-needle.png",
+      "bytes": 42634,
+      "sha256": "c9bb2f2a83966c3539999f05bd5e3ba1cf19996846240eeca33f279f7d628b3e"
+    },
+    {
+      "path": "assets/ui/relics-v1/ink-dragon-scale.png",
+      "bytes": 65529,
+      "sha256": "78b45ebd152c90dd067964fc6e747c1b6f394807bf11624b528bd27c50b54bbf"
+    },
+    {
+      "path": "assets/ui/relics-v1/jade-bookmark.png",
+      "bytes": 83081,
+      "sha256": "cd43c92a2602d46aa82ba2e686c9c55a06178b2555b5dab042dd65fc65ca592c"
+    },
+    {
+      "path": "assets/ui/relics-v1/moon-mirror.png",
+      "bytes": 89685,
+      "sha256": "a189ccd6dcfa46fa2ee7dc1e69fb6bb2153d525d3a6f14e5e846c5a8a6d68371"
+    },
+    {
+      "path": "assets/ui/relics-v1/phoenix-paper.png",
+      "bytes": 60100,
+      "sha256": "7f8a005e8d79cc14c9c2a2ba76814d1691f0ff72521087fa7bfb9eac7bb3707e"
+    },
+    {
+      "path": "assets/ui/relics-v1/rain-charm.png",
+      "bytes": 70621,
+      "sha256": "420cdf45f23dc33041b4f9cafb73225abbfe0003d9f037e635c5fc5fb6ddfbbd"
+    },
+    {
+      "path": "assets/ui/relics-v1/red-thread.png",
+      "bytes": 92039,
+      "sha256": "a25fe08836c999763bee94578125ad09424fa6eb289faaeca1232f05daf94e67"
+    },
+    {
+      "path": "assets/ui/relics-v1/scholar-lantern.png",
+      "bytes": 78011,
+      "sha256": "b7beeb25b10913d025c35b8f9bfefaf4a2d000b0ef650734d7ad4aab45ea9e70"
+    },
+    {
+      "path": "assets/ui/relics-v1/sealed-hourglass.png",
+      "bytes": 68486,
+      "sha256": "f5ed01901575cf369a8a402cb50a39dd024e14897720afe718d8ee931ed00a8e"
+    },
+    {
+      "path": "assets/ui/relics-v1/sprout-knot.png",
+      "bytes": 75562,
+      "sha256": "ba32d3d06835a92d971297f0052fa261e1992c629927c531acd3b2117126cd68"
+    },
+    {
+      "path": "assets/ui/relics-v1/stone-tortoise.png",
+      "bytes": 97871,
+      "sha256": "ae8faece677f88b83dd07a88d35292310a68dd2fd43075b84af12c2beba128b8"
+    },
+    {
+      "path": "assets/ui/route-node-seals-v2/route-seal-1.png",
+      "bytes": 118741,
+      "sha256": "d485dedb391dd6feb159a9aa754c74e2d6d410778ba24a08e54bed2f0698fda2"
+    },
+    {
+      "path": "assets/ui/route-node-seals-v2/route-seal-2.png",
+      "bytes": 118362,
+      "sha256": "677917ca80797c3288997a32ad934b5722273c0110ae981ac0b55c2a107e3d35"
+    },
+    {
+      "path": "assets/ui/route-node-seals-v2/route-seal-3.png",
+      "bytes": 116331,
+      "sha256": "deafbfe71971fd42e2c7fac98070df7f6ed7cac8537aa35806c8fd0097c898c3"
+    },
+    {
+      "path": "assets/ui/route-node-seals-v2/route-seal-4.png",
+      "bytes": 118558,
+      "sha256": "8d064c0703eeba00cf081d1dc2ccbaed4e6c207b771d90d82a93aebf536da3ff"
+    },
+    {
       "path": "assets/ui/talismans/earth-mountain.png",
       "bytes": 26068,
       "sha256": "29f20c6bd66cdc8b4d1a3791c09abb2b8b5417243627dd6daf08ff33ebc2b126"
@@ -1079,143 +1239,148 @@
     },
     {
       "path": "docs/submission/ASSET_AND_LICENSE_MANIFEST.md",
-      "bytes": 3855,
-      "sha256": "d13b6c4d062934bf2fe217b99c6ff5829cc283062eae128c262a632ec84ef29c"
+      "bytes": 3914,
+      "sha256": "098eb96c6ea88112f9264355d45ee5c5f164b4a7448eb328ddedbf792e81bdb3"
     },
     {
       "path": "docs/submission/SUBMISSION_QA_REPORT.md",
-      "bytes": 6066,
-      "sha256": "c585a871edc70a7814b32fbb970f0f6698a221ae28bb55829173e35dca1c7e70"
+      "bytes": 6137,
+      "sha256": "3e8d9b170d9a1a5828a90f693fe26683856ee5d98717e0230aaab00fb7e5f700"
     },
     {
       "path": "game.js",
-      "bytes": 419975,
-      "sha256": "f9bbb03075dd783a1550bb7280ccea5ee54b775185edf3ee993dc6f68bc16677"
+      "bytes": 431439,
+      "sha256": "1e6a9bb986a9dacfd133d8fe8190239c5336fb849c550ae4d4dbee2be14ce3a8"
     },
     {
       "path": "index.html",
-      "bytes": 52120,
-      "sha256": "b575eeb8cd44e4ee4b0bcdb652e2cd3ee2c40c51ac4dc2988df179a5a8bf7cf3"
+      "bytes": 51476,
+      "sha256": "1630be8c89a6c3389c5eb3016cee27adccae7637c0542357c29490bfb9d32531"
     },
     {
       "path": "README.md",
-      "bytes": 5831,
-      "sha256": "c61c31c7157a267884e470aeb462eeb2bdfc38a94efb363d194f0159814cfabe"
+      "bytes": 5924,
+      "sha256": "649392ee428f6b82d2d19c0069d5fdfa7da7ab695f8a15ce24da09f008257e3a"
     },
     {
       "path": "src/assets.js",
-      "bytes": 3916,
-      "sha256": "608d8a0064cfd8c1012842d51a8222e2cde2fdb1eb7c786c16d170f8ac3cae94"
+      "bytes": 4012,
+      "sha256": "fc06e47f31f456e7ca54cddb5a0984a340173a4f7ce3066f2ffdc377a8d4000d"
     },
     {
       "path": "src/audio.js",
-      "bytes": 16090,
-      "sha256": "83bd437f4fd5f95faf2c62bc345b62dac13e9f71f8cb929b24619ff5966b1d84"
+      "bytes": 16444,
+      "sha256": "58ce620c2be64166bffcf743c9b07a91073fc79bd390608860582cf9a93821b0"
     },
     {
       "path": "src/background-rotation.js",
-      "bytes": 4047,
-      "sha256": "049e1c4d1e97360fb99dd5a35b06f3f37eac1ab8ff2d7fbe5dac75bc94910597"
+      "bytes": 4173,
+      "sha256": "84424addd4797fb4dd3f2f56ba32e6518421379847b7cdc7f62dea467a4f9d5e"
     },
     {
       "path": "src/boss-patterns.js",
-      "bytes": 11673,
-      "sha256": "054798b30154fbeaf6a9b8766495b93ce88cc9d8e05297e0938037ff3d94a8aa"
+      "bytes": 12516,
+      "sha256": "17236794ada0fbcaa1f030dbbc691c2e2ae19a611d9e4066f49d65d9591e00e2"
     },
     {
       "path": "src/combat-objectives.js",
-      "bytes": 10417,
-      "sha256": "c1dd9d0462590dbf345459d072cb5e198b29cf44101c679108dd3735fefeaf26"
+      "bytes": 13717,
+      "sha256": "2d09895c46e9e955c14cf7f1a795819db6034c40ceb40131243f5a4ff99268c4"
     },
     {
       "path": "src/content.js",
-      "bytes": 21165,
-      "sha256": "7675b810fad33dd2c2558cfab5d43f9fae492d3b8b8510c9bc119779cd1f7e0f"
+      "bytes": 21411,
+      "sha256": "96b3a631b33903544d4130da47bf180864594dae42cc0979a2657d67b0fabc94"
     },
     {
       "path": "src/drag-path.js",
-      "bytes": 820,
-      "sha256": "4b6f5e95e514f491dc9656268d0438b3f4522f007b93b317d22064a87175e50d"
+      "bytes": 843,
+      "sha256": "f5697de9d24e23319dd0520741327254be3bea4d4608b191bb234229a6126c26"
     },
     {
       "path": "src/element-procs.js",
-      "bytes": 2832,
-      "sha256": "fdd3db95ca66db55112dba15ae1cba603354466f6baf8a1ff10c36d895eaa68c"
+      "bytes": 2888,
+      "sha256": "95dea9a89efd6f865ac682695becd650c503843736a4f6111de53011d3206c66"
     },
     {
       "path": "src/first-battle-onboarding.js",
-      "bytes": 11195,
-      "sha256": "3c0cf610462dad38ae39cf44f3a7c25a872e4bc13213d817defd36a2137d5ef2"
+      "bytes": 11490,
+      "sha256": "59aed69d44df88d4dafaf39325fc70955c9ecb671738b2652c9abe81786b169f"
     },
     {
       "path": "src/idiom-focus.js",
-      "bytes": 2246,
-      "sha256": "213889755b2b5ba8e9630539ff6a67f558e21046207afbdd4c2c06914a7bc8d5"
+      "bytes": 2302,
+      "sha256": "af3709e95ef58f5eb2abc55eb499a64f53d407c5dfdd5aab8c436a7f32cc67f4"
     },
     {
       "path": "src/jaryeong-build-balance.js",
-      "bytes": 1911,
-      "sha256": "b11283a2fb66644cdf8cdebfc2ced3eada5cf5bf4bff3aedaa159a2269161ffb"
+      "bytes": 1956,
+      "sha256": "0e44a5b828aa0ee794b99c6258a34ca6a5c0ae8180ee45417286d9bcd9310985"
     },
     {
       "path": "src/jaryeong-meta.js",
-      "bytes": 20413,
-      "sha256": "5c03fa696b9fee6b5dd4a68c82bd67e916686118b888f47eba4cbedf244c3921"
+      "bytes": 20948,
+      "sha256": "60a2c7e45b1fdeaf05beaa69c8af009a87d25fcaa43b489633bb9da78b94c11a"
     },
     {
       "path": "src/presentation-settings.js",
-      "bytes": 1882,
-      "sha256": "06e6a05a2ac7d94c92b784ded8c5e7886d32ce8102d09149f0c3bcdb2a7c1566"
+      "bytes": 1926,
+      "sha256": "adaed56ed642618c9bee323b946022fd9c99fcbf1fd9b7ec9ad6bc2759785101"
     },
     {
       "path": "src/rare-encounters.js",
-      "bytes": 9693,
-      "sha256": "b139055b207196ebb812ff8da8351e7dac51c8a4f1819f9dd3d42bb86f1b969a"
+      "bytes": 10022,
+      "sha256": "d8d5f9ae42f51a165d6b392fe53846a526398294b06fcd5cbbff5bf85e448412"
     },
     {
       "path": "src/relics.js",
-      "bytes": 3335,
-      "sha256": "ac25fe58b73689980b95040588023c2f3bf3cbf04e13c7887ce194f6f983da12"
+      "bytes": 3412,
+      "sha256": "f587f8a7beb9a2eb5b91c0d0d091a303196a2458d046b73ffbfc52484e911e02"
     },
     {
       "path": "src/revive.js",
-      "bytes": 1769,
-      "sha256": "367418ac1efbf337153f678fa89b0de8d25d1a2bcd4dbe878b8ebdf6ed75dcad"
+      "bytes": 1828,
+      "sha256": "0a83f951e21a69cf20204014a84b8998035eb111a955e53aeb61bc57b84b8e37"
     },
     {
       "path": "src/reward-synergy.js",
-      "bytes": 12408,
-      "sha256": "f8dddf22fd8ffb1a02c10ed25c372076083d2e2f388d98691bbdc0f542f25e2c"
+      "bytes": 12706,
+      "sha256": "15fc96b13ae9bc3511f6fae5eb6992acbf43b743af8bfad0fba922c3b79032a0"
     },
     {
       "path": "src/run-engine.js",
-      "bytes": 16801,
-      "sha256": "a522d8e0fdeccdea5a1f6e9c1290057272e6b5773f06eabdff019e79c3ab4555"
+      "bytes": 17184,
+      "sha256": "9248205f85f8b7b9a2a65a00e1ee6a6fc6287961513710304e99eb85ceda8709"
     },
     {
       "path": "src/save.js",
-      "bytes": 5834,
-      "sha256": "75fc2ccf444ed6703929795c11b13d3900c8ecfbc723eacbed20b74738fb072f"
+      "bytes": 6196,
+      "sha256": "8bcfeeabbe726c0b805b68338994a9ce479ad69508a8e4c7461467df208267f1"
     },
     {
       "path": "src/story-training.js",
-      "bytes": 6807,
-      "sha256": "ff19f3f829fd23417e3bc011a0cc9fc032e5b509a5efca41cfcf4d6c76756272"
+      "bytes": 6952,
+      "sha256": "3d8aff9cf07cefd0df64e5127d75d3575c2720394ec6ddf65d3aa602eb0a5627"
     },
     {
       "path": "src/talisman-anchors.js",
-      "bytes": 12220,
-      "sha256": "fad94c12165819ce576fe1c6b4cb66b947cf639d0136c4c322151363865ec76c"
+      "bytes": 13005,
+      "sha256": "d53db15ca265542379d2cc7c69ce71c363311ce84ed6b15b5b7f2746221c5102"
+    },
+    {
+      "path": "styles-route-reward.css",
+      "bytes": 21553,
+      "sha256": "57becccdbf9e07d1609125d89c9274de478b882e18e2faa76271d4e2ba84d198"
     },
     {
       "path": "styles.css",
-      "bytes": 271713,
-      "sha256": "d0568445ad263dab0b36fd021ba089950b2d46cf124b5cdbcfc52e188befc7b1"
+      "bytes": 276880,
+      "sha256": "97a6aa5797b9b00bddfca6b20cdb2348b24de32e2e23d4ba33746689e934331b"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
-      "bytes": 3906,
-      "sha256": "36eb3bd0289483c80ba4bd667d79068eeb1e525949a17337a60aa907d82093c6"
+      "bytes": 3971,
+      "sha256": "becbd6f94d3847145bb8e363e7305d3d35c559cb63c7a2373b2c6230908c9cef"
     }
   ]
 }

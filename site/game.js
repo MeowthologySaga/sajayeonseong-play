@@ -6,16 +6,16 @@ import { calculateElementProcChance, ELEMENT_PROC_RULES, formatProcPercent, roll
 import { BATTLE_DISPLAY_STORAGE_KEY, getBattleFeedbackDuration, getIdiomCastTiming, IDIOM_SPEED_STORAGE_KEY, normalizeBattleDisplay, normalizeIdiomSpeed } from "./src/presentation-settings.js?v=20260808-combat-presentation-1";
 import { buildIdiomFocusEntries, chooseFocusedIdiomEntry, getIdiomFocusRovingIndex } from "./src/idiom-focus.js?v=20260808-early-feedback-3";
 import { buildCharacterVolumes, buildRunCharacterPool, chooseRotatingRecipes, createRunRoute, createSeededRng, pickWithRng, randomFrom, RUN_LIMITS, shuffleWithRng, validateGameCatalog } from "./src/run-engine.js?v=20260808-balance-economy-1";
-import { decodeRunSave, describeRunSaveStage, encodeRunSave, RUN_SAVE_KEY } from "./src/save.js?v=20260807-save-2";
+import { decodeRunSave, describeRunSaveStage, encodeRunSave, RUN_SAVE_KEY } from "./src/save.js?v=20260808-save-3";
 import { buildReviveCharacterPool, passesReviveTrace, scoreReviveTrace } from "./src/revive.js?v=20260807-revive-3";
 import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELIC_EFFECT_TYPES } from "./src/relics.js?v=20260807-relics-1";
 import { createRewardBuildSnapshot, evaluateRewardSynergy } from "./src/reward-synergy.js?v=20260808-reward-synergy-2";
 import { awardTalismanPieces, createDefaultJaryeongMetaState, exchangeTalismanPiecesForSummonTicket, getJaryeongRarity, getJaryeongSummonTicketCost, getPreparedJaryeongParty, resetTargetFragmentPity, sanitizeJaryeongMetaState, setEquippedJaryeongParty, summonJaryeong, TALISMAN_PIECES_PER_SUMMON_TICKET } from "./src/jaryeong-meta.js?v=20260808-unified-talisman-1";
 import { selectBackgroundForScene } from "./src/background-rotation.js?v=20260807-background-rotation-1";
-import { applyCombatObjectiveEvent, COMBAT_OBJECTIVE_EVENT, COMBAT_OBJECTIVE_TYPE, isCombatObjectiveComplete, resolveCombatObjectiveReward, selectCombatObjective } from "./src/combat-objectives.js?v=20260808-unified-talisman-1";
+import { applyCombatObjectiveEvent, COMBAT_OBJECTIVE_EVENT, COMBAT_OBJECTIVE_TYPE, isCombatObjectiveComplete, normalizeCombatObjectiveState, resolveCombatObjectiveReward, selectCombatObjective } from "./src/combat-objectives.js?v=20260808-turn-resilience-1";
 import { advanceRareEncounterTurn, calculateIdiomWeaknessBonus, createRareEncounterState, deterministicRareRoll, RARE_GIMMICKS, rollRareEncounter } from "./src/rare-encounters.js?v=20260808-rare-1";
 import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE_ONBOARDING_EVENT, getCurrentFirstBattleHint, getFirstBattleCoachProgress, issueFirstBattleOnboardingGrants } from "./src/first-battle-onboarding.js?v=20260808-first-battle-3";
-import { getBossTurnPlan, createElementBarrierStatus, resolveElementBarrierDamage, resolveBossBoardEffect, tickBossStatus } from "./src/boss-patterns.js?v=20260808-boss-patterns-1";
+import { getBossTurnPlan, createElementBarrierStatus, normalizeElementBarrierStatus, resolveElementBarrierDamage, resolveBossBoardEffect, tickBossStatus } from "./src/boss-patterns.js?v=20260809-forest-shield-fallback-1";
 import { calculateElementMatchAttack, capJaryeongSkillDamage, MAX_JARYEONG_DAMAGE_RATIO } from "./src/jaryeong-build-balance.js?v=20260808-build-balance-1";
 import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TARGET_IDS, STORY_TRAINING_STORAGE_KEY, applyStoryTrainingEvent, completeStoryTrainingChapter, createDefaultStoryProgress, createStoryTrainingSession, evaluateStoryTrainingGuardHit, getNextStoryTrainingChapterId, getStoryTrainingChapter, getStoryTrainingGuardLesson, isStoryTrainingChapterUnlocked, sanitizeStoryProgress } from "./src/story-training.js?v=20260808-story-chapter-5";
 
@@ -1163,10 +1163,15 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     state.readyIdiomIds = new Set(battle.readyIdiomIds || []);
     state.lockedTiles = new Map(battle.lockedTiles || []);
     state.activeSealVisual = typeof battle.activeSealVisual === "string" ? battle.activeSealVisual : "seal";
-    state.enemyElementBarrier = battle.enemyElementBarrier && typeof battle.enemyElementBarrier === "object"
-      ? cloneSaveValue(battle.enemyElementBarrier)
-      : null;
-    state.combatObjective = battle.combatObjective && typeof battle.combatObjective === "object" ? cloneSaveValue(battle.combatObjective) : null;
+    state.enemyElementBarrier = normalizeElementBarrierStatus(battle.enemyElementBarrier);
+    // Legacy saves may resume the forest boss while its old fire-only barrier
+    // is active. Migrate that retired mechanic into the stable normal shield so
+    // an already-saved 生木結界 cannot re-enter the broken barrier path.
+    if (state.run?.currentEncounterId === "forest-boss" && state.enemyElementBarrier) {
+      state.enemyShield = Math.max(0, Number(state.enemyShield) || 0) + state.enemyElementBarrier.hp;
+      state.enemyElementBarrier = null;
+    }
+    state.combatObjective = normalizeCombatObjectiveState(battle.combatObjective);
     state.rareEncounter = battle.rareEncounter && typeof battle.rareEncounter === "object" ? cloneSaveValue(battle.rareEncounter) : null;
     state.dragging = false;
     state.dragMoved = false;
@@ -1567,11 +1572,22 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
 
   function recordCombatObjectiveEvent(event) {
     if (state.mode !== "roguelike" || !state.combatObjective) return;
-    const previousStatus = state.combatObjective.status;
-    state.combatObjective = applyCombatObjectiveEvent(state.combatObjective, event);
-    if (previousStatus !== "completed" && state.combatObjective.status === "completed") {
-      addLog(`<strong>작은 목표 달성</strong> · ${state.combatObjective.title} · 전투 승리 시 추가 보상`, "victory");
-      audioDirector.playSfx("reward");
+    const normalized = normalizeCombatObjectiveState(state.combatObjective);
+    if (!normalized) {
+      console.warn("invalid combat objective was discarded before it could interrupt combat");
+      state.combatObjective = null;
+      return;
+    }
+    try {
+      const previousStatus = normalized.status;
+      state.combatObjective = applyCombatObjectiveEvent(normalized, event);
+      if (previousStatus !== "completed" && state.combatObjective.status === "completed") {
+        addLog(`<strong>작은 목표 달성</strong> · ${state.combatObjective.title} · 전투 승리 시 추가 보상`, "victory");
+        audioDirector.playSfx("reward");
+      }
+    } catch (error) {
+      console.warn("combat objective event skipped to keep the turn running", error);
+      state.combatObjective = null;
     }
   }
 
@@ -1772,6 +1788,7 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
         : 0;
       const effectText = ({
         elementBarrier: `${ELEMENT_RULES[effect.requiredElement]?.label || effect.requiredElement}속성만 파괴 가능한 결계 ${effect.hp}`,
+        gainEnemyShield: `생목 보호막 ${effect.amount || 0} · 모든 공격으로 파괴 가능`,
         lockTiles: `타일 ${effect.count || 2}개를 ${effect.durationTurns || 3}턴 봉인`,
         healEnemyUnlessBurning: `화상이 없으면 기운 ${effect.amount || 0} 회복`,
         resetBoard: "地震海溢 · 그리드 전체 재생성",
@@ -3521,6 +3538,7 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     state.pangOrigin = { ...state.selected };
     state.pangTarget = null;
     state.pangMoved = false;
+    state.dragPointerId = event.pointerId ?? null;
     if (event.pointerId != null) $("#board").setPointerCapture?.(event.pointerId);
     if (state.mode === "pang") {
       tile.classList.add("selected");
@@ -3640,6 +3658,26 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     ghost.style.height = "";
   }
 
+  function releaseDragPointerCapture() {
+    const pointerId = state.dragPointerId;
+    state.dragPointerId = null;
+    if (pointerId == null) return;
+    const board = $("#board");
+    try {
+      if (board?.hasPointerCapture?.(pointerId)) board.releasePointerCapture(pointerId);
+    } catch {
+      // Pointer capture may already have been released by the browser.
+    }
+  }
+
+  function finishDragAfterPointerLoss() {
+    if (!state.dragging) return;
+    void endDrag().catch((error) => {
+      console.error("drag finalization failed after pointer loss", error);
+      if (!state.gameOver && !state.resolving) updateAll();
+    });
+  }
+
   function dragMove(event) {
     if (!state.dragging || state.resolving) return;
     if (state.mode === "pang") {
@@ -3692,8 +3730,9 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
 
   async function endDrag() {
     if (!state.dragging) return;
+    state.dragging = false;
+    releaseDragPointerCapture();
     if (state.mode === "pang") {
-      state.dragging = false;
       clearInterval(state.timerId);
       state.timerId = null;
       state.selected = null;
@@ -3708,7 +3747,6 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     }
     const settleMs = Math.max(0, state.swapAnimationUntil - performance.now());
     const moved = state.dragMoved;
-    state.dragging = false;
     clearInterval(state.timerId);
     state.timerId = null;
     clearDragPreview();
@@ -4074,6 +4112,7 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
 
   async function resolvePangMove(origin, target) {
     state.resolving = true;
+    try {
     let matches = findMatches();
     if (!matches.matched.size) {
       const cells = [origin, target].map(({ r, c }) => $("#board").querySelector(`[data-row="${r}"][data-col="${c}"]`));
@@ -4124,6 +4163,10 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     }
     state.resolving = false;
     if (state.pangEndPending) finishPangRun();
+    } finally {
+      state.resolving = false;
+      if (state.pangEndPending) finishPangRun();
+    }
   }
 
   function matchUnits(count) {
@@ -4155,6 +4198,7 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
 
   function elementMultiplier(element, pierce = false) {
     const enemy = currentEnemy();
+    if (state.enemyElementBarrier?.requiredElement === element) return 1;
     if (enemy.weakElement === element) return 1.3;
     if (element === "metal" && pierce) return 1;
     if (enemy.resistElement === element) return .8;
@@ -4449,6 +4493,7 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
 
   async function resolveTurn() {
     state.resolving = true;
+    try {
     state.freshQueueIds.clear();
     deliverFirstBattleCharacters(state.turn);
     state.currentChargeBonus = state.nextChargeBonus || 0;
@@ -4494,7 +4539,13 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     if (cascade) {
       state.totalCombos += comboCount;
       const comboScale = 1 + Math.max(0, comboCount - 1) * .25;
-      const elemental = await applyElementMatchEffects(elementCounts, comboScale);
+      let elemental = { damage: 0, heal: 0, shield: 0, burn: 0, delay: 0, logs: [], procs: [], strikes: [], byElement: {} };
+      try {
+        elemental = await applyElementMatchEffects(elementCounts, comboScale);
+      } catch (error) {
+        console.error("element match effects failed; continuing queue and turn resolution", error);
+        addLog("<strong>전투 계산 복구</strong> · 공격 부가 계산 일부를 건너뛰고 문자 큐와 턴 처리를 계속합니다.", "miss");
+      }
       const outcome = [`총 ${elemental.damage} 피해`];
       if (elemental.heal) outcome.push(`체력 +${elemental.heal}`);
       if (elemental.shield) outcome.push(`보호막 +${elemental.shield}`);
@@ -4524,7 +4575,13 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     // Give the player a readable beat to connect the match with its combat
     // outcome before idiom and enemy responses can replace the result banner.
     await wait(cascade ? 700 : 250);
-    const activated = await activateIdioms(elementCounts, comboCount);
+    let activated = { activated: [], usedIds: new Set() };
+    try {
+      activated = await activateIdioms(elementCounts, comboCount);
+    } catch (error) {
+      console.error("idiom activation failed; continuing enemy turn resolution", error);
+      addLog("<strong>연성식 복구</strong> · 성어 처리 일부를 건너뛰고 적 턴을 계속합니다.", "miss");
+    }
     if (activated.activated.length) recordCombatObjectiveEvent({ type: COMBAT_OBJECTIVE_EVENT.IDIOM_ACTIVATED, count: activated.activated.length });
     cleanQueue(activated.usedIds);
     state.turnsSinceIdiom = activated.activated.length ? 0 : (state.turnsSinceIdiom || 0) + 1;
@@ -4596,14 +4653,18 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
       state.resolving = false;
       updateAll();
     }
+    } finally {
+      state.resolving = false;
+    }
   }
 
   function applyDamage(amount, label = "−", options = {}) {
     const raw = Math.max(0, Number(amount) || 0);
     if (!raw) return 0;
     const vulnerableBonus = options.ignoreVulnerability ? 0 : (state.enemyVulnerableTurns > 0 ? state.enemyVulnerableRatio || 0 : 0);
+    let barrierDamage = 0;
     let dealt = raw * (1 + vulnerableBonus);
-    if (state.enemyElementBarrier) {
+    if (state.enemyElementBarrier && !options.ignoreBarrier) {
       const barrierResult = resolveElementBarrierDamage({
         barrier: state.enemyElementBarrier,
         attackElement: options.element,
@@ -4611,6 +4672,7 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
       });
       const required = ELEMENT_RULES[state.enemyElementBarrier.requiredElement];
       state.enemyElementBarrier = barrierResult.barrier;
+      barrierDamage = barrierResult.barrierDamage;
       if (barrierResult.barrierDamage) {
         floatDamage(barrierResult.barrierDamage, `${required?.label || "속성"} 결계 −`, "effect");
       }
@@ -4620,8 +4682,9 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
       if (barrierResult.broken) addLog(`<strong>${required?.label || "속성"} 결계 파괴</strong> · 이제 모든 공격이 보스에게 닿습니다.`, "alchemy");
       dealt = barrierResult.bossDamage;
       if (!dealt) {
+        if (barrierDamage) recordTurnTotal("damage", barrierDamage, options.element || null);
         updateVitals();
-        return 0;
+        return barrierDamage;
       }
     }
     if (!options.ignoreShield && state.enemyShield > 0) {
@@ -4630,16 +4693,17 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
       dealt -= absorbed;
     }
     if (dealt > 0) state.enemyHp -= dealt;
-    recordTurnTotal("damage", dealt, options.element || null);
+    const effectiveDamage = dealt + barrierDamage;
+    recordTurnTotal("damage", effectiveDamage, options.element || null);
     if (dealt > 0) audioDirector.playSfx("enemy-hit");
     floatDamage(dealt, label, options.feedbackKind || "effect");
     updateVitals();
     if (dealt > 0) setEnemyArtFrame("hurt", 320);
-    return dealt;
+    return effectiveDamage;
   }
 
   function applyTrueDamage(amount, label = "−") {
-    return applyDamage(amount, label, { ignoreVulnerability: true, ignoreShield: true });
+    return applyDamage(amount, label, { ignoreVulnerability: true, ignoreShield: true, ignoreBarrier: true });
   }
 
   function selectUsedEntries(idiom, pool) {
@@ -4773,7 +4837,9 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
 
   async function showAlchemy(idiom) {
     const overlay = $("#alchemy-overlay");
+    const anchor = $("#combat-notification-anchor");
     const timing = getIdiomCastTiming(state.idiomSpeed, state.mode);
+    const centered = state.idiomSpeed === "slow";
     // An idiom cast is the next, richer combat notification; do not stack a
     // fading combo card above it in the shared upper-right anchor.
     const feedback = $("#battle-feedback");
@@ -4781,14 +4847,21 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
       window.clearTimeout(battleFeedbackTimer);
       feedback.classList.remove("show");
     }
-    $("#alchemy-glyphs").innerHTML = idiom.chars.map((char, i) => `<span style="animation-delay:${i * timing.glyphStaggerMs}ms">${char}</span>`).join("");
-    $("#alchemy-name").textContent = idiom.name;
-    $("#alchemy-reading").textContent = `${idiom.sourceHanja} · ${idiom.pronunciation || idiom.name}`;
-    $("#alchemy-effect").textContent = idiomEffectText(idiom);
-    overlay.style.setProperty("--alchemy-duration", `${timing.animationMs}ms`);
-    overlay.classList.remove("show"); void overlay.offsetWidth; overlay.classList.add("show");
-    await wait(timing.holdMs);
-    overlay.classList.remove("show");
+    if (centered && overlay?.parentElement !== document.body) document.body.appendChild(overlay);
+    document.body.classList.toggle("alchemy-scene-active", centered);
+    try {
+      $("#alchemy-glyphs").innerHTML = idiom.chars.map((char, i) => `<span style="animation-delay:${i * timing.glyphStaggerMs}ms">${char}</span>`).join("");
+      $("#alchemy-name").textContent = idiom.name;
+      $("#alchemy-reading").textContent = `${idiom.sourceHanja} · ${idiom.pronunciation || idiom.name}`;
+      $("#alchemy-effect").textContent = idiomEffectText(idiom);
+      overlay.style.setProperty("--alchemy-duration", `${timing.animationMs}ms`);
+      overlay.classList.remove("show"); void overlay.offsetWidth; overlay.classList.add("show");
+      await wait(timing.holdMs);
+    } finally {
+      overlay?.classList.remove("show");
+      document.body.classList.remove("alchemy-scene-active");
+      if (centered && anchor && overlay?.parentElement === document.body) anchor.appendChild(overlay);
+    }
   }
 
   function applyJaryeongResonance(idiom) {
@@ -4798,7 +4871,7 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     participants.forEach((jaryeong) => chargeJaryeong(jaryeong.id, participants.length >= 4 ? 2 : 1));
     const complete = participants.length >= 4;
     const bonusDamage = complete ? 36 : participants.length * 9;
-    applyDamage(bonusDamage, "공명 −");
+    applyTrueDamage(bonusDamage, "공명 −");
     if (complete) {
       gainShield(12);
       addLog(`<strong>${idiom.name} 완전 공명</strong> · 자령 전원 게이지 충전 · 보호막 12`, "alchemy");
@@ -4899,7 +4972,7 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
       if (!entries.length) { applyTrueDamage(16, "성어 −"); return; }
       const [element, amount] = entries[0];
       const ratio = entries.length === 1 ? 1.2 : .7;
-      applyDamage(Math.round(amount * ratio), "집중 −");
+      applyDamage(Math.round(amount * ratio), "집중 −", { element });
       getPartyJaryeongs().filter((jaryeong) => jaryeong.element === element).forEach((jaryeong) => chargeJaryeong(jaryeong.id, 1));
       return;
     }
@@ -4909,7 +4982,7 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
       const echoHeal = Math.round((snapshot.heal || 0) * .5);
       const echoShield = Math.round((snapshot.shield || 0) * .5);
       const echoBurn = snapshot.burn ? Math.max(1, Math.round(snapshot.burn * .5)) : 0;
-      const dealt = echoDamage ? applyDamage(echoDamage, "메아리 −") : 0;
+      const dealt = echoDamage ? applyTrueDamage(echoDamage, "메아리 −") : 0;
       const healed = echoHeal ? healPlayer(echoHeal) : 0;
       const shielded = echoShield ? gainShield(echoShield) : 0;
       if (echoBurn) { state.enemyBurn += echoBurn; recordTurnTotal("burn", echoBurn); }
@@ -7447,10 +7520,15 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     board.addEventListener("pointermove", (event) => { if (state.mode === "pang") dragMove(event); });
     board.addEventListener("pointerup", (event) => { if (state.mode === "pang") endDrag(event); });
     board.addEventListener("pointercancel", (event) => { if (state.mode === "pang") endDrag(event); });
+    board.addEventListener("lostpointercapture", finishDragAfterPointerLoss);
     board.addEventListener("keydown", handleBoardKeyboard);
     document.addEventListener("pointermove", (event) => { if (state.mode === "puzzle" || state.mode === "roguelike") dragMove(event); });
     document.addEventListener("pointerup", (event) => { if (state.mode === "puzzle" || state.mode === "roguelike") endDrag(event); });
     document.addEventListener("pointercancel", (event) => { if (state.mode === "puzzle" || state.mode === "roguelike") endDrag(event); });
+    window.addEventListener("blur", finishDragAfterPointerLoss);
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) finishDragAfterPointerLoss();
+    });
     $("#puzzle-mode-button").addEventListener("click", enterPuzzleMode);
     $("#pang-mode-button").addEventListener("click", enterPangMode);
     $("#roguelike-mode-button").addEventListener("click", enterRoguelikeMode);
@@ -7648,7 +7726,7 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     });
     $("#jaryeong-skill-inspector-close")?.addEventListener("click", () => closeJaryeongSkillInspector());
     $("#jaryeong-skill-inspector-cast")?.addEventListener("click", () => { void castJaryeongInspectorSkill(); });
-    $("#first-battle-coach-skill").addEventListener("click", (event) => {
+    $("#first-battle-coach-skill")?.addEventListener("click", (event) => {
       const skill = event.currentTarget;
       if (skill.disabled || !skill.dataset.jaryeongSkill) return;
       void useJaryeongSkill(skill.dataset.jaryeongSkill);

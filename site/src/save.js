@@ -1,4 +1,5 @@
 import { RUN_LIMITS } from "./run-engine.js";
+import { normalizeCombatObjectiveState } from "./combat-objectives.js";
 
 export const RUN_SAVE_KEY = "sajayeonseong-run-v1";
 export const RUN_SAVE_VERSION = 1;
@@ -63,13 +64,7 @@ export function validateRunSave(payload, now = Date.now()) {
     if (!Array.isArray(battle.queue) || battle.queue.length > RUN_LIMITS.maxQueueMax) errors.push("문자 큐 범위 오류");
     if (battle.board?.length && (battle.board.length !== 5 || battle.board.some((row) => !Array.isArray(row) || row.length !== 6))) errors.push("보드 크기 오류");
     if (!Array.isArray(battle.lockedTiles) || !Array.isArray(battle.freshQueueIds) || !Array.isArray(battle.usedStageIdiomIds) || !Array.isArray(battle.usedRotatingIdiomIds)) errors.push("Set/Map 복원 데이터 오류");
-    if (battle.combatObjective != null && (
-      typeof battle.combatObjective !== "object"
-      || Array.isArray(battle.combatObjective)
-      || !Number.isInteger(battle.combatObjective.version)
-      || typeof battle.combatObjective.type !== "string"
-      || !["active", "completed", "failed"].includes(battle.combatObjective.status)
-    )) errors.push("전투 목표 상태 오류");
+    if (battle.combatObjective != null && !normalizeCombatObjectiveState(battle.combatObjective)) errors.push("전투 목표 상태 오류");
     if (battle.rareEncounter != null && (
       typeof battle.rareEncounter !== "object"
       || Array.isArray(battle.rareEncounter)
@@ -83,12 +78,15 @@ export function validateRunSave(payload, now = Date.now()) {
 }
 
 export function encodeRunSave({ run, battle, savedAt = Date.now(), elapsedMs = 0 }) {
+  const safeBattle = battle && typeof battle === "object"
+    ? { ...battle, combatObjective: battle.combatObjective == null ? null : normalizeCombatObjectiveState(battle.combatObjective) }
+    : battle;
   const payload = {
     version: RUN_SAVE_VERSION,
     savedAt,
     elapsedMs: Math.max(0, Number(elapsedMs) || 0),
     run,
-    battle
+    battle: safeBattle
   };
   const validation = validateRunSave(payload, savedAt);
   if (!validation.ok) throw new Error(validation.errors.join(" / "));
@@ -99,6 +97,9 @@ export function decodeRunSave(raw, now = Date.now()) {
   if (!raw) return { ok: false, payload: null, errors: ["저장 데이터 없음"] };
   try {
     const payload = JSON.parse(raw);
+    if (payload?.battle && typeof payload.battle === "object" && payload.battle.combatObjective != null) {
+      payload.battle.combatObjective = normalizeCombatObjectiveState(payload.battle.combatObjective);
+    }
     const validation = validateRunSave(payload, now);
     return { ...validation, payload: validation.ok ? payload : null };
   } catch {

@@ -1,0 +1,517 @@
+/* In-game route/reward presentation. Loaded after styles.css by design. */
+
+#roguelike-reward-modal .reward-choice,
+#roguelike-reward-modal .reward-choice * { text-shadow:none; }
+#roguelike-reward-modal .reward-choice .roguelike-choice-meta em { color:#6b4a22; }
+#roguelike-reward-modal .reward-choice .roguelike-choice-meta strong { color:#21160d; }
+#roguelike-reward-modal .reward-choice .roguelike-choice-meta small,
+#roguelike-reward-modal .reward-choice .roguelike-choice-desc,
+#roguelike-reward-modal .reward-choice .reward-idiom-effect { color:#4b3822; font-size:11px; line-height:1.45; }
+#roguelike-reward-modal .reward-choice .roguelike-choice-desc b,
+#roguelike-reward-modal .reward-choice .reward-effect-label {
+  color:#3c2413;
+  background:rgba(113,75,27,.12);
+  font-size:10px;
+}
+#roguelike-reward-modal .reward-glyph.has-relic-art {
+  width:112px;
+  height:92px;
+  margin:-74px auto 4px;
+  display:grid;
+  place-items:center;
+  border:0;
+  background:none;
+}
+#roguelike-reward-modal .reward-glyph.has-relic-art img { width:100%; height:100%; object-fit:contain; filter:drop-shadow(0 7px 6px rgba(49,31,12,.38)); }
+#roguelike-reward-modal .idiom-reward-choice { padding-top:74px; }
+#roguelike-reward-modal .idiom-reward-art { position:absolute; top:73px; left:50%; width:158px; height:92px; transform:translateX(-50%); opacity:.42; pointer-events:none; }
+#roguelike-reward-modal .idiom-reward-art img { width:100%; height:100%; object-fit:contain; }
+#roguelike-reward-modal .idiom-reward-choice .roguelike-choice-glyphs { position:relative; z-index:1; margin-top:10px; }
+#roguelike-reward-modal .reward-synergy {
+  width:100%;
+  display:grid;
+  gap:3px;
+  margin-top:10px;
+  padding:7px 8px;
+  border:1px solid rgba(103,74,32,.34);
+  border-radius:7px;
+  color:#4d3d28;
+  background:linear-gradient(135deg,rgba(117,83,35,.13),rgba(255,246,219,.35));
+  box-shadow:inset 0 1px rgba(255,255,255,.4);
+  text-align:left;
+}
+#roguelike-reward-modal .reward-synergy-title {
+  color:#76501e;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+#roguelike-reward-modal .reward-synergy-note {
+  min-width:0;
+  display:grid;
+  grid-template-columns:max-content minmax(0,1fr);
+  align-items:start;
+  gap:4px;
+}
+#roguelike-reward-modal .reward-synergy-note b {
+  align-self:start;
+  padding:2px 4px;
+  border:1px solid rgba(101,75,35,.3);
+  border-radius:999px;
+  color:#453116;
+  background:rgba(255,245,211,.78);
+  font-size:10px;
+  line-height:1.15;
+  white-space:nowrap;
+}
+#roguelike-reward-modal .reward-synergy-note small {
+  min-width:0;
+  color:#4f422e;
+  font-size:11px;
+  line-height:1.45;
+}
+#roguelike-reward-modal .reward-synergy-note.synergy b { border-color:rgba(32,108,78,.42); color:#1e563f; background:rgba(203,239,210,.76); }
+#roguelike-reward-modal .reward-synergy-note.support b { border-color:rgba(117,91,32,.4); color:#65470f; background:rgba(244,220,151,.72); }
+#roguelike-reward-modal .reward-synergy-note.context b { border-color:rgba(151,69,48,.38); color:#743a27; background:rgba(248,206,178,.75); }
+
+.idiom-replacement-card {
+  width:min(1180px,calc(100vw - 40px));
+  max-height:calc(100dvh - 40px);
+  padding:30px clamp(24px,4vw,54px);
+  overflow:auto;
+  border:2px solid rgba(199,154,65,.55);
+  border-radius:14px;
+  background:radial-gradient(circle at 50% 0,rgba(88,111,68,.2),transparent 43%),linear-gradient(160deg,#13261f,#07120f 62%,#241b10);
+  box-shadow:0 26px 80px rgba(0,0,0,.72),inset 0 0 45px rgba(0,0,0,.4);
+}
+.idiom-replacement-card > h2 { margin:4px 0 7px; color:#f4d895; font:700 clamp(28px,3vw,44px) "Gowun Batang",serif; text-align:center; }
+.idiom-replacement-card > .eyebrow,
+.idiom-replacement-card > .intro-copy { text-align:center; }
+.idiom-replacement-candidate { width:min(660px,100%); margin:22px auto 14px; }
+.idiom-replacement-options { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+.idiom-comparison-card {
+  min-width:0;
+  display:grid;
+  grid-template-rows:auto auto 1fr auto;
+  gap:9px;
+  padding:15px;
+  border:1px solid rgba(230,184,92,.36);
+  border-radius:9px;
+  color:#d9e6dc;
+  background:linear-gradient(150deg,rgba(35,61,46,.72),rgba(5,18,15,.96));
+  text-align:left;
+}
+button.idiom-comparison-card { cursor:pointer; }
+button.idiom-comparison-card:hover,
+button.idiom-comparison-card:focus-visible { outline:3px solid #ffe08a; outline-offset:2px; border-color:#e6b85c; transform:translateY(-3px); }
+.idiom-comparison-card.candidate { grid-template-columns:minmax(130px,.65fr) minmax(230px,1fr) minmax(210px,1fr); grid-template-rows:auto auto; align-items:center; border-color:#75d6af; background:linear-gradient(145deg,rgba(44,97,72,.78),rgba(13,35,28,.96)); box-shadow:0 0 25px rgba(87,214,176,.1); }
+.idiom-comparison-card.candidate .idiom-replacement-readiness { grid-column:2/4; }
+.idiom-replacement-meta { display:grid; gap:2px; }
+.idiom-replacement-meta em { color:#a5b9ad; font-size:8px; font-style:normal; }
+.idiom-replacement-meta strong { color:#f6dda2; font:700 20px "Gowun Batang",serif; }
+.idiom-replacement-meta small { color:#88bfa8; font-size:9px; }
+.idiom-replacement-glyphs { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:4px; }
+.idiom-replacement-glyphs b { display:grid; place-items:center; min-height:54px; border:1px solid rgba(230,184,92,.32); border-radius:6px; color:#dccda9; background:rgba(0,0,0,.2); font:700 27px "Gowun Batang",serif; }
+.idiom-replacement-glyphs b.ready { color:#fff0b2; border-color:#78d9b1; background:rgba(87,214,176,.14); box-shadow:inset 0 0 12px rgba(87,214,176,.11); }
+.idiom-replacement-effect { min-height:50px; display:grid; align-content:start; gap:4px; color:#c7d4ca; font-size:10px; line-height:1.45; }
+.idiom-replacement-effect > b { width:max-content; padding:2px 5px; border-radius:3px; color:#33230f; background:#e3c373; font-size:8px; }
+.idiom-replacement-readiness { display:flex; justify-content:space-between; gap:6px; color:#88a397; font-size:8px; }
+.idiom-replacement-action { color:#f0ce75; font-weight:800; }
+.idiom-replacement-keep { display:block; margin:16px auto 0; }
+
+@media (max-width:760px) {
+  .idiom-replacement-card { width:calc(100vw - 14px); max-height:calc(100dvh - 14px); padding:18px 10px; }
+  .idiom-replacement-options { grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; }
+  .idiom-comparison-card { padding:8px; gap:5px; }
+  .idiom-comparison-card.candidate { grid-template-columns:1fr; grid-template-rows:auto; }
+  .idiom-comparison-card.candidate .idiom-replacement-readiness { grid-column:auto; }
+  .idiom-replacement-meta strong { font-size:15px; }
+  .idiom-replacement-glyphs b { min-height:38px; font-size:20px; }
+  .idiom-replacement-effect { min-height:0; font-size:8px; }
+}
+
+#roguelike-route-modal,
+#roguelike-reward-modal {
+  background:
+    radial-gradient(ellipse at 50% 45%,rgba(6,18,15,.08) 0 35%,rgba(1,8,7,.7) 88%),
+    rgba(1,8,7,.38);
+  backdrop-filter:blur(2px) saturate(.78);
+}
+
+#roguelike-route-modal .route-card,
+#roguelike-reward-modal .roguelike-picker-card {
+  position:relative;
+  width:min(1420px,calc(100vw - 72px));
+  max-height:calc(100dvh - 64px);
+  padding:clamp(28px,3vw,48px) clamp(56px,6vw,104px) clamp(30px,3vw,46px);
+  overflow:auto;
+  overscroll-behavior:contain;
+  border:0;
+  border-radius:0;
+  color:#eaddba;
+  background:
+    linear-gradient(90deg,rgba(229,187,91,.12),transparent 2.5% 97.5%,rgba(229,187,91,.12)),
+    radial-gradient(circle at 51% 44%,rgba(83,111,73,.14),transparent 48%),
+    linear-gradient(165deg,rgba(31,35,25,.985),rgba(8,22,18,.99) 56%,rgba(28,24,15,.99));
+  box-shadow:0 30px 90px rgba(0,0,0,.75),inset 0 0 0 2px rgba(192,145,59,.38),inset 0 0 70px rgba(0,0,0,.62);
+  clip-path:polygon(2% 0,98% 0,100% 4%,99% 15%,100% 28%,99% 42%,100% 56%,99% 72%,100% 87%,98% 100%,2% 100%,0 96%,1% 84%,0 68%,1% 52%,0 36%,1% 18%,0 5%);
+}
+
+#roguelike-route-modal .route-card::before,
+#roguelike-route-modal .route-card::after,
+#roguelike-reward-modal .roguelike-picker-card::before,
+#roguelike-reward-modal .roguelike-picker-card::after {
+  content:"";
+  position:absolute;
+  top:0;
+  bottom:0;
+  z-index:0;
+  width:34px;
+  border:1px solid rgba(226,184,91,.46);
+  background:linear-gradient(90deg,#0a1714,#294438 48%,#0a1714);
+  box-shadow:inset 0 0 0 4px rgba(3,13,11,.65),0 0 24px rgba(0,0,0,.6);
+  pointer-events:none;
+}
+#roguelike-route-modal .route-card::before,
+#roguelike-reward-modal .roguelike-picker-card::before { left:8px; }
+#roguelike-route-modal .route-card::after,
+#roguelike-reward-modal .roguelike-picker-card::after { right:8px; }
+
+#roguelike-route-modal .route-card > *,
+#roguelike-reward-modal .roguelike-picker-card > * { position:relative; z-index:1; }
+
+#roguelike-route-modal .route-heading,
+#roguelike-reward-modal .roguelike-picker-card > .eyebrow,
+#roguelike-reward-modal .roguelike-picker-card > h2,
+#roguelike-reward-modal .roguelike-picker-card > .intro-copy { text-align:center; }
+
+#roguelike-route-modal .route-heading { justify-content:center; }
+#roguelike-route-modal .route-heading > div:first-child { display:grid; justify-items:center; }
+#roguelike-route-modal .route-heading h2,
+#roguelike-reward-modal .roguelike-picker-card > h2 {
+  margin:4px 0 7px;
+  color:#f6dfaa;
+  font-size:clamp(30px,3.2vw,52px);
+  text-shadow:0 3px 14px #000;
+}
+#roguelike-route-modal .route-heading .intro-copy,
+#roguelike-reward-modal .roguelike-picker-card > .intro-copy {
+  margin:0 auto;
+  color:#a9b9ac;
+  font-size:clamp(9px,1vw,13px);
+}
+#roguelike-route-modal .route-seed {
+  position:absolute;
+  top:0;
+  right:0;
+  padding:4px 8px;
+  border-color:rgba(230,184,92,.2);
+  background:rgba(0,0,0,.18);
+  opacity:.68;
+}
+
+#roguelike-route-modal .route-act-strip {
+  position:relative;
+  width:min(820px,80%);
+  margin:22px auto 38px;
+  display:flex;
+  justify-content:center;
+  gap:clamp(34px,8vw,120px);
+}
+#roguelike-route-modal .route-act-strip::before {
+  content:"";
+  position:absolute;
+  top:50%;
+  left:8%;
+  right:8%;
+  height:3px;
+  background:linear-gradient(90deg,transparent,#846b35 12% 88%,transparent);
+  transform:translateY(-50%);
+}
+#roguelike-route-modal .route-act-strip span {
+  position:relative;
+  min-width:92px;
+  justify-content:center;
+  padding:0;
+  border:0;
+  color:#74887f;
+  background:none;
+}
+#roguelike-route-modal .route-act-strip b {
+  width:42px;
+  height:42px;
+  border:2px solid #735c2c;
+  color:#d0bd87;
+  background:#142b23;
+  box-shadow:0 0 0 5px rgba(4,14,12,.82),0 0 18px rgba(0,0,0,.6);
+}
+#roguelike-route-modal .route-act-strip .current b {
+  color:#fff0bc;
+  border-color:#e0b753;
+  box-shadow:0 0 0 5px rgba(4,14,12,.82),0 0 25px rgba(230,184,92,.42);
+}
+
+#roguelike-route-modal .route-choices {
+  position:relative;
+  width:min(980px,86%);
+  margin:0 auto;
+  display:flex;
+  justify-content:center;
+  align-items:stretch;
+  gap:clamp(32px,5vw,80px);
+}
+#roguelike-route-modal .route-choices::before {
+  content:"";
+  position:absolute;
+  top:-25px;
+  left:12%;
+  right:12%;
+  height:72px;
+  border-top:4px solid rgba(210,165,72,.7);
+  border-radius:50% 50% 0 0;
+  filter:drop-shadow(0 2px 2px #000);
+  pointer-events:none;
+}
+#roguelike-route-modal .route-choice {
+  flex:1 1 250px;
+  max-width:340px;
+  min-height:250px;
+  display:grid;
+  grid-template-rows:112px auto 1fr auto;
+  justify-items:center;
+  gap:7px;
+  padding:8px 22px 22px;
+  overflow:visible;
+  border:0;
+  border-radius:0;
+  color:#30281a;
+  background:
+    linear-gradient(90deg,transparent 0 3%,rgba(245,224,176,.96) 4% 96%,transparent 97%),
+    linear-gradient(#efe0b8,#c9a96f);
+  clip-path:polygon(8% 0,92% 0,100% 7%,96% 24%,100% 42%,96% 61%,100% 82%,91% 100%,8% 100%,0 92%,4% 75%,0 55%,4% 34%,0 12%);
+  box-shadow:none;
+  filter:drop-shadow(0 16px 18px rgba(0,0,0,.55));
+  transform:none;
+}
+#roguelike-route-modal .route-choice::before {
+  content:"";
+  position:absolute;
+  top:-20px;
+  left:50%;
+  width:22px;
+  height:34px;
+  border:3px solid #7e5827;
+  border-bottom:0;
+  border-radius:50% 50% 0 0;
+  transform:translateX(-50%);
+}
+#roguelike-route-modal .route-choice::after { display:none; }
+#roguelike-route-modal .route-choice:hover,
+#roguelike-route-modal .route-choice:focus-visible {
+  transform:translateY(-7px) rotate(-.35deg);
+  outline:3px solid #ffe08a;
+  outline-offset:5px;
+  filter:drop-shadow(0 18px 24px rgba(230,184,92,.32)) brightness(1.07);
+}
+#roguelike-route-modal .route-choice:nth-child(even):hover,
+#roguelike-route-modal .route-choice:nth-child(even):focus-visible { transform:translateY(-7px) rotate(.35deg); }
+#roguelike-route-modal .route-node-icon {
+  width:106px;
+  height:106px;
+  border:0;
+  border-radius:0;
+  background-color:transparent;
+  background-position:center;
+  background-size:contain;
+  background-repeat:no-repeat;
+  box-shadow:none;
+  font-size:0;
+}
+#roguelike-route-modal .route-choice.type-battle .route-node-icon { background-image:url("assets/ui/route-node-seals-v2/route-seal-1.png"); }
+#roguelike-route-modal .route-choice.type-elite .route-node-icon,
+#roguelike-route-modal .route-choice.type-boss .route-node-icon { background-image:url("assets/ui/route-node-seals-v2/route-seal-2.png"); }
+#roguelike-route-modal .route-choice.type-rest .route-node-icon { background-image:url("assets/ui/route-node-seals-v2/route-seal-3.png"); }
+#roguelike-route-modal .route-choice.type-event .route-node-icon,
+#roguelike-route-modal .route-choice.type-shop .route-node-icon { background-image:url("assets/ui/route-node-seals-v2/route-seal-4.png"); }
+#roguelike-route-modal .route-node-copy { justify-items:center; text-align:center; }
+#roguelike-route-modal .route-node-copy em { color:#725832; }
+#roguelike-route-modal .route-node-copy strong { color:#231b10; font-size:clamp(19px,1.6vw,25px); }
+#roguelike-route-modal .route-node-copy small { color:#5c4d35; }
+#roguelike-route-modal .route-choice > b { color:#7d511c; }
+
+#roguelike-route-modal .route-build-bar {
+  width:min(900px,86%);
+  margin:28px auto 0;
+  padding:7px 18px;
+  border:1px solid rgba(201,154,66,.4);
+  border-radius:999px;
+  background:rgba(2,13,11,.72);
+  box-shadow:inset 0 0 16px rgba(230,184,92,.07);
+}
+#roguelike-route-modal .route-build-bar span { border:0; border-radius:0; background:none; }
+
+#roguelike-reward-modal .roguelike-choice-grid {
+  width:min(1080px,92%);
+  margin:30px auto 14px;
+  align-items:stretch;
+  gap:clamp(16px,2.4vw,34px);
+}
+#roguelike-reward-modal .reward-choice {
+  min-height:346px;
+  padding:88px 24px 24px;
+  border:0;
+  border-radius:0;
+  color:#2c2518;
+  background:
+    radial-gradient(circle at 50% 16%,rgba(155,31,23,.98) 0 36px,rgba(86,15,13,.98) 37px 42px,transparent 43px),
+    linear-gradient(90deg,transparent 0 3%,rgba(245,225,181,.98) 4% 96%,transparent 97%),
+    linear-gradient(#f1dfb3,#c7a36a);
+  clip-path:polygon(9% 0,91% 0,100% 7%,96% 20%,100% 36%,96% 53%,100% 70%,96% 87%,88% 100%,10% 100%,0 91%,4% 74%,0 57%,4% 39%,0 21%);
+  filter:drop-shadow(0 15px 18px rgba(0,0,0,.56));
+}
+#roguelike-reward-modal .reward-choice::before {
+  content:"賞";
+  position:absolute;
+  top:34px;
+  left:50%;
+  z-index:2;
+  color:#efd18b;
+  font:700 28px/1 "Gowun Batang",serif;
+  transform:translateX(-50%);
+  text-shadow:0 2px 4px #3e0806;
+}
+#roguelike-reward-modal .reward-choice::after {
+  content:"";
+  position:absolute;
+  top:-18px;
+  left:50%;
+  width:22px;
+  height:32px;
+  border:3px solid #7e5827;
+  border-bottom:0;
+  border-radius:50% 50% 0 0;
+  transform:translateX(-50%);
+}
+#roguelike-reward-modal .reward-choice:hover,
+#roguelike-reward-modal .reward-choice:focus-visible {
+  transform:translateY(-9px);
+  outline:3px solid #ffe08a;
+  outline-offset:5px;
+  background-color:#f3dfae;
+  filter:drop-shadow(0 20px 28px rgba(230,184,92,.35)) brightness(1.08);
+}
+#roguelike-reward-modal .reward-choice .roguelike-choice-meta strong { color:#231b10; font-size:21px; }
+#roguelike-reward-modal .reward-choice .roguelike-choice-meta em { color:#7b3f31; }
+#roguelike-reward-modal .reward-choice .roguelike-choice-meta small,
+#roguelike-reward-modal .reward-choice .roguelike-choice-desc { color:#594a34; }
+#roguelike-reward-modal .reward-choice .roguelike-choice-desc b,
+#roguelike-reward-modal .reward-choice .reward-effect-label,
+#roguelike-reward-modal .reward-choice .reward-idiom-effect {
+  color:#4d321d;
+  background:rgba(77,50,29,.08);
+}
+#roguelike-reward-modal .reward-choice .roguelike-choice-glyphs b { color:#342719; border-color:rgba(75,49,17,.35); background:rgba(72,45,15,.08); }
+#roguelike-reward-modal .reward-reroll {
+  display:block;
+  margin:18px auto 0;
+  padding:9px 20px;
+  border:1px solid rgba(230,184,92,.45);
+  border-radius:999px;
+  color:#e7d097;
+  background:rgba(4,18,15,.72);
+}
+
+@media (max-width:900px) {
+  #roguelike-route-modal .route-card,
+  #roguelike-reward-modal .roguelike-picker-card {
+    width:calc(100vw - 20px);
+    max-height:calc(100dvh - 20px);
+    padding:24px 34px;
+  }
+  #roguelike-route-modal .route-seed { display:none; }
+  #roguelike-route-modal .route-act-strip { width:92%; margin-bottom:24px; gap:12px; }
+  #roguelike-route-modal .route-act-strip span { min-width:68px; }
+  #roguelike-route-modal .route-choices { width:94%; gap:14px; }
+  #roguelike-route-modal .route-choice { min-height:210px; padding:6px 12px 15px; }
+  #roguelike-route-modal .route-node-icon { width:84px; height:84px; }
+  #roguelike-reward-modal .reward-choice { min-height:286px; padding:78px 14px 16px; }
+}
+
+@media (max-width:620px) {
+  #roguelike-route-modal,
+  #roguelike-reward-modal { align-items:flex-start; padding:6px 0; }
+  #roguelike-route-modal .route-card,
+  #roguelike-reward-modal .roguelike-picker-card {
+    width:calc(100vw - 10px);
+    max-height:calc(100dvh - 12px);
+    padding:18px 22px 20px;
+    clip-path:polygon(2% 0,98% 0,100% 3%,99% 18%,100% 35%,99% 52%,100% 70%,99% 88%,98% 100%,2% 100%,0 96%,1% 78%,0 60%,1% 42%,0 24%,1% 7%);
+  }
+  #roguelike-route-modal .route-card::before,
+  #roguelike-route-modal .route-card::after,
+  #roguelike-reward-modal .roguelike-picker-card::before,
+  #roguelike-reward-modal .roguelike-picker-card::after { width:16px; }
+  #roguelike-route-modal .route-card::before,
+  #roguelike-reward-modal .roguelike-picker-card::before { left:3px; }
+  #roguelike-route-modal .route-card::after,
+  #roguelike-reward-modal .roguelike-picker-card::after { right:3px; }
+  #roguelike-route-modal .route-heading h2,
+  #roguelike-reward-modal .roguelike-picker-card > h2 { font-size:25px; }
+  #roguelike-route-modal .route-act-strip { margin:14px auto 18px; }
+  #roguelike-route-modal .route-act-strip small { display:none; }
+  #roguelike-route-modal .route-act-strip b { width:32px; height:32px; }
+  #roguelike-route-modal .route-choices {
+    display:grid;
+    grid-template-columns:1fr;
+    gap:9px;
+  }
+  #roguelike-route-modal .route-choices::before { display:none; }
+  #roguelike-route-modal .route-choice {
+    max-width:none;
+    min-height:112px;
+    grid-template-columns:78px minmax(0,1fr);
+    grid-template-rows:auto 1fr;
+    justify-items:start;
+    align-items:center;
+    padding:7px 15px 9px;
+  }
+  #roguelike-route-modal .route-node-icon { grid-row:1/3; width:72px; height:72px; }
+  #roguelike-route-modal .route-node-copy { justify-items:start; text-align:left; }
+  #roguelike-route-modal .route-choice > b { display:none; }
+  #roguelike-route-modal .route-build-bar { width:96%; margin-top:14px; display:grid; grid-template-columns:repeat(2,1fr); border-radius:12px; }
+  #roguelike-reward-modal .roguelike-choice-grid,
+  #roguelike-reward-modal .roguelike-choice-grid.has-four {
+    width:94%;
+    max-height:calc(100dvh - 195px);
+    display:grid;
+    grid-template-columns:1fr;
+    gap:8px;
+    overflow:auto;
+    margin-top:16px;
+  }
+  #roguelike-reward-modal .reward-choice,
+  #roguelike-reward-modal .roguelike-choice-grid.has-four .reward-choice {
+    min-height:238px;
+    padding:62px 10px 11px;
+  }
+  #roguelike-reward-modal .reward-choice::before { top:25px; font-size:21px; }
+  #roguelike-reward-modal .reward-choice .roguelike-choice-meta strong { font-size:15px; }
+  #roguelike-reward-modal .reward-choice .roguelike-choice-meta small,
+  #roguelike-reward-modal .reward-choice .roguelike-choice-desc,
+  #roguelike-reward-modal .reward-choice .reward-idiom-effect { font-size:9px; line-height:1.4; }
+  #roguelike-reward-modal .reward-choice .reward-effect-label { font-size:9px; }
+  #roguelike-reward-modal .reward-synergy { gap:2px; margin-top:6px; padding:4px 5px; border-radius:5px; }
+  #roguelike-reward-modal .reward-synergy-title { font-size:10px; }
+  #roguelike-reward-modal .reward-synergy-note { gap:3px; }
+  #roguelike-reward-modal .reward-synergy-note b { padding:1px 3px; font-size:9px; }
+  #roguelike-reward-modal .reward-synergy-note small { font-size:10px; line-height:1.35; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  #roguelike-route-modal .route-choice,
+  #roguelike-reward-modal .reward-choice { transition:none!important; }
+  #roguelike-route-modal .route-choice:hover,
+  #roguelike-route-modal .route-choice:focus-visible,
+  #roguelike-reward-modal .reward-choice:hover,
+  #roguelike-reward-modal .reward-choice:focus-visible { transform:none; }
+}

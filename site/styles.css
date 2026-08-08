@@ -2070,6 +2070,10 @@ body.puzzle-mode .story-lesson-set .idiom-effect { display:block; font-size:9px;
 
 /* First new-run battle: compact, in-play coaching rather than another modal. */
 .first-battle-coach { display:none; }
+/* First-battle assistance still grants its hidden support, but the long coach
+   rail itself is intentionally removed from the combat HUD. */
+body.roguelike-mode .first-battle-coach,
+body.roguelike-mode .first-battle-coach:not([hidden]) { display:none!important; }
 body.roguelike-mode .first-battle-coach:not([hidden]) {
   display:grid;
   gap:3px;
@@ -3408,3 +3412,43 @@ body.roguelike-mode .jaryeong-slot.filled { display:block; }
   body[data-idiom-display="all-large"].roguelike-mode .fixed-set .idiom-card:first-child .idiom-effect,
   body[data-idiom-display="all-large"].roguelike-mode .fixed-set .idiom-card:nth-child(n+2) .idiom-effect { font-size:10px; }
 }
+
+/* Slow idiom presentation restores the original full-screen centered alchemy scene. */
+body.alchemy-scene-active > .alchemy-overlay {
+  position:fixed;
+  inset:0;
+  z-index:120;
+  width:auto;
+  height:auto;
+  min-height:100dvh;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  overflow:hidden;
+  border:0;
+  border-radius:0;
+  background:radial-gradient(circle,rgba(25,65,53,.88),rgba(2,8,7,.9) 52%,rgba(2,8,7,.72) 100%);
+  box-shadow:none;
+  opacity:0;
+  visibility:hidden;
+}
+body.alchemy-scene-active > .alchemy-overlay.show {
+  display:flex;
+  visibility:visible;
+  animation:alchemyScene var(--alchemy-duration,4.2s) ease both;
+}
+body.alchemy-scene-active > .alchemy-overlay .seal-ring {
+  width:min(430px,72vw);
+  height:min(430px,72vw);
+  opacity:.6;
+}
+body.alchemy-scene-active > .alchemy-overlay .alchemy-glyphs { gap:10px; }
+body.alchemy-scene-active > .alchemy-overlay .alchemy-glyphs span {
+  width:clamp(58px,8vw,88px);
+  height:clamp(72px,10vw,104px);
+  font-size:clamp(38px,6vw,62px);
+}
+body.alchemy-scene-active > .alchemy-overlay h2 { margin:22px 0 4px; font-size:clamp(25px,4vw,38px); }
+body.alchemy-scene-active > .alchemy-overlay p { margin:0; font-size:clamp(12px,1.7vw,17px); white-space:normal; }
+body.alchemy-scene-active > .alchemy-overlay > strong { max-width:min(720px,88vw); margin-top:14px; font-size:clamp(13px,1.8vw,18px); line-height:1.5; white-space:normal; text-overflow:clip; }

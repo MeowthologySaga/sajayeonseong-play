@@ -269,3 +269,27 @@ export function getCurrentFirstBattleHint(state) {
   if (!state?.eligible || state.finished || state.hintProgress?.completed) return null;
   return clonePlain(state.plan?.hints?.[state.hintProgress?.stepIndex] || null);
 }
+
+/**
+ * Returns the save-safe presentation state for the compact first-battle coach.
+ * This derives progress from the existing onboarding events instead of adding
+ * another completion track just for the HUD.
+ */
+export function getFirstBattleCoachProgress(state) {
+  if (!state?.eligible || !state.grantIssued || state.finished || state.hintProgress?.completed || !state.plan) return null;
+  const hints = Array.isArray(state.plan.hints) ? state.plan.hints : [];
+  if (!hints.length) return null;
+  const requestedIndex = nonNegativeInteger(state.hintProgress?.stepIndex, 0);
+  const stepIndex = Math.min(requestedIndex, hints.length);
+  if (stepIndex >= hints.length) return null;
+  return {
+    stepIndex,
+    currentHint: getCurrentFirstBattleHint(state),
+    stages: hints.map((hint, index) => ({
+      ...clonePlain(hint),
+      status: index < stepIndex ? "complete" : index === stepIndex ? "current" : "pending"
+    })),
+    leaderCharge: state.plan.leaderCharge ? clonePlain(state.plan.leaderCharge) : null,
+    characterSupply: state.plan.characterSupply ? clonePlain(state.plan.characterSupply) : null
+  };
+}

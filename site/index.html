@@ -9,7 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20260808-approved-ui-4" />
+  <link rel="stylesheet" href="styles.css?v=20260808-idiom-layout-2" />
+  <link rel="stylesheet" href="styles-route-reward.css?v=20260808-combat-readability-1" />
   </head>
   <body>
     <div class="grain" aria-hidden="true"></div>
@@ -32,9 +33,17 @@
         <div class="enemy-copy">
           <div class="wave-line"><span id="wave-label">제1파</span><span id="turn-label">첫 번째 연성</span></div>
           <h2 id="enemy-name">야생 목령</h2>
-          <div class="enemy-kind-label" id="enemy-kind-label" aria-label="야생 자령 한자 정보">
-            <b id="enemy-study-hanja">木</b>
-            <span><strong id="enemy-study-reading">나무 목</strong><small id="enemy-study-meaning">성장 · 야생 자령</small></span>
+          <div class="enemy-kind-label-anchor" id="enemy-kind-label-anchor">
+            <button type="button" class="enemy-kind-label" id="enemy-kind-label" aria-label="야생 자령 한자 정보" aria-controls="enemy-affinity-tooltip" aria-describedby="enemy-affinity-tooltip" aria-expanded="false">
+              <b id="enemy-study-hanja">木</b>
+              <span><strong id="enemy-study-reading">나무 목</strong><small id="enemy-study-meaning">성장 · 야생 자령</small></span>
+            </button>
+            <div class="enemy-affinity-tooltip" id="enemy-affinity-tooltip" role="tooltip" hidden>
+              <strong id="enemy-affinity-tooltip-title">전투 상성</strong>
+              <p><b>약점</b><span id="enemy-affinity-tooltip-weak">-</span></p>
+              <p><b>저항</b><span id="enemy-affinity-tooltip-resist">-</span></p>
+              <p id="enemy-affinity-tooltip-barrier-row" hidden><b>속성결계</b><span id="enemy-affinity-tooltip-barrier">-</span></p>
+            </div>
           </div>
           <div class="enemy-phase-label" id="enemy-phase-label">1단계 · 먹구름</div>
           <div class="enemy-intent-card threat-medium" id="enemy-intent" aria-describedby="enemy-intent-live">
@@ -63,12 +72,25 @@
           </div>
           <div id="damage-float" class="damage-float" aria-live="polite"></div>
         </div>
+        <aside id="combat-notification-anchor" class="combat-notification-anchor" aria-label="전투 알림">
         <div id="battle-feedback" class="battle-feedback" role="status" aria-live="assertive">
           <b id="battle-feedback-kicker">내 공격</b><strong id="battle-feedback-title">연성 결과</strong><span id="battle-feedback-detail">피해와 방어 결과가 여기에 표시됩니다.</span>
         </div>
+        <div id="alchemy-overlay" class="alchemy-overlay" aria-live="assertive">
+          <div class="seal-ring"></div>
+          <div id="alchemy-glyphs" class="alchemy-glyphs"></div>
+          <h2 id="alchemy-name"></h2>
+          <p id="alchemy-reading"></p>
+          <strong id="alchemy-effect"></strong>
+        </div>
+        </aside>
         <div class="enemy-vitals">
           <div class="vital-row"><span>자령 기운 · 진정 게이지</span><span class="vital-value"><strong id="enemy-hp-text">120 / 120</strong><small id="enemy-hp-percent">100%</small></span></div>
           <div class="bar enemy-bar"><i id="enemy-hp-bar"></i></div>
+          <div id="enemy-defense-hud" class="enemy-defense-hud" aria-label="적 보호 상태" aria-live="polite" aria-atomic="true" hidden>
+            <span id="enemy-shield-hud" class="enemy-defense-pill enemy-shield-pill" hidden><b>🛡 보호막</b><strong>0</strong><small>전 속성 유효 · 금 관통 추천</small></span>
+            <span id="enemy-barrier-hud" class="enemy-defense-pill enemy-barrier-pill" hidden><b>結 속성만 유효</b><strong>남은 0 · 0턴</strong></span>
+          </div>
           <div class="status-row" id="enemy-status"><span class="status-pill muted">상태 없음</span></div>
           <div id="enemy-affinity" class="enemy-affinity" aria-label="자령 오행 상성"></div>
         </div>
@@ -112,6 +134,27 @@
               <b id="combat-mission-progress">0 / 0</b>
             </section>
           </div>
+          <section id="first-battle-coach" class="first-battle-coach" aria-label="첫 전투 길잡이" aria-live="polite" hidden>
+            <div class="first-battle-coach-head"><small>첫 전투 · 실전 코치</small><strong id="first-battle-coach-hint">적의 의도를 읽고 대응을 고르세요.</strong></div>
+            <ol id="first-battle-coach-steps" class="first-battle-coach-steps" aria-label="첫 전투 진행 단계">
+              <li data-state="pending"><b>1</b><span>의도 읽기</span></li>
+              <li data-state="pending"><b>2</b><span>대응 선택</span></li>
+              <li data-state="pending"><b>3</b><span>결과 확인</span></li>
+            </ol>
+            <div class="first-battle-coach-support">
+              <span id="first-battle-coach-supply">고정 성어 지원 · 1턴 · 2턴</span>
+              <button id="first-battle-coach-skill" class="first-battle-coach-skill" type="button" disabled>
+                <kbd id="first-battle-coach-skill-key">1</kbd>
+                <span><b id="first-battle-coach-skill-name">리더 기술</b><small id="first-battle-coach-skill-detail">기술 설명</small></span>
+                <em id="first-battle-coach-skill-charge">기운 0/5</em>
+              </button>
+            </div>
+          </section>
+          <section id="story-training-hud" class="story-training-hud" aria-label="서사 수련 목표" aria-live="polite" hidden>
+            <span class="story-training-glyph" aria-hidden="true">序</span>
+            <span class="story-training-copy"><small id="story-training-kicker">제1장 · 재앙의 문</small><strong id="story-training-title">첫 빛을 이으세요</strong><em id="story-training-guide">표시된 목 타일을 위 칸으로 옮긴 뒤 손을 떼세요.</em></span>
+            <b id="story-training-progress">0 / 1</b>
+          </section>
           <div class="puzzle-head">
             <div class="player-vitals">
               <div class="portrait"><span>鍊</span></div>
@@ -119,9 +162,9 @@
                 <div class="vital-row"><span>연성술사</span><strong id="player-hp-text">100 / 100</strong></div>
                 <div class="bar player-bar"><i id="player-hp-bar"></i></div>
               </div>
-              <div id="shield-badge" class="shield-badge" aria-label="보호막">◇ <b>0</b></div>
+              <div id="shield-badge" class="shield-badge is-empty" role="status" aria-live="polite" aria-atomic="true" aria-label="보호막 0"><span class="shield-icon" aria-hidden="true">🛡</span><span class="shield-label">보호막</span><b>0</b></div>
             </div>
-            <div class="move-timer" id="move-timer"><span>이동</span><strong>4.0</strong><i></i></div>
+            <div class="move-timer" id="move-timer"><span>이동</span><strong>5.0</strong><i></i></div>
             <div id="player-damage-float" class="player-damage-float" aria-live="assertive"></div>
           </div>
 
@@ -133,7 +176,7 @@
           </div>
 
           <div class="queue-area">
-            <div class="queue-title"><span>문자 큐</span><small><b id="queue-count">0</b> / <b id="queue-limit">14</b> · 최대 3턴 보존</small></div>
+            <div class="queue-title"><span>문자 큐</span><small><b id="queue-count">0</b> / <b id="queue-limit">20</b> · 최대 3턴 보존</small></div>
             <div id="letter-queue" class="letter-queue" aria-label="수집한 한자"></div>
           </div>
           <p id="pang-guide" class="pang-guide">이웃한 타일을 밀어 3개 이상 맞추세요. 매치가 없으면 원래 자리로 돌아옵니다.</p>
@@ -184,6 +227,29 @@
         <div id="hud-drawer-content" class="hud-drawer-content"></div>
       </section>
 
+      <section id="jaryeong-skill-inspector" class="jaryeong-skill-inspector" role="region" aria-labelledby="jaryeong-skill-inspector-title" aria-describedby="jaryeong-skill-inspector-effect jaryeong-skill-inspector-guide" hidden>
+        <div class="jaryeong-skill-inspector-card">
+          <button id="jaryeong-skill-inspector-close" class="jaryeong-skill-inspector-close" type="button" aria-label="자령 스킬 정보 닫기">×</button>
+          <div id="jaryeong-skill-inspector-art" class="jaryeong-skill-inspector-art" aria-hidden="true"></div>
+          <div class="jaryeong-skill-inspector-copy">
+            <small id="jaryeong-skill-inspector-kicker">오행 자령 · 1번</small>
+            <h2 id="jaryeong-skill-inspector-title" tabindex="-1">자령 기술</h2>
+            <p id="jaryeong-skill-inspector-effect">기술 효과</p>
+            <p id="jaryeong-skill-inspector-status" class="jaryeong-skill-inspector-status" aria-live="polite">기운 0/5 · 충전 중</p>
+            <p id="jaryeong-skill-inspector-guide" class="jaryeong-skill-inspector-guide">같은 오행 3연성 +1 · 내 부적 한자 +2</p>
+          </div>
+          <button id="jaryeong-skill-inspector-cast" class="jaryeong-skill-inspector-cast" type="button" aria-disabled="true" aria-describedby="jaryeong-skill-inspector-effect jaryeong-skill-inspector-status jaryeong-skill-inspector-guide">충전 중</button>
+        </div>
+      </section>
+
+      <p id="jaryeong-skill-cutin-live" class="sr-only" aria-live="polite" aria-atomic="true"></p>
+      <section id="jaryeong-skill-cutin" class="jaryeong-skill-cutin" aria-hidden="true" hidden>
+        <div class="jaryeong-skill-cutin-card" aria-hidden="true">
+          <div id="jaryeong-skill-cutin-art" class="jaryeong-skill-cutin-art" aria-hidden="true"></div>
+          <div class="jaryeong-skill-cutin-copy"><small id="jaryeong-skill-cutin-element">오행 자령</small><strong id="jaryeong-skill-cutin-title">자령 기술</strong><b id="jaryeong-skill-cutin-name">기술명</b><p id="jaryeong-skill-cutin-detail">기술 효과</p></div>
+        </div>
+      </section>
+
       <footer class="game-footer">
         <p><span class="mouse-mark">↔</span> 타일을 누른 채 이웃 칸을 지나가세요. 손을 떼면 한꺼번에 연성됩니다.</p>
         <button id="reset-button" class="text-button">처음부터</button>
@@ -200,7 +266,7 @@
         </div>
         <div id="menu-spirit-parade" class="menu-spirit-parade" aria-hidden="true"></div>
         <div class="menu-shrine-actions" aria-label="수련과 수집 메뉴">
-          <button id="puzzle-mode-button" class="menu-shrine-button"><span>鍊</span><strong>퍼즐 수련</strong><small>3분 전술 연성</small></button>
+          <button id="puzzle-mode-button" class="menu-shrine-button"><span>序</span><strong>서사 수련</strong><small id="story-menu-status">1장 · 재앙의 문</small></button>
           <button id="pang-mode-button" class="menu-shrine-button"><span>碰</span><strong>연쇄 수련</strong><small>60초 기록 도전</small></button>
           <button id="jaryeong-meta-button" class="menu-shrine-button"><span>靈</span><strong>자령전</strong><small>도감 · 편성 · 소환</small></button>
         </div>
@@ -215,7 +281,7 @@
       <div class="modal-card settings-card">
         <p class="eyebrow">視讀 · 표시 설정</p>
         <h2 id="settings-title">표시·연출 설정</h2>
-        <p class="intro-copy">한자 훈독의 크기와 사자성어 발동 연출 속도를 선택하세요.</p>
+        <p class="intro-copy">한자 훈독의 크기, 사자성어 연성식과 전투 행동 표시 시간을 선택하세요.</p>
         <div class="reading-options" role="radiogroup" aria-label="훈독 표시 방식">
           <button type="button" class="reading-option" data-reading-mode="compact" aria-pressed="false">
             <span class="reading-preview reading-preview-compact"><b>福</b><small>복 복</small></span>
@@ -229,9 +295,10 @@
         <div class="idiom-display-setting">
           <div class="setting-copy"><strong>연성식 표시 밀도</strong><small>복잡한 한자를 읽는 크기와 전투 공간의 균형을 비교합니다. 선택은 이 기기에 저장됩니다.</small></div>
           <div class="idiom-display-options" role="radiogroup" aria-label="사자성어 표시 방식">
-            <button type="button" class="idiom-display-option" data-idiom-display="focus" aria-pressed="false"><b>집중형</b><small>핵심 성어를 가장 크게</small></button>
-            <button type="button" class="idiom-display-option" data-idiom-display="balanced" aria-pressed="false"><b>균형형</b><small>추천 · 한 개 크게</small></button>
-            <button type="button" class="idiom-display-option" data-idiom-display="compact" aria-pressed="false"><b>압축형</b><small>전장을 가장 넓게</small></button>
+            <button type="button" class="idiom-display-option" role="radio" data-idiom-display="focus" aria-checked="false" tabindex="-1"><b>집중형</b><small>핵심 성어를 가장 크게</small></button>
+            <button type="button" class="idiom-display-option" role="radio" data-idiom-display="all-large" aria-checked="false" tabindex="-1"><b>전체 크게</b><small>고정·순환을 함께 읽기</small></button>
+            <button type="button" class="idiom-display-option" role="radio" data-idiom-display="balanced" aria-checked="false" tabindex="-1"><b>균형형</b><small>추천 · 한 개 크게</small></button>
+            <button type="button" class="idiom-display-option" role="radio" data-idiom-display="compact" aria-checked="false" tabindex="-1"><b>압축형</b><small>전장을 가장 넓게</small></button>
           </div>
         </div>
         <div class="idiom-speed-setting">
@@ -239,6 +306,13 @@
           <div class="idiom-speed-options" role="radiogroup" aria-label="사자성어 발동 연출 속도">
             <button type="button" class="idiom-speed-option" data-idiom-speed="slow" aria-pressed="false"><b>천천히</b><small>학습·읽기 권장</small></button>
             <button type="button" class="idiom-speed-option" data-idiom-speed="fast" aria-pressed="false"><b>빠르게</b><small>기존 속도</small></button>
+          </div>
+        </div>
+        <div class="battle-display-setting">
+          <div class="setting-copy"><strong>전투 행동 표시</strong><small>적 행동과 내 공격의 결과 문장이 화면에 머무는 시간</small></div>
+          <div class="battle-display-options" role="radiogroup" aria-label="전투 행동 표시 시간">
+            <button type="button" class="battle-display-option" role="radio" data-battle-display="fast" aria-checked="false" tabindex="-1"><b>빠르게</b><small>기존 속도</small></button>
+            <button type="button" class="battle-display-option" role="radio" data-battle-display="slow" aria-checked="false" tabindex="-1"><b>천천히</b><small>효과·결과 읽기</small></button>
           </div>
         </div>
         <div class="audio-options" aria-label="음향 설정">
@@ -297,15 +371,17 @@
 
     <div id="intro-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="intro-title">
       <div class="modal-card intro-card">
-        <p class="eyebrow">三分間의 연성 의식</p>
-        <h2 id="intro-title">색을 잇고,<br /><span>뜻의 힘</span>을 깨우세요.</h2>
-        <p class="intro-copy">한자를 외울 필요는 없습니다. 같은 빛을 3개 이상 맞추면 글자가 모이고, 네 글자가 갖춰지는 순간 사자성어가 전투의 힘으로 깨어납니다.</p>
-        <div class="how-to">
+        <p id="story-intro-kicker" class="eyebrow">序章 · 문자술사의 첫 수련</p>
+        <h2 id="intro-title">재앙의 문 앞에서,<br /><span>첫 연성</span>을 배우세요.</h2>
+        <p id="story-intro-copy" class="intro-copy">조작과 적의 예고, 사자성어 발동을 짧은 이야기 전투로 익힙니다. 한자를 외울 필요는 없습니다. 같은 빛을 3개 이상 맞추면 글자가 모입니다.</p>
+        <div id="story-chapter-select" class="story-chapter-select" role="group" aria-label="서사 수련 장 선택"></div>
+        <div id="story-intro-steps" class="how-to" aria-label="이번 장의 핵심 단계">
           <div><b>1</b><span><strong>잡기</strong>타일 하나를 누르세요</span></div>
-          <div><b>2</b><span><strong>움직이기</strong>4초 동안 이웃 칸을 통과하세요</span></div>
+          <div><b>2</b><span><strong>움직이기</strong>5초 동안 이웃 칸을 통과하세요</span></div>
           <div><b>3</b><span><strong>연성하기</strong>손을 떼면 매치와 글자를 판정합니다</span></div>
         </div>
-        <button id="start-button" class="primary-button">연성을 시작한다 <span>→</span></button>
+        <button id="story-help-return" class="primary-button" type="button" hidden>현재 수련으로 돌아가기 <span>↩</span></button>
+        <button id="start-button" class="primary-button">제1장 시작 <span>→</span></button>
         <button id="puzzle-intro-menu" class="text-button">다른 모드 선택</button>
         <small>목·화·토·금·수의 문양만 보고 시작해도 충분합니다.</small>
       </div>
@@ -331,6 +407,11 @@
         <p class="eyebrow">MAIN RUN · 약 20분</p>
         <h2 id="roguelike-intro-title">고르고, 버티고,<br /><span>끝까지 잇세요.</span></h2>
         <p class="intro-copy">문자권을 고르고 미리 편성한 5자령과 함께 출발하세요. 75개 성어와 유물의 조합으로 세 장의 갈림길을 돌파합니다.</p>
+        <section id="story-graduation-banner" class="story-graduation-banner" role="status" aria-live="polite" aria-atomic="true" hidden>
+          <p>第陸章 完 · 수련 졸업</p>
+          <strong>연성행로 준비가 열렸습니다</strong>
+          <span>배운 규칙은 여기서 자령·성어·유물 빌드로 이어집니다.</span>
+        </section>
         <div class="pang-rules roguelike-rules">
           <span><b id="prep-owned-count">5종</b> 보유 자령</span>
           <span><b>75종</b> 전체 성어</span>
@@ -339,6 +420,7 @@
         <div class="roguelike-prep-party" aria-label="출전 자령 편성">
           <div><small>PREPARED PARTY</small><strong id="prep-party-title">출전 자령 5명</strong><button id="prep-edit-party-button" class="text-button" type="button">편성 변경</button></div>
           <div id="meta-prep-party" class="meta-prep-party"></div>
+          <small class="roguelike-build-note">자령은 시작 빌드의 특성을 정합니다 · 순수 화력 보정은 편성 전체 최대 +20%</small>
         </div>
         <div class="volume-picker" aria-label="이번 런 문자권">
           <div><small>CHARACTER VOLUME</small><strong id="volume-picker-title">이번 런 문자권</strong><span id="volume-summary">천자문 1권 · 125자</span></div>
@@ -357,7 +439,7 @@
     <div id="jaryeong-meta-modal" class="modal jaryeong-meta-modal" role="dialog" aria-modal="true" aria-labelledby="jaryeong-meta-title">
       <div class="modal-card jaryeong-meta-card" data-meta-view="collection">
         <div class="jaryeong-meta-heading">
-          <div><p class="eyebrow">靈符殿 · META COLLECTION</p><h2 id="jaryeong-meta-title">자령 도감</h2><p id="jaryeong-meta-summary">보유 자령과 부적 조각을 확인합니다.</p></div>
+          <div><p class="eyebrow">靈符殿 · META COLLECTION</p><h2 id="jaryeong-meta-title">자령 도감</h2><p id="jaryeong-meta-summary">보유 자령과 통합 부적 조각·소환권을 확인합니다.</p></div>
           <button id="jaryeong-meta-close" class="icon-button" type="button" aria-label="자령전 닫기">×</button>
         </div>
         <div class="jaryeong-meta-tabs" role="tablist" aria-label="자령전 화면">
@@ -447,9 +529,20 @@
       <div class="modal-card roguelike-picker-card">
         <p class="eyebrow">RUN REWARD · 전투 후 선택</p>
         <h2 id="roguelike-reward-title">다음 행로를 고르세요</h2>
-        <p id="roguelike-reward-copy" class="intro-copy">출현 자령의 부적 조각, 성어, 유물·회복 중 하나를 선택하세요.</p>
+        <p id="roguelike-reward-copy" class="intro-copy">성어, 유물·회복 중 하나를 선택하세요. 부적 조각은 희귀·정예·보스 처치 시 자동으로 떨어집니다.</p>
         <div id="roguelike-reward-cards" class="roguelike-choice-grid"></div>
         <button id="roguelike-reward-reroll" class="text-button reward-reroll" type="button">↻ 보상 새로고침 <b id="reward-reroll-count">1</b></button>
+      </div>
+    </div>
+
+    <div id="idiom-replacement-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="idiom-replacement-title">
+      <div class="modal-card idiom-replacement-card">
+        <p class="eyebrow">FIXED RECIPE · 고정 연성식 교체</p>
+        <h2 id="idiom-replacement-title">새 성어를 고정할까요?</h2>
+        <p id="idiom-replacement-copy" class="intro-copy">고정 연성식은 최대 4개입니다. 새 성어와 현재 성어의 역할·효과·준비도를 비교해 교체하세요.</p>
+        <section id="idiom-replacement-candidate" class="idiom-replacement-candidate" aria-label="새로 획득한 성어"></section>
+        <div id="idiom-replacement-options" class="idiom-replacement-options" role="group" aria-label="교체할 고정 성어"></div>
+        <button id="idiom-replacement-keep" class="text-button idiom-replacement-keep" type="button">현재 4개 유지 · 새 성어는 성어첩에 보관</button>
       </div>
     </div>
 
@@ -463,20 +556,12 @@
         <div id="contract-party-options" class="contract-party-options"></div>
         <div class="contract-actions">
           <button id="contract-duplicate-button" class="text-button" type="button">기존 자령 중복 강화</button>
-          <button id="contract-abandon-button" class="text-button" type="button">영입 포기 · 부적 조각</button>
+          <button id="contract-abandon-button" class="text-button" type="button">영입 포기 · 먹 8</button>
         </div>
       </div>
     </div>
 
-    <div id="alchemy-overlay" class="alchemy-overlay" aria-live="assertive">
-      <div class="seal-ring"></div>
-      <div id="alchemy-glyphs" class="alchemy-glyphs"></div>
-      <h2 id="alchemy-name"></h2>
-      <p id="alchemy-reading"></p>
-      <strong id="alchemy-effect"></strong>
-    </div>
-
-    <div id="cursor-timer" class="cursor-timer" aria-hidden="true"><strong>4.0</strong><small>초</small></div>
+    <div id="cursor-timer" class="cursor-timer" aria-hidden="true"><strong>5.0</strong><small>초</small></div>
     <div id="drag-ghost" class="drag-ghost" aria-hidden="true"></div>
     <div id="combat-projectile-layer" class="combat-projectile-layer" aria-hidden="true"></div>
 
@@ -484,7 +569,7 @@
       <div class="modal-card revive-card">
         <p class="eyebrow">한 번뿐인 자형 재연성</p>
         <h2 id="revive-title">한자를 따라 써 보세요</h2>
-        <p id="revive-instructions">반투명한 글자 위를 천천히 따라 그어 보세요. 획이 조금 달라도 대강의 유사도로 판정합니다.</p>
+        <p id="revive-instructions">반투명한 글자 위를 천천히 따라 그어 보세요. 마우스 왼쪽 버튼이나 터치로 쓰고, 마우스 오른쪽 버튼을 누른 채 움직이면 지울 수 있습니다.</p>
         <div id="revive-reading-guide" class="revive-reading-guide" role="group" aria-label="출제 한자의 훈과 음" aria-live="polite">
           <strong id="revive-study-char" class="revive-study-char">字</strong>
           <span><small>훈 · 뜻</small><b id="revive-hun">글자</b></span>
@@ -492,11 +577,11 @@
           <span class="revive-hun-eum"><small>훈음</small><b id="revive-hun-eum">글자 자</b></span>
         </div>
         <div id="trace-stage" class="trace-stage" aria-label="반투명한 한자를 따라 그리기">
-          <canvas id="revive-canvas" class="revive-canvas" width="720" height="460" aria-label="한자 따라쓰기"></canvas>
+          <canvas id="revive-canvas" class="revive-canvas" width="720" height="460" aria-label="한자 따라쓰기" aria-describedby="revive-instructions trace-progress"></canvas>
         </div>
         <p id="trace-progress" class="trace-progress">반투명 글자를 따라 써 주세요 · 모두 쓴 뒤 제출하세요.</p>
         <div class="trace-actions">
-          <button id="trace-reset" class="text-button" type="button">다시 그리기</button>
+          <button id="trace-reset" class="text-button" type="button">전체 지우기</button>
           <button id="trace-submit" class="primary-button" type="button">제출하고 부활 확인 <span>✎</span></button>
         </div>
       </div>
@@ -515,6 +600,21 @@
         <button id="revive-result-button" class="primary-button" type="button" hidden>한자 쓰기로 부활 <span>✎</span></button>
         <button id="replay-button" class="primary-button">다시 연성하기 <span>↻</span></button>
         <button id="result-menu" class="text-button">메인 메뉴</button>
+      </div>
+    </div>
+
+    <div id="story-result-modal" class="modal story-result-modal" role="dialog" aria-modal="true" aria-labelledby="story-result-title">
+      <div class="modal-card result-card story-result-card">
+        <p id="story-result-kicker" class="eyebrow">第壹章 完 · 첫 수련 완료</p>
+        <span class="story-result-seal" aria-hidden="true">成</span>
+        <h2 id="story-result-title">첫 빛을 이었습니다</h2>
+        <p id="story-result-copy">타일을 잡고, 이웃 칸을 지나, 손을 떼면 같은 빛이 연성됩니다.</p>
+        <div id="story-lesson-recap" class="story-lesson-recap" aria-label="이번 장에서 배운 규칙">
+          <span><b>1</b>타일 잡기</span><span><b>2</b>5초 이동</span><span><b>3</b>놓아서 연성</span>
+        </div>
+        <button id="story-journey-button" class="primary-button" type="button">연성행로 구경하기 <span>行</span></button>
+        <button id="story-replay-button" class="text-button" type="button">제1장 다시 하기</button>
+        <button id="story-result-menu" class="text-button" type="button">메인 메뉴</button>
       </div>
     </div>
 
@@ -544,7 +644,7 @@
           <div><small>전투</small><strong id="roguelike-result-battles">0</strong></div>
           <div><small>콤보</small><strong id="roguelike-result-combos">0</strong></div>
           <div><small>성어</small><strong id="roguelike-result-idioms">0</strong></div>
-          <div><small>부적 조각</small><strong id="roguelike-result-fragments">0</strong></div>
+          <div><small>통합 부적 조각</small><strong id="roguelike-result-fragments">0</strong></div>
         </div>
         <p class="roguelike-result-build"><small>이번 빌드</small><strong id="roguelike-result-build">-</strong></p>
         <button id="roguelike-revive-result-button" class="primary-button" type="button" hidden>한자 쓰기로 부활 <span>✎</span></button>
@@ -555,6 +655,6 @@
 
     <script src="data/sajayeonseong-hanja-v2.js?v=20260807-data-2"></script>
     <script src="data/hanja-hun-eum.js?v=20260807-hun-1"></script>
-    <script type="module" src="game.js?v=20260808-feedback-1"></script>
+    <script type="module" src="game.js?v=20260808-idiom-layout-2"></script>
   </body>
 </html>

@@ -50,7 +50,7 @@ export const EVENT_CATALOG = Object.freeze([
   ] },
   { id: "five-gates", name: "오행의 문", description: "선택한 오행은 피해 +8%, 일반 매치 부가효과 발동률 +6%p를 얻습니다.", choices: ELEMENT_CYCLE.map((element) => ({ id: element, label: `${ELEMENT_LABELS[element]} 공명 · 피해 +8% · 부가효과 +6%p`, effects: [{ type: "elementAffinity", element, amount: 1 }] })) },
   { id: "broken-talisman", name: "찢어진 부적", description: "조각을 잇거나 힘으로 태울 수 있습니다.", choices: [
-    { id: "mend", label: "부적 조각 2개 획득", effects: [{ type: "fragment", amount: 2 }] },
+    { id: "mend", label: "부적을 수선해 먹 12 · 보호막 8", effects: [{ type: "gainInk", amount: 12 }, { type: "shield", amount: 8 }] },
     { id: "burn", label: "다음 전투 시작 피해 24", effects: [{ type: "openingDamage", amount: 24 }] }
   ] },
   { id: "quiet-school", name: "고요한 서당", description: "잠시 복습하면 다음 글자가 선명해집니다.", choices: [
@@ -80,17 +80,17 @@ const ENCOUNTER_ROWS = [
   ["forest-orchid",1,"elite","wood-orchid","wild-orchid",245,17,"회향 난령"],
   ["forest-forest",1,"elite","wood-forest","wild-forest",235,16,"고목 숲등의 삼령"],
   ["forest-boss",1,"boss","wood-life","wild-regrowth",310,18,"만생목 자령왕"],
-  ["crimson-flame",2,"battle","fire-hwa","wild-ember",185,15,"홍염의 화령"],
-  ["crimson-sun",2,"battle","earth-mountain","wild-landslide",205,16,"적벽을 걷는 산령"],
-  ["crimson-stone",2,"battle","earth-to","wild-earth-wall",220,15,"잿빛 토령"],
-  ["crimson-lantern",2,"battle","fire-lantern","wild-lantern",215,17,"유등 동굴의 등령"],
-  ["crimson-fox",2,"battle","fire-fox","wild-fox",225,18,"묵화 꼬리의 호령"],
-  ["crimson-tortoise",2,"battle","earth-tortoise","wild-tortoise",235,16,"육각 성벽의 귀령"],
-  ["crimson-valley",2,"battle","earth-valley","wild-valley",225,17,"붉은 협곡의 곡령"],
-  ["crimson-blade",2,"elite","metal-sword","wild-sword",300,21,"봉인검 자령"],
-  ["crimson-pottery",2,"elite","earth-pottery","wild-pottery",325,22,"금계 청자 도령"],
-  ["crimson-phoenix",2,"elite","fire-phoenix","wild-phoenix",315,21,"재점화 봉령"],
-  ["crimson-boss",2,"boss","fire-sun","boss-crimson-order",410,24,"적월 화령장"],
+  ["crimson-flame",2,"battle","fire-hwa","wild-ember",180,13,"홍염의 화령"],
+  ["crimson-sun",2,"battle","earth-mountain","wild-landslide",198,14,"적벽을 걷는 산령"],
+  ["crimson-stone",2,"battle","earth-to","wild-earth-wall",212,13,"잿빛 토령"],
+  ["crimson-lantern",2,"battle","fire-lantern","wild-lantern",208,15,"유등 동굴의 등령"],
+  ["crimson-fox",2,"battle","fire-fox","wild-fox",216,16,"묵화 꼬리의 호령"],
+  ["crimson-tortoise",2,"battle","earth-tortoise","wild-tortoise",226,14,"육각 성벽의 귀령"],
+  ["crimson-valley",2,"battle","earth-valley","wild-valley",216,15,"붉은 협곡의 곡령"],
+  ["crimson-blade",2,"elite","metal-sword","wild-sword",288,18,"봉인검 자령"],
+  ["crimson-pottery",2,"elite","earth-pottery","wild-pottery",310,19,"금계 청자 도령"],
+  ["crimson-phoenix",2,"elite","fire-phoenix","wild-phoenix",302,18,"재점화 봉령"],
+  ["crimson-boss",2,"boss","fire-sun","boss-crimson-order",395,21,"적월 화령장"],
   ["moon-tide",3,"battle","water-sui","wild-tide",245,18,"달물결 수령"],
   ["moon-rain",3,"battle","water-rain","wild-rain",260,18,"별비 우령"],
   ["moon-gold",3,"battle","metal-gold","wild-pierce",275,20,"월광 금령"],
@@ -111,6 +111,48 @@ export const ENCOUNTER_CATALOG = Object.freeze(ENCOUNTER_ROWS.map(([id, act, kin
   const [weakElement, resistElement] = WEAKNESS[element] || ["water", "fire"];
   return { id, act, kind, jaryeongId, behaviorId, maxHp, damage, name, weakElement, resistElement, risk: kind === "boss" ? "우두머리" : kind === "elite" ? "높음" : "보통", description: `${act}장 ${kind === "boss" ? "수호자" : kind === "elite" ? "정예" : "야생"} 전투` };
 }));
+
+// 첫 막의 일반 자령은 플레이어가 첫 퍼즐 턴부터 피격당하지 않도록
+// "준비 → 공격"의 정확한 2턴 리듬을 쓴다. 정예·보스·2막 이후에는 이
+// 계약을 적용하지 않는다. 게임과 테스트가 같은 계약을 사용해 첫 턴
+// 피해 0 및 공격 비율 1/2를 함께 보장한다.
+export const ACT1_ENTRY_PREPARE_INTENTS = Object.freeze({
+  "wild-growth": Object.freeze({
+    id: "wild-growth-prepare", kind: "prepare", name: "덩굴 숨고르기", icon: "木", damage: 0,
+    effect: Object.freeze({ type: "healEnemy", amount: 5 }),
+    effectText: "피해 없음 · 다음 턴 덩굴 휘감기 · 기운 5 회복", threat: "low", threatLabel: "낮음",
+    responseHint: "다음 턴 공격 전에 성어 재료를 모으세요"
+  }),
+  "wild-canopy": Object.freeze({
+    id: "wild-canopy-prepare", kind: "prepare", name: "수관 말기", icon: "🛡", damage: 0,
+    effect: Object.freeze({ type: "gainEnemyShield", amount: 6 }),
+    effectText: "피해 없음 · 다음 턴 수관 보호 · 보호막 6 · 전 속성 유효 · 금 관통 추천", threat: "low", threatLabel: "낮음",
+    responseHint: "모든 속성으로 파괴 가능 · 금 관통이 특히 효과적입니다"
+  }),
+  "wild-flash": Object.freeze({
+    id: "wild-flash-prepare", kind: "prepare", name: "빛 모으기", icon: "☀", damage: 0,
+    effect: Object.freeze({ type: "gainEnemyShield", amount: 4 }),
+    effectText: "피해 없음 · 다음 턴 눈부신 섬광 · 야생 보호막 4", threat: "low", threatLabel: "낮음",
+    responseHint: "다음 턴 섬광 전에 짧은 이동 경로를 생각하세요"
+  }),
+  "wild-bamboo": Object.freeze({
+    id: "wild-bamboo-prepare", kind: "prepare", name: "죽엽 가다듬기", icon: "竹", damage: 0,
+    effect: Object.freeze({ type: "healEnemy", amount: 4 }),
+    effectText: "피해 없음 · 다음 턴 마디 베기 · 기운 4 회복", threat: "low", threatLabel: "낮음",
+    responseHint: "다음 턴 견제 전에 이동할 길을 확보하세요"
+  })
+});
+
+export const ACT1_ENTRY_BEHAVIOR_IDS = Object.freeze(Object.keys(ACT1_ENTRY_PREPARE_INTENTS));
+
+export function buildAct1EntryCadence(behaviorId, attackIntent) {
+  const prepare = ACT1_ENTRY_PREPARE_INTENTS[behaviorId];
+  if (!prepare || !attackIntent) return attackIntent ? [attackIntent] : [];
+  return [
+    { ...prepare, effect: { ...prepare.effect } },
+    { ...attackIntent, effect: attackIntent.effect ? { ...attackIntent.effect } : undefined }
+  ];
+}
 
 const CATEGORY_EFFECTS = Object.freeze({
   "가족·관계": { tags: ["defense", "idiom"], ops: [{ type: "gainShield", amount: 14 }, { type: "chargeParty", amount: 1 }] },
@@ -150,6 +192,29 @@ export function buildIdiomSpecs(rows = [], legacyIds = {}) {
       }
     };
   });
+}
+
+export function describeIdiomEffectSpec(effectSpec = {}) {
+  const labels = {
+    dealDamage: (op) => `적에게 ${op.amount || 0} 피해`,
+    gainShield: (op) => `보호막 ${op.amount || 0}`,
+    heal: (op) => `체력 ${op.amount || 0} 회복`,
+    delay: (op) => `적 행동 ${op.turns || 1}턴 지연`,
+    returnQueueChar: (op) => `사용 문자 ${op.count || 1}개 회수`,
+    chargeParty: (op) => `모든 자령 기력 +${op.amount || 1}`,
+    draw: (op) => `필요 문자 ${op.count || 1}개 공급`,
+    gainInk: (op) => `먹 ${op.amount || 0} 획득`,
+    convertDrops: (op) => `드롭 ${op.count || 1}개 변환`,
+    cleanse: () => "약화 효과 해제",
+    duplicateLast: () => "직전 성어 효과 1회 복제"
+  };
+  const ops = Array.isArray(effectSpec?.ops) ? effectSpec.ops : [];
+  const unknownTypes = ops.map((op) => op?.type).filter((type) => type && !labels[type]);
+  const parts = ops.map((op) => labels[op?.type]?.(op)).filter(Boolean);
+  return {
+    text: parts.length ? parts.join(" · ") : "성어 공명으로 추가 피해",
+    unknownTypes
+  };
 }
 
 export const AUDIO_MANIFEST = Object.freeze({

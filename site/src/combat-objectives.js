@@ -44,7 +44,7 @@ export const COMBAT_OBJECTIVE_DEFINITIONS = Object.freeze({
     title: "오행 공명",
     description: "지정 오행 효과를 2회 발동",
     target: { count: 2 },
-    reward: { kind: "jaryeong-fragments", amount: 2, target: "encountered-jaryeong" }
+    reward: { kind: "ink", amount: 5 }
   }),
   [COMBAT_OBJECTIVE_TYPE.IDIOM_ACTIVATIONS]: freezeDefinition({
     title: "성어 연성",
@@ -56,7 +56,7 @@ export const COMBAT_OBJECTIVE_DEFINITIONS = Object.freeze({
     title: "해봉",
     description: "전투 중 생긴 봉인을 전부 해제",
     target: { minimumSeals: 1 },
-    reward: { kind: "jaryeong-fragments", amount: 2, target: "encountered-jaryeong" }
+    reward: { kind: "ink", amount: 6 }
   }),
   [COMBAT_OBJECTIVE_TYPE.TURN_LIMIT_VICTORY]: freezeDefinition({
     title: "속전속결",

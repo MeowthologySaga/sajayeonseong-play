@@ -2,8 +2,8 @@ import { calculateElementProcChance } from "./element-procs.js";
 
 export const RUN_LIMITS = Object.freeze({
   initialIdiomCount: 1,
-  baseQueueMax: 14,
-  maxQueueMax: 18,
+  baseQueueMax: 20,
+  maxQueueMax: 24,
   maxDelay: 2,
   maxDamageMultiplier: 3,
   maxShieldRatio: 1.5,

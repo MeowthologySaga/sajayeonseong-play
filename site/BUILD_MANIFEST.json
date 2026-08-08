@@ -24,8 +24,8 @@
     "https://fonts.googleapis.com (font stylesheet; system font fallback remains playable)",
     "https://fonts.gstatic.com (font files; system font fallback remains playable)"
   ],
-  "fileCount": 233,
-  "totalBytes": 52508163,
+  "fileCount": 238,
+  "totalBytes": 52720197,
   "files": [
     {
       "path": "assets/audio/bgm/act1-mistwood-loop.mp3",
@@ -1089,13 +1089,13 @@
     },
     {
       "path": "game.js",
-      "bytes": 347750,
-      "sha256": "9b8efedacc66ca1a7c83e130d072c1e5780400c8753095cd0b9ef6588474d630"
+      "bytes": 419975,
+      "sha256": "f9bbb03075dd783a1550bb7280ccea5ee54b775185edf3ee993dc6f68bc16677"
     },
     {
       "path": "index.html",
-      "bytes": 42162,
-      "sha256": "ac8393fa2158fb8b0b4b603dfeb56f3f76fc7fbd38615bfba80e27b1860a27f1"
+      "bytes": 52120,
+      "sha256": "b575eeb8cd44e4ee4b0bcdb652e2cd3ee2c40c51ac4dc2988df179a5a8bf7cf3"
     },
     {
       "path": "README.md",
@@ -1118,14 +1118,19 @@
       "sha256": "049e1c4d1e97360fb99dd5a35b06f3f37eac1ab8ff2d7fbe5dac75bc94910597"
     },
     {
+      "path": "src/boss-patterns.js",
+      "bytes": 11673,
+      "sha256": "054798b30154fbeaf6a9b8766495b93ce88cc9d8e05297e0938037ff3d94a8aa"
+    },
+    {
       "path": "src/combat-objectives.js",
-      "bytes": 10511,
-      "sha256": "26a3c7aa90158b6fcbef3146b1306c10163bcc150f63ba475224ecb194ffac79"
+      "bytes": 10417,
+      "sha256": "c1dd9d0462590dbf345459d072cb5e198b29cf44101c679108dd3735fefeaf26"
     },
     {
       "path": "src/content.js",
-      "bytes": 17510,
-      "sha256": "6690d43fcc4c4598c199fea9219126a0e90bb52f394bc7beca8f410a3149c510"
+      "bytes": 21165,
+      "sha256": "7675b810fad33dd2c2558cfab5d43f9fae492d3b8b8510c9bc119779cd1f7e0f"
     },
     {
       "path": "src/drag-path.js",
@@ -1139,18 +1144,28 @@
     },
     {
       "path": "src/first-battle-onboarding.js",
-      "bytes": 10074,
-      "sha256": "49cfff7d25881624f12af039c90f0f16b24de5769330bd4c85560221819126be"
+      "bytes": 11195,
+      "sha256": "3c0cf610462dad38ae39cf44f3a7c25a872e4bc13213d817defd36a2137d5ef2"
+    },
+    {
+      "path": "src/idiom-focus.js",
+      "bytes": 2246,
+      "sha256": "213889755b2b5ba8e9630539ff6a67f558e21046207afbdd4c2c06914a7bc8d5"
+    },
+    {
+      "path": "src/jaryeong-build-balance.js",
+      "bytes": 1911,
+      "sha256": "b11283a2fb66644cdf8cdebfc2ced3eada5cf5bf4bff3aedaa159a2269161ffb"
     },
     {
       "path": "src/jaryeong-meta.js",
-      "bytes": 16484,
-      "sha256": "6f205630002c0a90e723a43604481dfbab8862c536dceb10df95aabb0cfc8692"
+      "bytes": 20413,
+      "sha256": "5c03fa696b9fee6b5dd4a68c82bd67e916686118b888f47eba4cbedf244c3921"
     },
     {
       "path": "src/presentation-settings.js",
-      "bytes": 855,
-      "sha256": "184e1969f18b9be25fe9f969cc4dcacd3b38367eaaebb73c3b93063d2a392060"
+      "bytes": 1882,
+      "sha256": "06e6a05a2ac7d94c92b784ded8c5e7886d32ce8102d09149f0c3bcdb2a7c1566"
     },
     {
       "path": "src/rare-encounters.js",
@@ -1168,14 +1183,24 @@
       "sha256": "367418ac1efbf337153f678fa89b0de8d25d1a2bcd4dbe878b8ebdf6ed75dcad"
     },
     {
+      "path": "src/reward-synergy.js",
+      "bytes": 12408,
+      "sha256": "f8dddf22fd8ffb1a02c10ed25c372076083d2e2f388d98691bbdc0f542f25e2c"
+    },
+    {
       "path": "src/run-engine.js",
       "bytes": 16801,
-      "sha256": "4b3d0949a373a899505d2dfb409377aeb436e9e4fb996d956091e33164886489"
+      "sha256": "a522d8e0fdeccdea5a1f6e9c1290057272e6b5773f06eabdff019e79c3ab4555"
     },
     {
       "path": "src/save.js",
       "bytes": 5834,
       "sha256": "75fc2ccf444ed6703929795c11b13d3900c8ecfbc723eacbed20b74738fb072f"
+    },
+    {
+      "path": "src/story-training.js",
+      "bytes": 6807,
+      "sha256": "ff19f3f829fd23417e3bc011a0cc9fc032e5b509a5efca41cfcf4d6c76756272"
     },
     {
       "path": "src/talisman-anchors.js",
@@ -1184,8 +1209,8 @@
     },
     {
       "path": "styles.css",
-      "bytes": 186545,
-      "sha256": "adc14268c0390ab3d30e9a03420bb387ae80c12f4d9f683a82dda33cf64d75cf"
+      "bytes": 271713,
+      "sha256": "d0568445ad263dab0b36fd021ba089950b2d46cf124b5cdbcfc52e188befc7b1"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",

@@ -1,28 +1,37 @@
 export const JARYEONG_META_SAVE_KEY = "sajayeonseong-jaryeong-meta-v1";
-// 이전 로컬 저장 키는 유지하고 페이로드 버전만 올려 자동 이관한다.
-export const JARYEONG_META_SAVE_VERSION = 2;
+// 기존 저장은 보존한 채로 새 필드를 더하는 방식으로만 이관한다.
+export const JARYEONG_META_SAVE_VERSION = 3;
 export const JARYEONG_PARTY_SIZE = 5;
 export const JARYEONG_MAX_LEVEL = 99;
 export const JARYEONG_MAX_AWAKENING = 5;
 export const JARYEONG_LEVEL_PROGRESS_MAX = 100;
 export const DUPLICATE_LEVEL_PROGRESS = 25;
+export const TALISMAN_PIECES_PER_SUMMON_TICKET = 10;
+export const SUMMON_TICKET_COST = 1;
+
+// 희귀/정예/보스 처치에서만 자동 획득하는 통합 부적 조각이다.
+// 한 막에서 희귀(2) + 정예(3) + 보스(5)를 모두 처치하면 교환권 1장이 된다.
+export const TALISMAN_PIECE_AWARDS = Object.freeze({
+  rare: 2,
+  elite: 3,
+  boss: 5
+});
+
+// 아래 상수와 천장 필드는 이전 저장/호출부가 안전하게 복구될 수 있도록 남긴 호환 표면이다.
+// 신규 경제는 개별 자령 조각이나 조각 천장을 사용하지 않는다.
 export const TARGET_FRAGMENT_PITY_MISSES = 3;
 export const TARGET_FRAGMENT_PITY_SOURCES = Object.freeze(["rare", "elite", "boss"]);
 
+/** @deprecated 모든 소환은 교환권 1장을 사용한다. */
 export const JARYEONG_SUMMON_THRESHOLDS = Object.freeze({
-  common: 12,
-  uncommon: 24,
-  rare: 40,
-  legendary: 60
+  common: SUMMON_TICKET_COST,
+  uncommon: SUMMON_TICKET_COST,
+  rare: SUMMON_TICKET_COST,
+  legendary: SUMMON_TICKET_COST
 });
 
-export const JARYEONG_FRAGMENT_AWARDS = Object.freeze({
-  normal: 2,
-  rare: 4,
-  elite: 6,
-  boss: 10,
-  meta: 5
-});
+/** @deprecated TALISMAN_PIECE_AWARDS를 사용한다. */
+export const JARYEONG_FRAGMENT_AWARDS = TALISMAN_PIECE_AWARDS;
 
 export const JARYEONG_META_CATALOG = Object.freeze([
   ["wood-mok", "common"], ["wood-tree", "uncommon"], ["wood-life", "rare"],
@@ -46,11 +55,12 @@ export const DEFAULT_JARYEONG_STARTER_PARTY = Object.freeze([
 ]);
 
 const AWARD_SOURCE_ALIASES = Object.freeze({
-  battle: "normal",
-  normalMonster: "normal",
-  "normal-monster": "normal",
   rareMonster: "rare",
-  "rare-monster": "rare"
+  "rare-monster": "rare",
+  eliteMonster: "elite",
+  "elite-monster": "elite",
+  bossMonster: "boss",
+  "boss-monster": "boss"
 });
 
 function integerInRange(value, minimum, maximum, fallback = minimum) {
@@ -110,6 +120,41 @@ function legacyPartyIds(raw, source) {
   return candidates.find(Array.isArray) || [];
 }
 
+function safeIntegerAdd(total, amount) {
+  return Math.min(Number.MAX_SAFE_INTEGER, total + amount);
+}
+
+function legacyFragmentPieceTotal(raw, source) {
+  // v3 이후 저장은 이미 통합 조각으로 이관된 상태다. 같은 값을 다시 더하지 않는다.
+  if (integerInRange(source?.version, 0, Number.MAX_SAFE_INTEGER, 0) >= JARYEONG_META_SAVE_VERSION) return 0;
+  const candidates = [
+    source?.fragments,
+    source?.talismanFragments,
+    source?.jaryeongFragments,
+    raw !== source ? raw?.fragments : null,
+    raw !== source ? raw?.talismanFragments : null,
+    raw !== source ? raw?.jaryeongFragments : null,
+    raw?.run?.fragments,
+    raw?.run?.talismanFragments,
+    raw?.run?.jaryeongFragments
+  ];
+  const seen = new Set();
+  let total = 0;
+  for (const candidate of candidates) {
+    if (!candidate || typeof candidate !== "object" || Array.isArray(candidate) || seen.has(candidate)) continue;
+    seen.add(candidate);
+    for (const amount of Object.values(candidate)) {
+      total = safeIntegerAdd(total, integerInRange(amount, 0, Number.MAX_SAFE_INTEGER, 0));
+    }
+  }
+  return total;
+}
+
+function unifiedCounter(source, raw, field) {
+  const value = source?.[field] ?? (raw !== source ? raw?.[field] : undefined) ?? raw?.run?.[field];
+  return integerInRange(value, 0, Number.MAX_SAFE_INTEGER, 0);
+}
+
 export function createDefaultJaryeongMetaState(options = {}) {
   const definitions = catalogMap(options.catalog);
   const equippedParty = normalizedStarterParty(options.starterParty, definitions);
@@ -117,6 +162,9 @@ export function createDefaultJaryeongMetaState(options = {}) {
     version: JARYEONG_META_SAVE_VERSION,
     owned: Object.fromEntries(equippedParty.map((id) => [id, blankOwnedRecord()])),
     equippedParty,
+    talismanPieces: 0,
+    summonTickets: 0,
+    // 구 호출부가 안전하게 읽을 수 있도록 빈 객체만 유지한다. 신규 경제는 이 값을 쓰지 않는다.
     fragments: {},
     targetJaryeongId: null,
     targetFragmentMisses: 0
@@ -143,15 +191,11 @@ export function sanitizeJaryeongMetaState(raw, options = {}) {
     owned[id] = sanitizeOwnedRecord(Array.isArray(source.owned) ? null : ownedSource[id], legacyLevels[id]);
   }
 
-  const fragmentSource = source.fragments || source.talismanFragments || source.jaryeongFragments || {};
-  const fragments = {};
-  if (fragmentSource && typeof fragmentSource === "object") {
-    for (const [id, amount] of Object.entries(fragmentSource)) {
-      if (!definitions.has(id)) continue;
-      const normalized = integerInRange(amount, 0, Number.MAX_SAFE_INTEGER, 0);
-      if (normalized > 0) fragments[id] = normalized;
-    }
-  }
+  const talismanPieces = safeIntegerAdd(
+    unifiedCounter(source, raw, "talismanPieces"),
+    legacyFragmentPieceTotal(raw, source)
+  );
+  const summonTickets = unifiedCounter(source, raw, "summonTickets");
 
   const requestedParty = legacyPartyIds(raw, source);
   const equippedParty = [];
@@ -164,15 +208,16 @@ export function sanitizeJaryeongMetaState(raw, options = {}) {
   const targetIsMaxed = requestedTargetRecord?.level >= JARYEONG_MAX_LEVEL
     && requestedTargetRecord.awakening >= JARYEONG_MAX_AWAKENING;
   const targetJaryeongId = definitions.has(source.targetJaryeongId) && !targetIsMaxed ? source.targetJaryeongId : null;
-  const targetFragmentMisses = targetJaryeongId
-    ? integerInRange(source.targetFragmentMisses, 0, TARGET_FRAGMENT_PITY_MISSES, 0)
-    : 0;
+  // 조각 천장은 통합 화폐로 전환하면서 종료됐다. 기존 값은 의도적으로 0으로 정리한다.
+  const targetFragmentMisses = 0;
 
   return {
     version: JARYEONG_META_SAVE_VERSION,
     owned,
     equippedParty,
-    fragments,
+    talismanPieces,
+    summonTickets,
+    fragments: {},
     targetJaryeongId,
     targetFragmentMisses
   };
@@ -198,18 +243,16 @@ export function validateJaryeongMetaState(raw, options = {}) {
     || raw.equippedParty.length !== JARYEONG_PARTY_SIZE
     || new Set(raw.equippedParty).size !== JARYEONG_PARTY_SIZE) errors.push("party_invalid");
   else if (raw.equippedParty.some((id) => !raw.owned?.[id])) errors.push("party_not_owned");
-  if (!raw.fragments || typeof raw.fragments !== "object" || Array.isArray(raw.fragments)) errors.push("fragments_invalid");
-  else {
-    for (const [id, amount] of Object.entries(raw.fragments)) {
-      if (!definitions.has(id)) errors.push(`fragments_unknown:${id}`);
-      if (!Number.isInteger(amount) || amount < 0) errors.push(`fragments_amount_invalid:${id}`);
-    }
+  if (!Number.isInteger(raw.talismanPieces) || raw.talismanPieces < 0 || raw.talismanPieces > Number.MAX_SAFE_INTEGER) errors.push("talisman_pieces_invalid");
+  if (!Number.isInteger(raw.summonTickets) || raw.summonTickets < 0 || raw.summonTickets > Number.MAX_SAFE_INTEGER) errors.push("summon_tickets_invalid");
+  if (raw.fragments !== undefined) {
+    if (!raw.fragments || typeof raw.fragments !== "object" || Array.isArray(raw.fragments)) errors.push("fragments_invalid");
+    else if (Object.values(raw.fragments).some((amount) => Number(amount) !== 0)) errors.push("legacy_fragments_not_migrated");
   }
   if (raw.targetJaryeongId !== null && !definitions.has(raw.targetJaryeongId)) errors.push("target_jaryeong_invalid");
   if (!Number.isInteger(raw.targetFragmentMisses)
     || raw.targetFragmentMisses < 0
-    || raw.targetFragmentMisses > TARGET_FRAGMENT_PITY_MISSES
-    || (raw.targetJaryeongId === null && raw.targetFragmentMisses !== 0)) errors.push("target_fragment_misses_invalid");
+    || raw.targetFragmentMisses !== 0) errors.push("target_fragment_misses_invalid");
   return { ok: errors.length === 0, errors: [...new Set(errors)] };
 }
 
@@ -217,14 +260,23 @@ export function getJaryeongRarity(id, options = {}) {
   return catalogMap(options.catalog).get(id)?.rarity || null;
 }
 
-export function getJaryeongSummonThreshold(id, options = {}) {
-  const rarity = getJaryeongRarity(id, options);
-  return rarity ? JARYEONG_SUMMON_THRESHOLDS[rarity] : null;
+export function getJaryeongSummonTicketCost(id, options = {}) {
+  return getJaryeongRarity(id, options) ? SUMMON_TICKET_COST : null;
 }
 
-export function getFragmentAwardAmount(source) {
+/** @deprecated getJaryeongSummonTicketCost를 사용한다. */
+export function getJaryeongSummonThreshold(id, options = {}) {
+  return getJaryeongSummonTicketCost(id, options);
+}
+
+export function getTalismanPieceAwardAmount(source) {
   const normalizedSource = AWARD_SOURCE_ALIASES[source] || source;
-  return JARYEONG_FRAGMENT_AWARDS[normalizedSource] ?? null;
+  return TALISMAN_PIECE_AWARDS[normalizedSource] ?? null;
+}
+
+/** @deprecated getTalismanPieceAwardAmount를 사용한다. */
+export function getFragmentAwardAmount(source) {
+  return getTalismanPieceAwardAmount(source);
 }
 
 export function setTargetJaryeong(rawState, targetJaryeongId, options = {}) {
@@ -277,50 +329,92 @@ export function getPreparedJaryeongParty(rawState, options = {}) {
   };
 }
 
-export function awardTalismanFragments(rawState, award, options = {}) {
+export function awardTalismanPieces(rawState, award, options = {}) {
   const state = sanitizeJaryeongMetaState(rawState, options);
-  const definitions = catalogMap(options.catalog);
-  const requestedJaryeongId = award?.jaryeongId;
-  if (!definitions.has(requestedJaryeongId)) return { ok: false, reason: "jaryeong_unknown", state };
   const source = AWARD_SOURCE_ALIASES[award?.source] || award?.source;
-  const unitAmount = getFragmentAwardAmount(source);
+  const unitAmount = getTalismanPieceAwardAmount(source);
   if (unitAmount == null) return { ok: false, reason: "source_unknown", state };
-  const pityEligible = TARGET_FRAGMENT_PITY_SOURCES.includes(source);
-  const guaranteedByPity = Boolean(state.targetJaryeongId
-    && state.targetFragmentMisses >= TARGET_FRAGMENT_PITY_MISSES
-    && pityEligible);
-  const jaryeongId = guaranteedByPity ? state.targetJaryeongId : requestedJaryeongId;
-  const replacedByPity = guaranteedByPity && requestedJaryeongId !== jaryeongId;
   const count = integerInRange(award?.count, 1, 1_000, 1);
   const amount = unitAmount * count;
-  const previous = state.fragments[jaryeongId] || 0;
-  const total = Math.min(Number.MAX_SAFE_INTEGER, previous + amount);
-  const previousMisses = state.targetFragmentMisses;
-  const targetFragmentMisses = !state.targetJaryeongId || jaryeongId === state.targetJaryeongId
-    ? 0
-    : Math.min(TARGET_FRAGMENT_PITY_MISSES, previousMisses + 1);
+  const previousPieces = state.talismanPieces;
+  const totalPieces = safeIntegerAdd(previousPieces, amount);
   const nextState = {
     ...state,
-    fragments: { ...state.fragments, [jaryeongId]: total },
-    targetFragmentMisses
+    talismanPieces: totalPieces
   };
   return {
     ok: true,
     state: nextState,
     award: {
-      requestedJaryeongId,
-      jaryeongId,
+      kind: "talisman-pieces",
       source,
       unitAmount,
       count,
       amount,
-      previous,
-      total,
-      pityEligible,
-      guaranteedByPity,
-      replacedByPity,
-      previousMisses,
-      targetFragmentMisses
+      previousPieces,
+      totalPieces,
+      // UI 연동을 단순하게 하기 위한 숫자 별칭이다.
+      previous: previousPieces,
+      total: totalPieces
+    }
+  };
+}
+
+/**
+ * 이전 호출부를 위한 호환 래퍼. jaryeongId는 표시용으로만 되돌리고,
+ * 실제 화폐는 언제나 단일 talismanPieces에만 적립한다.
+ */
+export function awardTalismanFragments(rawState, award, options = {}) {
+  const result = awardTalismanPieces(rawState, award, options);
+  if (!result.ok) return result;
+  return {
+    ...result,
+    award: {
+      ...result.award,
+      requestedJaryeongId: award?.jaryeongId ?? null,
+      jaryeongId: award?.jaryeongId ?? null,
+      pityEligible: false,
+      guaranteedByPity: false,
+      replacedByPity: false,
+      previousMisses: 0,
+      targetFragmentMisses: 0
+    }
+  };
+}
+
+export function exchangeTalismanPiecesForSummonTicket(rawState, options = {}) {
+  const state = sanitizeJaryeongMetaState(rawState, options);
+  const requestedTickets = integerInRange(options?.count ?? options?.tickets, 1, 1_000, 1);
+  const requiredPieces = TALISMAN_PIECES_PER_SUMMON_TICKET * requestedTickets;
+  if (state.talismanPieces < requiredPieces) {
+    return {
+      ok: false,
+      reason: "insufficient_talisman_pieces",
+      requiredPieces,
+      availablePieces: state.talismanPieces,
+      requestedTickets,
+      state
+    };
+  }
+  const previousPieces = state.talismanPieces;
+  const previousTickets = state.summonTickets;
+  const nextState = {
+    ...state,
+    talismanPieces: previousPieces - requiredPieces,
+    summonTickets: safeIntegerAdd(previousTickets, requestedTickets)
+  };
+  return {
+    ok: true,
+    state: nextState,
+    exchange: {
+      piecesPerTicket: TALISMAN_PIECES_PER_SUMMON_TICKET,
+      requestedTickets,
+      ticketsGranted: requestedTickets,
+      piecesSpent: requiredPieces,
+      previousPieces,
+      totalPieces: nextState.talismanPieces,
+      previousTickets,
+      totalTickets: nextState.summonTickets
     }
   };
 }
@@ -329,24 +423,50 @@ export function summonJaryeong(rawState, jaryeongId, options = {}) {
   const state = sanitizeJaryeongMetaState(rawState, options);
   const rarity = getJaryeongRarity(jaryeongId, options);
   if (!rarity) return { ok: false, reason: "jaryeong_unknown", state };
-  const required = JARYEONG_SUMMON_THRESHOLDS[rarity];
-  const available = state.fragments[jaryeongId] || 0;
+  const requiredTickets = SUMMON_TICKET_COST;
+  const availableTickets = state.summonTickets;
   const previous = state.owned[jaryeongId];
   if (previous?.level >= JARYEONG_MAX_LEVEL && previous.awakening >= JARYEONG_MAX_AWAKENING) {
-    return { ok: false, reason: "jaryeong_maxed", required, available, state };
+    return {
+      ok: false,
+      reason: "jaryeong_maxed",
+      requiredTickets,
+      availableTickets,
+      // 이전 UI 호출부가 안전하게 읽을 수 있는 별칭이다.
+      required: requiredTickets,
+      available: availableTickets,
+      state
+    };
   }
-  if (available < required) {
-    return { ok: false, reason: "insufficient_fragments", required, available, state };
+  if (availableTickets < requiredTickets) {
+    return {
+      ok: false,
+      reason: "insufficient_summon_tickets",
+      requiredTickets,
+      availableTickets,
+      required: requiredTickets,
+      available: availableTickets,
+      state
+    };
   }
 
-  const fragments = { ...state.fragments, [jaryeongId]: available - required };
+  const summonTickets = availableTickets - requiredTickets;
   if (!previous) {
     const nextState = {
       ...state,
-      fragments,
+      summonTickets,
       owned: { ...state.owned, [jaryeongId]: blankOwnedRecord() }
     };
-    return { ok: true, kind: "unlock", rarity, required, state: nextState, record: nextState.owned[jaryeongId] };
+    return {
+      ok: true,
+      kind: "unlock",
+      rarity,
+      requiredTickets,
+      ticketsConsumed: requiredTickets,
+      required: requiredTickets,
+      state: nextState,
+      record: nextState.owned[jaryeongId]
+    };
   }
 
   const duplicateSummons = previous.duplicateSummons + 1;
@@ -369,12 +489,21 @@ export function summonJaryeong(rawState, jaryeongId, options = {}) {
   const reachedMaximum = record.level >= JARYEONG_MAX_LEVEL && record.awakening >= JARYEONG_MAX_AWAKENING;
   const nextState = {
     ...state,
-    fragments,
+    summonTickets,
     owned: { ...state.owned, [jaryeongId]: record },
     targetJaryeongId: reachedMaximum && state.targetJaryeongId === jaryeongId ? null : state.targetJaryeongId,
-    targetFragmentMisses: reachedMaximum && state.targetJaryeongId === jaryeongId ? 0 : state.targetFragmentMisses
+    targetFragmentMisses: 0
   };
-  return { ok: true, kind: "duplicate", rarity, required, state: nextState, record };
+  return {
+    ok: true,
+    kind: "duplicate",
+    rarity,
+    requiredTickets,
+    ticketsConsumed: requiredTickets,
+    required: requiredTickets,
+    state: nextState,
+    record
+  };
 }
 
 export function encodeJaryeongMetaState(rawState, options = {}) {

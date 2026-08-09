@@ -1,6 +1,17 @@
 const ELEMENT_CYCLE = ["wood", "fire", "earth", "metal", "water"];
 const ELEMENT_LABELS = Object.freeze({ wood: "목", fire: "화", earth: "토", metal: "금", water: "수" });
 
+// 五行相剋 (상극): 金克木 → 木克土 → 土克水 → 水克火 → 火克金.
+// Each entry is written from the defender's point of view so combat, tooltips,
+// and generated encounters all share one authoritative relationship table.
+export const ELEMENT_AFFINITIES = Object.freeze({
+  wood: Object.freeze({ weakElement: "metal", resistElement: "earth" }),
+  fire: Object.freeze({ weakElement: "water", resistElement: "metal" }),
+  earth: Object.freeze({ weakElement: "wood", resistElement: "water" }),
+  metal: Object.freeze({ weakElement: "fire", resistElement: "wood" }),
+  water: Object.freeze({ weakElement: "earth", resistElement: "fire" })
+});
+
 export const RELIC_CATALOG = Object.freeze([
   { id: "artisan-brush", type: "relic", rarity: "common", tags: ["tempo"], name: "장인의 붓", glyph: "筆", desc: "이동시간 +0.5초", effects: [{ type: "moveSeconds", amount: .5 }] },
   { id: "jade-bookmark", type: "relic", rarity: "common", tags: ["queue"], name: "옥 책갈피", glyph: "冊", desc: "문자 큐 최대치 +2", effects: [{ type: "queueMax", amount: 2 }] },
@@ -104,12 +115,10 @@ const ENCOUNTER_ROWS = [
   ["moon-boss",3,"boss","water-sea","boss-moon-trial",520,28,"심해월 자령왕"]
 ];
 
-const WEAKNESS = { wood: ["water","fire"], fire: ["metal","earth"], earth: ["wood","water"], metal: ["fire","wood"], water: ["wood","water"] };
-
 export const ENCOUNTER_CATALOG = Object.freeze(ENCOUNTER_ROWS.map(([id, act, kind, jaryeongId, behaviorId, maxHp, damage, name]) => {
   const element = jaryeongId.split("-")[0];
-  const [weakElement, resistElement] = WEAKNESS[element] || ["water", "fire"];
-  return { id, act, kind, jaryeongId, behaviorId, maxHp, damage, name, weakElement, resistElement, risk: kind === "boss" ? "우두머리" : kind === "elite" ? "높음" : "보통", description: `${act}장 ${kind === "boss" ? "수호자" : kind === "elite" ? "정예" : "야생"} 전투` };
+  const affinity = ELEMENT_AFFINITIES[element] || ELEMENT_AFFINITIES.wood;
+  return { id, act, kind, jaryeongId, behaviorId, maxHp, damage, name, weakElement: affinity.weakElement, resistElement: affinity.resistElement, risk: kind === "boss" ? "우두머리" : kind === "elite" ? "높음" : "보통", description: `${act}장 ${kind === "boss" ? "수호자" : kind === "elite" ? "정예" : "야생"} 전투` };
 }));
 
 // 첫 막의 일반 자령은 플레이어가 첫 퍼즐 턴부터 피격당하지 않도록

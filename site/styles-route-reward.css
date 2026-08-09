@@ -84,7 +84,7 @@
   background:radial-gradient(circle at 50% 0,rgba(88,111,68,.2),transparent 43%),linear-gradient(160deg,#13261f,#07120f 62%,#241b10);
   box-shadow:0 26px 80px rgba(0,0,0,.72),inset 0 0 45px rgba(0,0,0,.4);
 }
-.idiom-replacement-card > h2 { margin:4px 0 7px; color:#f4d895; font:700 clamp(28px,3vw,44px) "Gowun Batang",serif; text-align:center; }
+.idiom-replacement-card > h2 { margin:4px 0 7px; color:#f4d895; font:700 clamp(28px,3vw,44px) "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; text-align:center; }
 .idiom-replacement-card > .eyebrow,
 .idiom-replacement-card > .intro-copy { text-align:center; }
 .idiom-replacement-candidate { width:min(660px,100%); margin:22px auto 14px; }
@@ -108,10 +108,10 @@ button.idiom-comparison-card:focus-visible { outline:3px solid #ffe08a; outline-
 .idiom-comparison-card.candidate .idiom-replacement-readiness { grid-column:2/4; }
 .idiom-replacement-meta { display:grid; gap:2px; }
 .idiom-replacement-meta em { color:#a5b9ad; font-size:8px; font-style:normal; }
-.idiom-replacement-meta strong { color:#f6dda2; font:700 20px "Gowun Batang",serif; }
+.idiom-replacement-meta strong { color:#f6dda2; font:700 20px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
 .idiom-replacement-meta small { color:#88bfa8; font-size:9px; }
 .idiom-replacement-glyphs { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:4px; }
-.idiom-replacement-glyphs b { display:grid; place-items:center; min-height:54px; border:1px solid rgba(230,184,92,.32); border-radius:6px; color:#dccda9; background:rgba(0,0,0,.2); font:700 27px "Gowun Batang",serif; }
+.idiom-replacement-glyphs b { display:grid; place-items:center; min-height:54px; border:1px solid rgba(230,184,92,.32); border-radius:6px; color:#dccda9; background:rgba(0,0,0,.2); font:700 27px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
 .idiom-replacement-glyphs b.ready { color:#fff0b2; border-color:#78d9b1; background:rgba(87,214,176,.14); box-shadow:inset 0 0 12px rgba(87,214,176,.11); }
 .idiom-replacement-effect { min-height:50px; display:grid; align-content:start; gap:4px; color:#c7d4ca; font-size:10px; line-height:1.45; }
 .idiom-replacement-effect > b { width:max-content; padding:2px 5px; border-radius:3px; color:#33230f; background:#e3c373; font-size:8px; }
@@ -376,7 +376,7 @@ button.idiom-comparison-card:focus-visible { outline:3px solid #ffe08a; outline-
   left:50%;
   z-index:2;
   color:#efd18b;
-  font:700 28px/1 "Gowun Batang",serif;
+  font:700 28px/1 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif;
   transform:translateX(-50%);
   text-shadow:0 2px 4px #3e0806;
 }

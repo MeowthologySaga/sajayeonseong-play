@@ -34,7 +34,6 @@ function jaryeongAsset(id) {
     idleAlt: `${root}/combat-2.png`,
     attack: `${root}/combat-3.png`,
     hurt: `${root}/combat-4.png`,
-    sheet: `${root}/sheet-transparent.png`,
     talisman: `assets/ui/talismans/${id}.png`,
     talismanAnchors: TALISMAN_ANCHORS[id],
     frames: 4,
@@ -52,7 +51,7 @@ export const ASSET_MANIFEST = Object.freeze({
     return [id, {
       idle: `${root}/cast-1.png`, idleAlt: `${root}/cast-2.png`, telegraph: `${root}/cast-3.png`,
       windup: `${root}/cast-4.png`, attack: `${root}/cast-5.png`, hurt: `${root}/cast-6.png`,
-      sheet: `${root}/sheet-transparent.png`, frames: 6, columns: 3, rows: 2, fps: 7, anchor: "bottom"
+      frames: 6, columns: 3, rows: 2, fps: 7, anchor: "bottom"
     }];
   })),
   backgrounds: {
@@ -82,12 +81,6 @@ export const ASSET_MANIFEST = Object.freeze({
       "assets/backgrounds/act3-moonmetal-observatory.png"
     ],
     act3Boss: ["assets/backgrounds/act3-moonmetal-boss-gate.png"]
-  },
-  ui: {
-    talisman: "assets/ui/taming-talisman/clean.png",
-    panel: "assets/ui/ink-panel.webp",
-    button: "assets/ui/seal-button.webp",
-    cursor: "assets/ui/brush-cursor.webp"
   }
 });
 

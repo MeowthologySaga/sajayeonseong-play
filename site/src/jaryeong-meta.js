@@ -9,6 +9,15 @@ export const DUPLICATE_LEVEL_PROGRESS = 25;
 export const TALISMAN_PIECES_PER_SUMMON_TICKET = 10;
 export const SUMMON_TICKET_COST = 1;
 
+// 부적 소환은 희귀도를 먼저 추첨한 뒤, 해당 희귀도에서 자령 하나를
+// 고른다. 완전히 성장한 자령은 후보에서 제외해 소환권이 낭비되지 않는다.
+export const JARYEONG_SUMMON_RARITY_WEIGHTS = Object.freeze({
+  common: 55,
+  uncommon: 25,
+  rare: 15,
+  legendary: 5
+});
+
 // 희귀/정예/보스 처치에서만 자동 획득하는 통합 부적 조각이다.
 // 한 막에서 희귀(2) + 정예(3) + 보스(5)를 모두 처치하면 교환권 1장이 된다.
 export const TALISMAN_PIECE_AWARDS = Object.freeze({
@@ -503,6 +512,78 @@ export function summonJaryeong(rawState, jaryeongId, options = {}) {
     required: requiredTickets,
     state: nextState,
     record
+  };
+}
+
+function normalizedRandomRoll(randomValue) {
+  const value = Number(typeof randomValue === "function" ? randomValue() : Math.random());
+  if (!Number.isFinite(value)) return 0;
+  return Math.min(1 - Number.EPSILON, Math.max(0, value));
+}
+
+/**
+ * 소환권을 소비하지 않고 현재 상태에서 무작위 소환 후보만 결정한다.
+ * 테스트에서는 options.randomValue에 결정론적 함수를 주입할 수 있다.
+ */
+export function selectRandomSummonJaryeong(rawState, options = {}) {
+  const state = sanitizeJaryeongMetaState(rawState, options);
+  const definitions = catalogMap(options.catalog);
+  const pools = new Map();
+  for (const definition of definitions.values()) {
+    const record = state.owned[definition.id];
+    const maxed = record?.level >= JARYEONG_MAX_LEVEL && record.awakening >= JARYEONG_MAX_AWAKENING;
+    if (maxed) continue;
+    if (!pools.has(definition.rarity)) pools.set(definition.rarity, []);
+    pools.get(definition.rarity).push(definition.id);
+  }
+  const weightedRarities = Object.entries(JARYEONG_SUMMON_RARITY_WEIGHTS)
+    .filter(([rarity]) => pools.get(rarity)?.length);
+  if (!weightedRarities.length) return { ok: false, reason: "all_jaryeongs_maxed", state };
+
+  const randomValue = options.randomValue;
+  const totalWeight = weightedRarities.reduce((sum, [, weight]) => sum + weight, 0);
+  let rarityRoll = normalizedRandomRoll(randomValue) * totalWeight;
+  let selectedRarity = weightedRarities.at(-1)[0];
+  for (const [rarity, weight] of weightedRarities) {
+    if (rarityRoll < weight) {
+      selectedRarity = rarity;
+      break;
+    }
+    rarityRoll -= weight;
+  }
+  const pool = pools.get(selectedRarity);
+  const poolIndex = Math.min(pool.length - 1, Math.floor(normalizedRandomRoll(randomValue) * pool.length));
+  return {
+    ok: true,
+    state,
+    jaryeongId: pool[poolIndex],
+    rarity: selectedRarity,
+    poolSize: pool.length
+  };
+}
+
+/** 소환권 1장으로 희귀도 가중 무작위 자령을 소환한다. */
+export function summonRandomJaryeong(rawState, options = {}) {
+  const state = sanitizeJaryeongMetaState(rawState, options);
+  if (state.summonTickets < SUMMON_TICKET_COST) {
+    return {
+      ok: false,
+      reason: "insufficient_summon_tickets",
+      requiredTickets: SUMMON_TICKET_COST,
+      availableTickets: state.summonTickets,
+      required: SUMMON_TICKET_COST,
+      available: state.summonTickets,
+      state
+    };
+  }
+  const selection = selectRandomSummonJaryeong(state, options);
+  if (!selection.ok) return selection;
+  const result = summonJaryeong(state, selection.jaryeongId, options);
+  return {
+    ...result,
+    jaryeongId: selection.jaryeongId,
+    rarity: selection.rarity,
+    poolSize: selection.poolSize
   };
 }
 

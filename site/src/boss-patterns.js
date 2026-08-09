@@ -1,5 +1,4 @@
 const BOSS_IDS = Object.freeze(["forest-boss", "crimson-boss", "moon-boss"]);
-const BARRIER_ELEMENTS = Object.freeze(["wood", "fire", "earth", "metal", "water"]);
 
 const BASIC_ACTION = Object.freeze({
   id: "basic-strike",
@@ -43,7 +42,7 @@ export const BOSS_PATTERN_CATALOG = Object.freeze({
         id: "forest-life-barrier",
         name: "生木結界 · 생목결계",
         kind: "barrier",
-        telegraph: "껍질이 벌어지며 두꺼운 생목 보호막이 자랍니다.",
+        telegraph: "껍질이 벌어지며 두꺼운 생목 보호막이 자랍니다. 모든 속성 공격으로 파괴할 수 있습니다.",
         effect: { type: "gainEnemyShield", amount: 32 },
         schedule: { firstTurn: 3, interval: 7, telegraphTurns: 1 }
       },
@@ -74,10 +73,10 @@ export const BOSS_PATTERN_CATALOG = Object.freeze({
     actions: [
       {
         id: "crimson-core-barrier",
-        name: "水蝕結界 · 수식결계",
+        name: "赤月護幕 · 적월호막",
         kind: "barrier",
-        telegraph: "화구의 겉면이 굳습니다. 수(水)의 기운만 열기를 식힐 수 있습니다.",
-        effect: { type: "elementBarrier", requiredElement: "water", hp: 40, durationTurns: 3 },
+        telegraph: "화구의 겉면이 굳으며 두꺼운 적월 보호막이 둘러집니다. 모든 속성 공격으로 파괴할 수 있습니다.",
+        effect: { type: "gainEnemyShield", amount: 40 },
         schedule: { firstTurn: 3, interval: 7, telegraphTurns: 1 }
       },
       {
@@ -95,6 +94,14 @@ export const BOSS_PATTERN_CATALOG = Object.freeze({
         telegraph: "등의 화구가 부풀어 오르고 금이 간 틈으로 불빛이 샙니다.",
         effect: { type: "damageAndBurn", damageScale: 1.15, burn: 5 },
         schedule: { firstTurn: 5, interval: 7, telegraphTurns: 1 }
+      },
+      {
+        id: "crimson-character-scatter",
+        name: "焚字散華 · 문자산화",
+        kind: "control",
+        telegraph: "적월의 불씨가 문자 큐를 훑습니다. 다음 턴 임의의 문자 하나가 흩어집니다.",
+        effect: { type: "removeQueueCharacters", count: 1 },
+        schedule: { firstTurn: 6, interval: 7, telegraphTurns: 1 }
       }
     ]
   }),
@@ -107,10 +114,10 @@ export const BOSS_PATTERN_CATALOG = Object.freeze({
     actions: [
       {
         id: "moon-tide-barrier",
-        name: "土鎭水幕 · 토진수막",
+        name: "深海護幕 · 심해호막",
         kind: "barrier",
-        telegraph: "소용돌이가 둥근 수막을 만듭니다. 토(土)의 기운만 물길을 막을 수 있습니다.",
-        effect: { type: "elementBarrier", requiredElement: "earth", hp: 48, durationTurns: 3 },
+        telegraph: "소용돌이가 둥근 수막을 만들며 심해 보호막이 형성됩니다. 모든 속성 공격으로 파괴할 수 있습니다.",
+        effect: { type: "gainEnemyShield", amount: 48 },
         schedule: { firstTurn: 2, interval: 7, telegraphTurns: 1 }
       },
       {
@@ -188,51 +195,6 @@ export function getBossTurnPlan(encounterOrId, requestedTurn) {
   };
 }
 
-/**
- * Models an elemental barrier without mutating its input. Non-matching damage
- * is fully blocked. Matching damage breaks the barrier first and only overflow
- * reaches the boss.
- */
-export function normalizeElementBarrierStatus(rawBarrier) {
-  if (!rawBarrier || typeof rawBarrier !== "object" || Array.isArray(rawBarrier)) return null;
-  if (!BARRIER_ELEMENTS.includes(rawBarrier.requiredElement)) return null;
-  const hp = Math.max(0, Number(rawBarrier.hp) || 0);
-  const remainingTurns = Math.max(0, Math.floor(Number(rawBarrier.remainingTurns) || 0));
-  if (hp <= 0 || remainingTurns <= 0) return null;
-  return { requiredElement: rawBarrier.requiredElement, hp, remainingTurns };
-}
-
-export function resolveElementBarrierDamage({ barrier, attackElement, damage }) {
-  const incoming = Math.max(0, Number(damage) || 0);
-  const activeBarrier = normalizeElementBarrierStatus(barrier);
-  if (!activeBarrier) {
-    return { barrier: null, barrierDamage: 0, bossDamage: incoming, blockedDamage: 0, matched: true, broken: false };
-  }
-  if (attackElement !== activeBarrier.requiredElement) {
-    return { barrier: activeBarrier, barrierDamage: 0, bossDamage: 0, blockedDamage: incoming, matched: false, broken: false };
-  }
-  const hp = activeBarrier.hp;
-  const barrierDamage = Math.min(hp, incoming);
-  const remainingHp = hp - barrierDamage;
-  return {
-    barrier: remainingHp > 0 ? { ...activeBarrier, hp: remainingHp } : null,
-    barrierDamage,
-    bossDamage: Math.max(0, incoming - barrierDamage),
-    blockedDamage: 0,
-    matched: true,
-    broken: remainingHp === 0
-  };
-}
-
-export function createElementBarrierStatus(actionOrEffect) {
-  const effect = actionOrEffect?.effect || actionOrEffect;
-  if (effect?.type !== "elementBarrier") return null;
-  return normalizeElementBarrierStatus({
-    requiredElement: effect.requiredElement,
-    hp: Math.max(1, Math.floor(Number(effect.hp) || 1)),
-    remainingTurns: Math.max(1, Math.floor(Number(effect.durationTurns) || 1))
-  });
-}
 
 /** Makes a three-player-turn tile-seal status from integration-selected tiles. */
 export function createTileSealStatus(actionOrEffect, tileIds = []) {
@@ -246,11 +208,6 @@ export function createTileSealStatus(actionOrEffect, tileIds = []) {
   };
 }
 
-export function tickBossStatus(status, turns = 1) {
-  if (!status) return null;
-  const remainingTurns = Math.max(0, (Number(status.remainingTurns) || 0) - Math.max(0, Math.floor(Number(turns) || 0)));
-  return remainingTurns > 0 ? { ...status, remainingTurns } : null;
-}
 
 /**
  * Applies 地震海溢 through an injected board factory. This keeps generation in

@@ -4,12 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#111a1a" />
+    <meta name="description" content="타일 하나를 누른 채 경로를 설계해 오행 콤보를 만들고, 모은 한자로 사자성어를 발동하는 HTML5 퍼즐·전투 게임" />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23091312'/%3E%3Crect x='8' y='8' width='48' height='48' rx='10' fill='%23e6b85c'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-size='34' font-family='serif' fill='%23111918'%3E%E5%9B%9B%3C/text%3E%3C/svg%3E" />
     <title>사자연성 — 색을 잇고 뜻을 깨우다</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20260809-hide-first-coach-1" />
+  <link rel="stylesheet" href="styles.css?v=20260809-loot-layer-v3" />
   <link rel="stylesheet" href="styles-route-reward.css?v=20260808-combat-readability-1" />
   </head>
   <body>
@@ -17,14 +15,14 @@
     <main class="game-shell">
       <header class="masthead">
         <div>
-          <p class="eyebrow">五行鍊成録 · 프로토타입</p>
+          <p class="eyebrow">五行鍊成録 · 오행 퍼즐 연성기</p>
           <h1>四字<span>鍊成</span></h1>
         </div>
         <div class="header-actions">
           <div class="stage-chip"><span id="mode-kicker">PUZZLE MODE</span><strong id="mode-title">재앙의 문</strong></div>
           <button id="menu-button" class="icon-button" aria-label="메인 메뉴로 돌아가기">⌂</button>
           <button id="settings-button" class="icon-button" aria-label="훈독 표시 설정">⚙</button>
-          <button id="debug-button" class="icon-button debug-button" aria-label="디버그 설정">⚒</button>
+          <button id="debug-button" class="icon-button debug-button" aria-label="디버그 설정" hidden disabled aria-hidden="true" tabindex="-1">⚒</button>
           <button id="help-button" class="icon-button" aria-label="게임 방법 보기">?</button>
         </div>
       </header>
@@ -42,8 +40,7 @@
               <strong id="enemy-affinity-tooltip-title">전투 상성</strong>
               <p><b>약점</b><span id="enemy-affinity-tooltip-weak">-</span></p>
               <p><b>저항</b><span id="enemy-affinity-tooltip-resist">-</span></p>
-              <p id="enemy-affinity-tooltip-barrier-row" hidden><b>속성결계</b><span id="enemy-affinity-tooltip-barrier">-</span></p>
-            </div>
+</div>
           </div>
           <div class="enemy-phase-label" id="enemy-phase-label">1단계 · 먹구름</div>
           <div class="enemy-intent-card threat-medium" id="enemy-intent" aria-describedby="enemy-intent-live">
@@ -52,6 +49,12 @@
               <span id="enemy-intent-kind">다음 행동</span>
               <span id="enemy-intent-timing">다음 적 턴</span>
               <b id="enemy-intent-threat" class="intent-threat threat-medium">보통</b>
+            </div>
+            <div id="enemy-attack-countdown" class="enemy-attack-countdown is-imminent" aria-live="polite">
+              <span id="enemy-attack-countdown-label">공격까지</span>
+              <strong id="enemy-attack-countdown-value">0</strong>
+              <b id="enemy-attack-countdown-unit">턴</b>
+              <small id="enemy-attack-countdown-note">이번 연성 후 공격</small>
             </div>
             <strong id="enemy-intent-name">먹빛 발톱</strong>
             <span id="enemy-intent-value">12 피해 · 플레이어</span>
@@ -66,9 +69,12 @@
         <div class="enemy-stage">
           <div class="moon" aria-hidden="true"></div>
           <div id="jaryeong-squad-stage" class="jaryeong-squad-stage" aria-label="출전 자령 5명"></div>
+          <div id="debug-enemy-squad" class="debug-enemy-squad" aria-label="다수전 시험 적 자령" hidden></div>
           <div id="enemy-sprite" class="enemy-sprite enemy-1" aria-label="먹구름 도깨비">
             <img id="enemy-sprite-art" class="enemy-sprite-art" alt="" decoding="async" />
             <span class="enemy-eye eye-left"></span><span class="enemy-eye eye-right"></span>
+            <span id="enemy-protection-aura" class="enemy-protection-aura" aria-hidden="true"></span>
+            <span id="enemy-burn-status" class="enemy-burn-status" aria-label="화상" hidden><b aria-hidden="true">火</b><strong>0</strong></span>
           </div>
           <div id="damage-float" class="damage-float" aria-live="polite"></div>
         </div>
@@ -83,13 +89,21 @@
           <p id="alchemy-reading"></p>
           <strong id="alchemy-effect"></strong>
         </div>
+        <div id="element-proc-overlay" class="element-proc-overlay" role="status" aria-live="polite" aria-atomic="true" hidden></div>
         </aside>
+        <section id="battle-loot-overlay" class="battle-loot-overlay" role="status" aria-live="assertive" aria-atomic="true" hidden>
+          <div class="battle-loot-rays" aria-hidden="true"></div>
+          <img id="battle-loot-art" src="assets/ui/talisman-reward-v2/talisman-piece.png" alt="" />
+          <small id="battle-loot-kicker">전리품</small>
+          <strong id="battle-loot-title">부적 조각 획득</strong>
+          <p id="battle-loot-detail">획득 결과</p>
+        </section>
         <div class="enemy-vitals">
           <div class="vital-row"><span>자령 기운 · 진정 게이지</span><span class="vital-value"><strong id="enemy-hp-text">120 / 120</strong><small id="enemy-hp-percent">100%</small></span></div>
           <div class="bar enemy-bar"><i id="enemy-hp-bar"></i></div>
           <div id="enemy-defense-hud" class="enemy-defense-hud" aria-label="적 보호 상태" aria-live="polite" aria-atomic="true" hidden>
             <span id="enemy-shield-hud" class="enemy-defense-pill enemy-shield-pill" hidden><b>🛡 보호막</b><strong>0</strong><small>전 속성 유효 · 금 관통 추천</small></span>
-            <span id="enemy-barrier-hud" class="enemy-defense-pill enemy-barrier-pill" hidden><b>結 속성만 유효</b><strong>남은 0 · 0턴</strong></span>
+            <span id="enemy-element-barrier-hud" class="enemy-defense-pill enemy-element-barrier-pill" hidden><b>結 속성 연성막</b><strong>0</strong><small>모든 속성 유효 · 지정 속성 파괴력 ×2</small></span>
           </div>
           <div class="status-row" id="enemy-status"><span class="status-pill muted">상태 없음</span></div>
           <div id="enemy-affinity" class="enemy-affinity" aria-label="자령 오행 상성"></div>
@@ -116,7 +130,7 @@
         </aside>
 
         <section id="puzzle-panel" class="puzzle-panel panel">
-          <div id="pang-hud" class="pang-hud" aria-label="팡팡 모드 점수와 남은 시간">
+          <div id="pang-hud" class="pang-hud" aria-label="팡팡 모드 점수와 남은 시간" hidden aria-hidden="true">
             <div class="pang-score"><small>SCORE</small><strong id="pang-score">0</strong></div>
             <div class="pang-time">
               <div><span>남은 시간</span><strong id="pang-time-text">60.0</strong><em>초</em><b id="pang-time-gain" class="pang-time-gain">+0.0</b></div>
@@ -124,7 +138,7 @@
             </div>
             <div class="pang-combo"><small>BEST COMBO</small><strong id="pang-best-combo">0</strong></div>
           </div>
-          <div id="pang-idiom-strip" class="pang-idiom-strip" aria-label="팡팡 모드 사자성어 수집 상태"></div>
+          <div id="pang-idiom-strip" class="pang-idiom-strip" aria-label="팡팡 모드 사자성어 수집 상태" hidden aria-hidden="true"></div>
           <div id="roguelike-hud" class="roguelike-hud" aria-label="연성행로 진행 정보">
             <div><small>RUN PROGRESS</small><strong id="roguelike-progress">전투 1 / 3</strong></div>
             <p id="roguelike-build">성어를 고르고 3번의 전투를 통과하세요</p>
@@ -155,7 +169,16 @@
           <div class="board-wrap">
             <div class="board-aura" aria-hidden="true"></div>
             <div id="board" class="board" role="grid" aria-label="5행 6열 오행 퍼즐 보드" aria-describedby="board-keyboard-help"></div>
-            <p id="board-keyboard-help" class="sr-only">키보드에서는 타일에 초점을 맞춘 뒤 Enter 또는 Space로 잡고, 방향키로 이동한 다음 다시 Enter 또는 Space를 눌러 연성합니다.</p>
+            <div id="story-path-demo" class="story-path-demo" aria-hidden="true" hidden>
+              <svg id="story-path-svg" class="story-path-svg" focusable="false" aria-hidden="true"><polyline id="story-path-line" points=""></polyline></svg>
+              <div id="story-path-steps" class="story-path-steps" aria-hidden="true"></div>
+              <span id="story-path-cursor" class="story-path-cursor" aria-hidden="true"><i></i></span>
+              <span id="story-path-caption" class="story-path-caption">누른 채 이동</span>
+              <strong id="story-path-result" class="story-path-result">놓으면 판정</strong>
+            </div>
+            <svg id="drag-live-svg" class="drag-live-svg" focusable="false" aria-hidden="true" hidden><polyline id="drag-live-line" points=""></polyline></svg>
+            <div id="drag-state-banner" class="drag-state-banner" aria-hidden="true" hidden><span>연성 경로</span><strong id="drag-state-count">잡은 상태</strong><em>손을 떼면 판정</em></div>
+            <p id="board-keyboard-help" class="sr-only">키보드에서는 Tab으로 보드에 들어온 뒤 방향키로 타일을 고르고, Enter 또는 Space로 잡습니다. 잡은 동안 방향키로 여러 칸 이동하고 다시 Enter 또는 Space를 눌러 연성합니다.</p>
             <div id="combo-badge" class="combo-badge" aria-live="assertive"><strong>0</strong><span>COMBO</span></div>
           </div>
 
@@ -163,10 +186,10 @@
             <div class="queue-title"><span>문자 큐</span><small><b id="queue-count">0</b> / <b id="queue-limit">20</b> · 최대 3턴 보존</small></div>
             <div id="letter-queue" class="letter-queue" aria-label="수집한 한자"></div>
           </div>
-          <p id="pang-guide" class="pang-guide">이웃한 타일을 밀어 3개 이상 맞추세요. 매치가 없으면 원래 자리로 돌아옵니다.</p>
+          <p id="pang-guide" class="pang-guide" hidden aria-hidden="true">이웃한 타일을 밀어 3개 이상 맞추세요. 매치가 없으면 원래 자리로 돌아옵니다.</p>
         </section>
 
-        <aside id="pang-skill-rail" class="pang-skill-rail panel" aria-label="팡팡 모드 사자성어 발동 기록">
+        <aside id="pang-skill-rail" class="pang-skill-rail panel" aria-label="팡팡 모드 사자성어 발동 기록" hidden aria-hidden="true">
           <div class="pang-skill-heading">
             <span>成</span>
             <div><small>SKILL LOG</small><strong>성어 발동</strong></div>
@@ -243,21 +266,23 @@
     <div id="main-menu" class="main-menu open" role="dialog" aria-modal="true" aria-labelledby="menu-title">
       <div class="menu-content shrine-menu-content">
         <div class="menu-plaque">메인 메뉴</div>
-        <div class="menu-logo-seal" aria-label="사자연성">
+        <button id="debug-unlock-trigger" class="menu-logo-seal menu-logo-secret" type="button" aria-label="사자연성 제목 인장">
           <p class="eyebrow">五行鍊成録</p>
           <h2 id="menu-title"><span>四字</span>鍊成</h2>
           <small>색을 잇고 뜻을 깨우다</small>
-        </div>
+        </button>
+        <p id="debug-unlock-progress" class="debug-unlock-progress" role="status" aria-live="polite" hidden>시험실 봉인 0/5</p>
         <div id="menu-spirit-parade" class="menu-spirit-parade" aria-hidden="true"></div>
         <div class="menu-shrine-actions" aria-label="수련과 수집 메뉴">
           <button id="puzzle-mode-button" class="menu-shrine-button"><span>序</span><strong>서사 수련</strong><small id="story-menu-status">1장 · 재앙의 문</small></button>
-          <button id="pang-mode-button" class="menu-shrine-button"><span>碰</span><strong>연쇄 수련</strong><small>60초 기록 도전</small></button>
+          <button id="pang-mode-button" class="menu-shrine-button" hidden disabled aria-hidden="true" tabindex="-1"><span>碰</span><strong>연쇄 수련</strong><small>60초 기록 도전</small></button>
           <button id="jaryeong-meta-button" class="menu-shrine-button"><span>靈</span><strong>자령전</strong><small>도감 · 편성 · 소환</small></button>
         </div>
         <button id="roguelike-mode-button" class="menu-journey-button">
           <span class="mode-glyph">行</span><span><small>MAIN RUN · 약 20분</small><strong id="menu-journey-label">연성행로 출발</strong><em>준비한 5자령과 함께 3막의 길을 엽니다</em></span><b>→</b>
         </button>
-        <div class="menu-foot"><span>오행의 색만 보고 시작해도 충분합니다.</span><div class="menu-foot-actions"><button id="codex-button" class="text-button">冊 한자·성어 도감</button><button id="menu-settings-button" class="text-button">⚙ 표시·음향 설정</button></div></div>
+        <button id="menu-debug-entry" class="menu-debug-entry" type="button" hidden disabled aria-hidden="true" tabindex="-1"><span>⚒</span><strong>디버그 시험실</strong><small>전투·수집·저장 상태를 빠르게 시험합니다</small><b>→</b></button>
+        <div class="menu-foot"><span id="menu-guide-copy"><b>핵심 조작</b> · 타일 하나를 누른 채 여러 칸을 지나고, 원하는 곳에서 놓아 연성합니다.</span><div class="menu-foot-actions"><button id="glossary-button" class="text-button">卷 게임 용어 설명집</button><button id="codex-button" class="text-button">冊 한자·성어 도감</button><button id="menu-settings-button" class="text-button">⚙ 표시·음향 설정</button><button id="menu-debug-button" class="text-button debug-menu-button" type="button" hidden disabled aria-hidden="true" tabindex="-1">⚒ 디버그 시험실</button></div></div>
       </div>
     </div>
 
@@ -321,7 +346,104 @@
       </div>
     </div>
 
-    <div id="debug-modal" class="modal debug-modal" role="dialog" aria-modal="true" aria-labelledby="debug-title">
+    <div id="glossary-modal" class="modal glossary-modal" role="dialog" aria-modal="true" aria-labelledby="glossary-title">
+      <div class="modal-card glossary-card">
+        <div class="glossary-heading">
+          <div><p class="eyebrow">鍊成用語錄 · GAME &amp; WORLD GUIDE</p><h2 id="glossary-title">사자연성 용어 설명집</h2><p>처음 보는 말부터 보스 대응법까지, 필요한 순서대로 풀어 썼습니다.</p></div>
+          <button id="glossary-close" class="icon-button" type="button" aria-label="용어 설명집 닫기">×</button>
+        </div>
+        <label class="glossary-search"><span>용어 찾기</span><input id="glossary-search" type="search" placeholder="예: 자령, 기운, 먹, 문자 큐, 봉인" autocomplete="off" /></label>
+        <nav id="glossary-filters" class="glossary-filters" aria-label="용어 분류">
+          <button class="active" type="button" data-glossary-filter="all" aria-pressed="true">전체</button>
+          <button type="button" data-glossary-filter="world" aria-pressed="false">세계관</button>
+          <button type="button" data-glossary-filter="alchemy" aria-pressed="false">퍼즐·연성</button>
+          <button type="button" data-glossary-filter="jaryeong" aria-pressed="false">자령·성장</button>
+          <button type="button" data-glossary-filter="journey" aria-pressed="false">연성행로</button>
+          <button type="button" data-glossary-filter="boss" aria-pressed="false">전투·보스</button>
+        </nav>
+        <p id="glossary-result-count" class="glossary-result-count" aria-live="polite">전체 용어를 표시합니다.</p>
+        <div id="glossary-sections" class="glossary-sections">
+          <section data-glossary-section="world">
+            <header><span>壹</span><div><small>WORLD</small><h3>세계와 존재</h3></div></header>
+            <dl>
+              <div class="glossary-entry" data-glossary-terms="문자술사 플레이어 연성술사"><dt>문자술사</dt><dd>한자에 깃든 오행의 빛을 이어 자령을 진정시키는 사람입니다. 플레이어가 바로 문자술사이며, 타일을 움직여 모은 글자로 사자성어 술식을 완성합니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="한자 훈음 훈독 읽기 뜻 소리"><dt>한자·훈음(훈독 표시)</dt><dd>타일의 큰 글자가 <b>한자</b>이고, 아래의 ‘나무 목’처럼 뜻과 소리를 함께 적은 것이 훈음입니다. 설정의 ‘훈독 크게’는 이 읽기 도움말을 크게 보여 주는 기능이며, 한자를 미리 외우지 않아도 플레이할 수 있습니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="자령 영혼 한자 몬스터"><dt>자령(字靈)</dt><dd>한자의 뜻과 오행 기운에서 태어난 존재입니다. 아군 자령은 편성해 기술을 쓰고, 야생 자령은 전투로 기운을 진정시킵니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="야생 자령 적 몬스터"><dt>야생 자령</dt><dd>기운이 흐트러져 행로를 막는 자령입니다. 쓰러뜨리는 것이 아니라, 체력처럼 보이는 <b>진정 게이지</b>를 0으로 만들어 안정시키는 것이 전투의 목적입니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="진정 게이지 적 체력 자령 기운 hp"><dt>진정 게이지(적 자령 기운)</dt><dd>적 자령 이름 아래의 붉은 막대입니다. 공격으로 0까지 낮추면 자령이 쓰러지는 대신 기운이 안정됩니다. 아군 기술을 충전하는 ‘자령의 기운 5/5’와는 다른 수치입니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="자령왕 보스 장 수호자"><dt>자령왕·장 수호자</dt><dd>각 막의 끝을 지키는 보스 자령입니다. 일반 자령보다 긴 패턴 주기를 가지며 보호막, 타일 봉인, 회복, 보드 재생성 같은 고유 행동을 예고합니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="부적 소환 자령 계약"><dt>부적</dt><dd>자령과 맺은 인연을 담는 매개입니다. 부적 조각을 모아 소환권으로 바꾸면 새 자령을 부르거나 보유 자령의 각성을 높일 수 있습니다.</dd></div>
+            </dl>
+          </section>
+          <section data-glossary-section="alchemy">
+            <header><span>貳</span><div><small>PUZZLE &amp; ALCHEMY</small><h3>퍼즐과 문자 연성</h3></div></header>
+            <dl>
+              <div class="glossary-entry" data-glossary-terms="타일 드롭 퍼즐 한자 빛"><dt>타일(드롭)</dt><dd>보드에 놓인 한자 조각입니다. 글자와 오행 색을 함께 가지며, 같은 색 타일을 3개 이상 이으면 매치가 됩니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="경로 드래그 이동 조작 퍼드"><dt>경로 이동</dt><dd>타일 하나를 누른 채 손을 떼지 않고 여러 이웃 칸을 지나는 조작입니다. 지나는 칸마다 타일이 연속으로 자리를 바꾸고, 놓는 순간 모든 매치를 한꺼번에 판정합니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="매치 콤보 연쇄"><dt>매치·콤보</dt><dd>같은 오행 타일 3개 이상이 이어지면 1매치입니다. 한 번의 이동으로 서로 떨어진 매치를 여러 개 만들면 콤보가 올라가고 공격과 부가효과가 강해집니다.</dd></div>
+              <div class="glossary-entry glossary-experimental" data-glossary-terms="4개 매치 광역 공격 다수전 전체 공격"><dt>4개 이상 매치·광역공격 <small>시험실</small></dt><dd>한 덩어리로 같은 오행 타일을 <b>4개 이상</b> 지우면, 다수전에서는 그 오행 공격이 적 전체에 들어갑니다. 3개 매치는 선택한 적 하나를 집중 공격합니다. 현재는 숨은 시험실에서만 검증하는 규칙입니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="턴 연성 차례 적 행동"><dt>턴·한 번의 연성</dt><dd>타일을 잡아 경로를 만든 뒤 놓으면 한 턴이 판정됩니다. 내 매치·문자 수집·성어 발동이 먼저 해결되고, 지연되지 않았다면 예고된 적 행동이 이어집니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="문자 큐 글자 줄 저장 수명"><dt>문자 큐</dt><dd>매치로 지운 타일의 한자가 전투 중 차례로 쌓이는 보관 줄입니다. 사자성어에 필요한 네 글자가 큐 안에 모이면 해당 연성식을 발동할 수 있습니다. 칸 수가 가득 차면 오래된 글자부터 밀려나며, 너무 오래 머문 글자도 수명이 다해 사라집니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="연성식 레시피 사자성어"><dt>연성식</dt><dd>사자성어를 발동하기 위한 네 글자 조합표입니다. 글자 순서는 상관없고, 필요한 글자 수만큼 문자 큐에 있으면 완성됩니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="고정 순환 성어 연성식"><dt>고정·순환 연성식</dt><dd><b>고정 연성식</b>은 런 동안 유지하는 핵심 빌드이고, <b>순환 연성식</b>은 몇 턴마다 교체되어 즉석 판단을 요구하는 보조 기회입니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="사자성어 뜻 효과 술식"><dt>사자성어 발동</dt><dd>문자 큐에서 네 글자를 소비해 강한 전투 효과를 일으킵니다. 도감과 연성식 카드를 누르면 실제 뜻과 게임 효과를 함께 확인할 수 있습니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="오행 목 화 토 금 수 상극 상생 약점 저항"><dt>오행·상극·상생</dt><dd>목·화·토·금·수의 다섯 기운입니다. 상극은 <b>金 → 木 → 土 → 水 → 火 → 金</b> 순서로 앞의 오행이 뒤의 약점입니다. 서로 돕는 오행을 같은 턴에 맞추면 다음 연성에 상생 보정이 이어집니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="약점 저항 상성 피해 30 20"><dt>약점·저항</dt><dd>적 자령마다 잘 통하는 오행과 덜 통하는 오행이 있습니다. 약점 공격은 기본 피해가 약 30% 늘고, 저항 오행은 약 20% 줄어듭니다. 적 한자 배지를 누르면 현재 상성을 볼 수 있습니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="부가효과 발동률 목 회복 화 화상 토 보호막 금 관통 수 지연"><dt>오행 부가효과·발동률</dt><dd>일반 매치는 피해 외에도 확률로 <b>목 회복·화 화상·토 보호막·금 관통·수 지연</b>을 일으킵니다. 큰 매치, 같은 오행 자령, 리더·유물·상생 보정이 발동 가능성을 높이지만 항상 확정되지는 않습니다.</dd></div>
+            </dl>
+          </section>
+          <section data-glossary-section="jaryeong">
+            <header><span>參</span><div><small>JARYEONG</small><h3>자령 편성과 성장</h3></div></header>
+            <dl>
+              <div class="glossary-entry" data-glossary-terms="자령 기운 차지 게이지 기술 5"><dt>자령의 기운</dt><dd>아군 자령 기술을 쓰기 위한 충전 수치입니다. 해당 자령과 같은 오행을 매치하거나 그 자령의 한자를 얻으면 오르며, <b>5/5</b>가 되면 하단 자령 카드나 숫자키 1~5로 기술을 쓸 수 있습니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="자령 기술 액티브 스킬"><dt>자령 기술</dt><dd>기운 5를 소비해 발동하는 능력입니다. 공격, 회복, 보호막, 지연, 문자 보충처럼 자령마다 역할이 다릅니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="리더 리더효과 첫 슬롯"><dt>리더</dt><dd>편성의 첫 번째 슬롯에 둔 자령입니다. 리더 효과는 행로 전체에 적용되므로, 고정 성어와 같은 오행이나 원하는 전략에 맞추면 좋습니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="레벨 각성 중복 소환 성장"><dt>레벨·각성</dt><dd>레벨은 행로 안의 성장, 각성은 소환을 통해 계정에 남는 성장입니다. 순수 피해 보정은 퍼즐 판단을 압도하지 않도록 편성 전체에 상한이 있습니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="편성 파티 5명"><dt>출전 편성</dt><dd>연성행로에 데려갈 자령 다섯입니다. 첫 슬롯은 리더가 되고, 나머지 자령은 오행 매치와 기술로 빌드를 보완합니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="자령전 도감 편성 소환 메뉴"><dt>자령전</dt><dd>메인 메뉴의 자령 관리 공간입니다. 만난 자령의 도감, 다섯 자리 출전 편성, 부적 조각·소환권을 사용하는 소환을 한곳에서 다룹니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="소환 중복 소환 희귀도 각성 소환권 랜덤 가챠 확률"><dt>소환·중복 소환·희귀도</dt><dd>통합 부적 조각 10개를 소환권 한 장으로 바꾼 뒤, 봉인된 부적에서 <b>자령 하나가 무작위로</b> 나타납니다. 처음 만난 자령은 새로 보유하고, 이미 보유한 자령이면 각성과 성장도가 오릅니다. 기본 확률은 일반 55%·고급 25%·희귀 15%·전설 5%이며, 완전히 성장한 자령은 후보에서 빠져 소환권이 낭비되지 않습니다.</dd></div>
+            </dl>
+          </section>
+          <section data-glossary-section="journey">
+            <header><span>肆</span><div><small>ROGUELIKE RUN</small><h3>연성행로와 자원</h3></div></header>
+            <dl>
+              <div class="glossary-entry" data-glossary-terms="연성행로 런 3막 15노드 로그라이크"><dt>연성행로</dt><dd>준비한 자령과 성어로 세 막·15노드를 돌파하는 약 20분의 본편 런입니다. 갈림길, 전투, 사건, 보상을 고를 때마다 빌드가 달라집니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="노드 갈림길 경로 전투 사건 보상"><dt>노드·갈림길</dt><dd>행로에서 한 번씩 선택하는 지점입니다. 전투·정예·보스·사건 등이 있고, 갈림길에서 고른 쪽만 진행합니다. 다음 후보의 종류를 보고 현재 빌드에 필요한 위험과 보상을 고르세요.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="사건 선택 대가 결과"><dt>사건·선택지</dt><dd>전투 대신 짧은 상황과 여러 선택이 나오는 노드입니다. 체력·먹·성어 등을 대가로 유물, 회복, 성장 같은 결과를 얻을 수 있으므로 버튼의 조건과 결과를 함께 읽어야 합니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="먹 잉크 화폐 자원"><dt>먹</dt><dd>연성행로 안에서만 쓰는 선택 자원입니다. 사건에서 대가를 치르거나 특별한 보상·회복을 얻을 때 사용합니다. 새 런을 시작하면 다시 모아야 합니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="유물 relic 패시브 빌드"><dt>유물</dt><dd>런 동안 규칙을 바꾸는 지속 효과입니다. 특정 오행, 성어, 회복, 보호막, 보상과 연결되며 여러 유물의 조합이 빌드의 개성을 만듭니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="문자권 천자문 글자 풀"><dt>문자권</dt><dd>이번 런에서 보드와 보상에 등장할 수 있는 한자 묶음입니다. 권마다 글자 풀이 다르지만 선택한 시작 성어의 필수 글자는 항상 보충됩니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="부적 조각 소환권 드랍 랜덤"><dt>통합 부적 조각·소환권</dt><dd>희귀·정예·보스 자령을 진정시키면 통합 부적 조각이 떨어집니다. 조각 10개를 소환권 1장으로 바꾸며, 소환권 한 장을 사용하면 희귀도 확률에 따라 무작위 자령 하나가 나타납니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="작은 목표 전투 미션 먹 보상"><dt>작은 목표</dt><dd>각 전투에서 추가로 제시되는 선택 과제입니다. 제한 턴, 보호막 유지, 특정 오행·성어 발동처럼 플레이 방식을 바꾸며, 성공하면 먹을 더 얻습니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="정예 희귀 조우 일반 전투 보스"><dt>일반·정예·희귀 조우</dt><dd>일반전은 기본 전투, 정예전은 더 위험하지만 부적 조각 보상이 있는 강적입니다. 희귀 조우는 일반전에서 드물게 나타나는 특별 자령이며, 놓치기 전에 진정시키면 부적 조각과 수집 기회를 얻습니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="보상 새로고침 리롤 reroll"><dt>보상·새로고침</dt><dd>전투 뒤 제시되는 자령 성장·성어·유물 등의 선택입니다. 새로고침 횟수가 있으면 후보만 다시 뽑을 수 있으며, 선택을 확정하기 전 현재 빌드와의 연결 설명을 비교할 수 있습니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="시드 이어하기 저장 재현"><dt>런 시드·이어하기</dt><dd>시드는 행로와 난수 선택을 재현하는 식별 문자열입니다. 진행 중 런은 브라우저에 자동 저장되어 메인 메뉴에서 이어갈 수 있으며, 완료·포기한 런은 새 시드로 시작합니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="부활 한자 따라쓰기"><dt>자형 재연성·부활</dt><dd>런에서 한 번, 패배했을 때 제시된 한자를 따라 써 다시 일어나는 장치입니다. 반투명 글자와 충분히 겹치도록 쓰고 제출하면 일부 체력과 보호막으로 전투에 복귀합니다.</dd></div>
+            </dl>
+          </section>
+          <section data-glossary-section="boss">
+            <header><span>伍</span><div><small>COMBAT &amp; BOSS PATTERNS</small><h3>전투 상태와 보스 패턴</h3></div></header>
+            <dl>
+              <div class="glossary-entry" data-glossary-terms="행동 예고 패턴 타임라인 위협"><dt>행동 예고</dt><dd>보스가 다음에 무엇을 할지 이름, 효과, 위험도와 함께 미리 보여 주는 정보입니다. 현재 행동과 다음 두 행동을 읽고 보호막·정화·짧은 이동을 준비하세요.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="보호막 일반 방어막 금 관통"><dt>일반 보호막</dt><dd>보스 기운보다 먼저 피해를 흡수합니다. 모든 속성이 같은 효율로 깰 수 있고, 금의 관통 부가효과가 추가로 보호막을 걷어 냅니다. 전장에서는 옅은 금빛 반투명 구체로 표시됩니다.</dd></div>
+              <div class="glossary-entry glossary-experimental" data-glossary-terms="속성 방어막 속성 연성막 선호 속성 2배 시험"><dt>속성 연성막 <small>시험실</small></dt><dd>모든 속성 공격으로 깰 수 있지만, 막에 표시된 <b>지정 오행은 파괴력 ×2</b>를 냅니다. 다른 속성이 무효가 되는 장벽이 아닙니다. 해당 색의 반투명 구체와 HUD 문구를 보고 유리한 매치를 준비하세요.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="드롭 봉인 타일 봉인 잠금 보스"><dt>타일(드롭) 봉인</dt><dd>보드의 일부 칸을 정해진 턴 동안 움직일 수 없게 묶는 패턴입니다. 봉인된 칸은 술식 모양으로 표시됩니다. 남은 칸으로 짧은 경로를 만들거나, 봉인 해제 능력을 준비하세요.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="문자 큐 제거 문자산화 글자 소실 적월 화령왕 보스"><dt>문자 큐 제거</dt><dd><b>2막 적월 화령왕</b>이 공격 대신 문자 큐에서 임의의 글자 하나를 흩뜨리는 패턴입니다. 한 턴 전에 예고되므로, 다음 성어에 꼭 필요한 글자를 먼저 소비하거나 문자 보충 기술을 남겨 두세요. 시험령은 검증을 위해 두 글자를 지웁니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="보드 재생성 지진해일 리셋"><dt>보드 재생성</dt><dd>현재 타일 배치를 새 보드로 바꾸는 보스 패턴입니다. 준비하던 경로가 사라지므로 예고 턴에는 긴 설계보다 즉시 만들 수 있는 매치를 우선하세요.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="화상 불 지속 피해 아이콘"><dt>화상</dt><dd>화 오행의 지속 피해입니다. 기본 3매치 발동 시 <b>화상 2가 3턴</b> 이어져 총 6 피해를 주며, 다시 발동하면 피해 수치는 더해지고 남은 시간은 최소 3턴으로 갱신됩니다. 전장의 불꽃 배지에는 ‘턴당 피해 × 남은 턴’이 표시됩니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="금 관통 보호막 파괴"><dt>금 관통</dt><dd>금 매치의 확률 부가효과입니다. 일반 피해와 별도로 적 보호막을 추가로 깎아 두꺼운 막을 빠르게 걷어 냅니다. 속성 연성막의 지정 오행 보너스와는 별개입니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="수 행동 지연 턴 늦춤"><dt>행동 지연</dt><dd>수 매치·자령 기술·성어로 적의 행동을 뒤로 미루는 상태입니다. 남은 지연이 있으면 적 턴에 공격과 부가효과가 실행되지 않고 지연 수치가 하나 줄어듭니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="약화 회복 약화 피해 감소 디버프"><dt>기력 약화·회복 약화</dt><dd>기력 약화는 내가 주는 피해를 낮추고, 회복 약화는 회복량을 줄이는 불리한 상태입니다. 남은 턴을 상태 표시에서 확인하고 정화 성어·기술을 쓰거나 안전하게 버티세요.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="침묵 취약 정화 상태 해제"><dt>침묵·취약·정화</dt><dd><b>침묵</b>은 다음 적 행동의 부가효과를 막되 기본 피해까지 없애지는 않습니다. <b>취약</b>은 적이 받는 피해를 늘리고, <b>정화</b>는 플레이어의 약화나 타일 봉인 같은 불리한 상태를 지웁니다.</dd></div>
+              <div class="glossary-entry" data-glossary-terms="보호막 플레이어 방어"><dt>플레이어 보호막</dt><dd>적의 피해를 체력보다 먼저 받아 냅니다. 토 오행 부가효과와 자령·성어·유물로 얻으며, 보스의 큰 공격 예고 전에 쌓아 두면 안전합니다.</dd></div>
+            </dl>
+          </section>
+        </div>
+        <p id="glossary-empty" class="glossary-empty" hidden>찾는 용어가 없습니다. 다른 낱말로 검색해 보세요.</p>
+      </div>
+    </div>
+
+    <div id="debug-modal" class="modal debug-modal" role="dialog" aria-modal="true" aria-labelledby="debug-title" hidden aria-hidden="true">
       <div class="modal-card debug-card">
         <p class="eyebrow">DEBUG · 테스트 설정</p>
         <h2 id="debug-title">전투 상태 조작</h2>
@@ -330,13 +452,21 @@
           <div><small>MODE</small><strong id="debug-mode-value">메뉴</strong></div>
           <div><small>HP</small><strong id="debug-hp-value">-</strong></div>
           <div><small>REVIVE</small><strong id="debug-revive-value">-</strong></div>
+          <div><small>ELEMENT BARRIER</small><strong id="debug-barrier-value">-</strong></div>
         </div>
         <div class="debug-action-grid">
+          <button id="debug-summon-pattern-trial" class="debug-action-button debug-trial" type="button">시험령 소환 · 연성막·봉인·큐 제거</button>
+          <button id="debug-water-match" class="debug-action-button debug-trial" data-debug-combat type="button">수 3매치 · 연성막 ×2 시험</button>
+          <button id="debug-summon-multi-trial" class="debug-action-button debug-trial" type="button">다수전 소환 · 3체·2턴 주기</button>
+          <button id="debug-wide-match" class="debug-action-button debug-trial" data-debug-combat type="button">화 4매치 · 광역공격 QA</button>
+          <button id="debug-grant-summon" class="debug-action-button debug-trial" type="button">부적 조각 +10 · 랜덤소환 QA</button>
           <button id="debug-defeat-button" class="debug-action-button debug-danger" data-debug-combat type="button">게임오버 · 부활 흐름</button>
           <button id="debug-reset-revive" class="debug-action-button" data-debug-combat type="button">부활 상태 초기화</button>
           <button id="debug-enemy-one" class="debug-action-button" data-debug-combat type="button">자령 기운 1로 설정</button>
           <button id="debug-player-heal" class="debug-action-button" data-debug-combat type="button">플레이어 HP 회복</button>
           <button id="debug-shield" class="debug-action-button" data-debug-combat type="button">보호막 +50</button>
+          <button id="debug-enemy-shield" class="debug-action-button debug-trial" data-debug-combat type="button">적 일반 보호막 +40 · 구체 QA</button>
+          <button id="debug-enemy-burn" class="debug-action-button debug-trial" data-debug-combat type="button">적 화상 +12 · 아이콘 QA</button>
           <button id="debug-clear-queue" class="debug-action-button" data-debug-combat type="button">문자 큐 비우기</button>
           <button id="debug-force-match" class="debug-action-button" data-debug-combat type="button">3매치 · 공격 연출 QA</button>
           <button id="debug-rotate-idioms" class="debug-action-button" data-debug-combat type="button">순환 성어 즉시 교체</button>
@@ -346,7 +476,10 @@
           <button id="debug-copy-seed" class="debug-action-button" type="button">런 시드 복사</button>
           <button id="debug-next-node" class="debug-action-button" type="button">다음 노드 열기</button>
           <button id="debug-show-reward" class="debug-action-button" data-debug-combat type="button">보상 화면 열기</button>
+          <button id="debug-show-loot-layer" class="debug-action-button debug-trial" type="button">획득·도주 레이어 QA</button>
           <button id="debug-validate-data" class="debug-action-button" type="button">전체 데이터 검증</button>
+          <button id="debug-unlock-all-jaryeongs" class="debug-action-button debug-trial" type="button">모든 자령 해금</button>
+          <button id="debug-reset-all-data" class="debug-action-button debug-danger" type="button">게임 데이터 초기화</button>
         </div>
         <p id="debug-message" class="debug-message" aria-live="polite">퍼즐·로그라이크 전투에서 사용할 수 있습니다.</p>
         <button id="debug-close" class="primary-button" type="button">닫기 <span>✓</span></button>
@@ -358,10 +491,35 @@
         <p id="story-intro-kicker" class="eyebrow">序章 · 문자술사의 첫 수련</p>
         <h2 id="intro-title">재앙의 문 앞에서,<br /><span>첫 연성</span>을 배우세요.</h2>
         <p id="story-intro-copy" class="intro-copy">조작과 적의 예고, 사자성어 발동을 짧은 이야기 전투로 익힙니다. 한자를 외울 필요는 없습니다. 같은 빛을 3개 이상 맞추면 글자가 모입니다.</p>
+        <section class="drag-primer" aria-label="핵심 드래그 조작 미리보기">
+          <div class="drag-primer-copy">
+            <small>CORE CONTROL · 핵심 조작</small>
+            <strong>한 칸만 바꾸는 퍼즐이 아닙니다.<br /><em>타일 하나를 누른 채 경로를 그리세요.</em></strong>
+            <span>지나가는 칸마다 자리가 계속 바뀌고, 손을 놓는 순간 여러 매치를 한 번에 판정합니다.</span>
+          </div>
+          <div class="drag-primer-demo" aria-hidden="true">
+            <div class="drag-primer-grid drag-primer-grid-start">
+              <b class="earth">土</b><b class="earth">地</b><b class="metal">金</b><b class="earth">山</b><b class="earth">田</b>
+              <b class="fire">火</b><b class="water">水</b><b class="fire drag-primer-start">炎</b><b class="wood">木</b><b class="water">川</b>
+              <b class="fire">赤</b><b class="metal">白</b><b class="metal">石</b><b class="wood">林</b><b class="earth">土</b>
+            </div>
+            <div class="drag-primer-grid drag-primer-grid-final">
+              <b class="fire matched-demo">炎</b><b class="earth matched-demo">土</b><b class="earth matched-demo">地</b><b class="earth matched-demo">山</b><b class="earth matched-demo">田</b>
+              <b class="fire matched-demo">火</b><b class="water">水</b><b class="metal">金</b><b class="wood">木</b><b class="water">川</b>
+              <b class="fire matched-demo">赤</b><b class="metal">白</b><b class="metal">石</b><b class="wood">林</b><b class="earth">土</b>
+            </div>
+            <svg class="drag-primer-path" viewBox="0 0 500 300" preserveAspectRatio="none"><polyline points="250,150 250,50 150,50 50,50"></polyline></svg>
+            <span class="drag-primer-cursor"><i></i></span>
+            <span class="drag-primer-hold">누른 채</span>
+            <span class="drag-primer-release">여기서 놓기</span>
+            <strong class="drag-primer-combo">2 COMBO</strong>
+          </div>
+        </section>
+        <p id="story-training-route-hint" class="story-training-route-hint">핵심 수련 6장 · 한 장씩 바로 이어집니다</p>
         <div id="story-chapter-select" class="story-chapter-select" role="group" aria-label="서사 수련 장 선택"></div>
         <div id="story-intro-steps" class="how-to" aria-label="이번 장의 핵심 단계">
           <div><b>1</b><span><strong>잡기</strong>타일 하나를 누르세요</span></div>
-          <div><b>2</b><span><strong>움직이기</strong>5초 동안 이웃 칸을 통과하세요</span></div>
+          <div><b>2</b><span><strong>경로 그리기</strong>손을 떼지 않고 여러 칸을 지나세요</span></div>
           <div><b>3</b><span><strong>연성하기</strong>손을 떼면 매치와 글자를 판정합니다</span></div>
         </div>
         <button id="story-help-return" class="primary-button" type="button" hidden>현재 수련으로 돌아가기 <span>↩</span></button>
@@ -371,7 +529,7 @@
       </div>
     </div>
 
-    <div id="pang-intro-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="pang-intro-title">
+    <div id="pang-intro-modal" class="modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="pang-intro-title">
       <div class="modal-card pang-intro-card">
         <p class="eyebrow">六十秒의 속성 연타</p>
         <h2 id="pang-intro-title">밀고, 터뜨리고,<br /><span>연쇄하세요.</span></h2>
@@ -390,7 +548,7 @@
       <div class="modal-card roguelike-intro-card">
         <p class="eyebrow">MAIN RUN · 약 20분</p>
         <h2 id="roguelike-intro-title">고르고, 버티고,<br /><span>끝까지 잇세요.</span></h2>
-        <p class="intro-copy">문자권을 고르고 미리 편성한 5자령과 함께 출발하세요. 75개 성어와 유물의 조합으로 세 장의 갈림길을 돌파합니다.</p>
+        <p class="intro-copy">문자권을 고르고 미리 편성한 5자령과 함께 출발하세요. 타일 하나를 <b>누른 채 여러 칸을 지나고 원하는 곳에서 놓아</b> 여러 매치를 만든 뒤, 모인 한자로 성어를 발동합니다. 75개 성어와 유물의 조합으로 세 장의 갈림길을 돌파합니다.</p>
         <section id="story-graduation-banner" class="story-graduation-banner" role="status" aria-live="polite" aria-atomic="true" hidden>
           <p>第陸章 完 · 수련 졸업</p>
           <strong>연성행로 준비가 열렸습니다</strong>
@@ -401,17 +559,22 @@
           <span><b>75종</b> 전체 성어</span>
           <span><b>3막</b> 15노드</span>
         </div>
+        <div class="affinity-cycle-note" aria-label="오행 상극. 금은 목에 강하고, 목은 토에 강하고, 토는 수에 강하고, 수는 화에 강하고, 화는 금에 강합니다.">
+          <small>五行相剋 · 상극</small>
+          <strong>金 → 木 → 土 → 水 → 火 → 金</strong>
+          <span>화살표 앞 오행이 뒤 오행의 약점 · 전투 중 적 상성에도 표시됩니다</span>
+        </div>
         <div class="roguelike-prep-party" aria-label="출전 자령 편성">
           <div><small>PREPARED PARTY</small><strong id="prep-party-title">출전 자령 5명</strong><button id="prep-edit-party-button" class="text-button" type="button">편성 변경</button></div>
           <div id="meta-prep-party" class="meta-prep-party"></div>
-          <small class="roguelike-build-note">자령은 시작 빌드의 특성을 정합니다 · 순수 화력 보정은 편성 전체 최대 +20%</small>
+          <small class="roguelike-build-note">자령은 시작 빌드의 특성을 정합니다 · 기운 5/5가 되면 하단 자령 카드 또는 1~5키로 기술 발동 · 순수 화력 보정은 편성 전체 최대 +20%</small>
         </div>
         <div class="volume-picker" aria-label="이번 런 문자권">
           <div><small>CHARACTER VOLUME</small><strong id="volume-picker-title">이번 런 문자권</strong><span id="volume-summary">천자문 1권 · 125자</span></div>
           <div id="volume-options" class="volume-options" role="radiogroup"></div>
         </div>
         <div id="roguelike-resume-panel" class="roguelike-resume-panel" hidden>
-          <div><small>SAVED RUN · 자동 저장</small><strong id="roguelike-save-seed">-</strong><span id="roguelike-save-summary">-</span></div>
+          <div><small>SAVED RUN · 자동 저장</small><strong id="roguelike-save-title">저장된 연성행로</strong><span id="roguelike-save-summary">-</span><em id="roguelike-save-seed">-</em></div>
           <button id="roguelike-resume-button" class="primary-button" type="button">저장된 행로 이어하기 <span>→</span></button>
         </div>
         <button id="roguelike-start-button" class="primary-button">행로 출발 <span>→</span></button>
@@ -447,7 +610,6 @@
         </section>
         <section id="jaryeong-panel-summon" class="jaryeong-summon-view meta-view-panel" role="tabpanel" aria-labelledby="jaryeong-tab-summon" hidden>
           <div id="jaryeong-summon-ritual" class="jaryeong-summon-ritual"></div>
-          <div id="jaryeong-summon-targets" class="jaryeong-summon-targets"></div>
         </section>
       </div>
     </div>
@@ -467,7 +629,7 @@
         <div class="route-heading"><div><p class="eyebrow">RUN MAP · 연성행로</p><h2 id="route-title">다음 길을 고르세요</h2><p id="route-copy" class="intro-copy">앞으로 보이는 길 중 한 곳을 선택합니다.</p></div><div class="route-seed"><small>RUN SEED</small><button id="route-seed-button" type="button">-</button></div></div>
         <div id="route-act-strip" class="route-act-strip" aria-label="3막 진행도"></div>
         <div id="route-choices" class="route-choices"></div>
-        <div class="route-build-bar"><span id="route-hp">체력 100</span><span id="route-ink">먹 0</span><span id="route-party">자령 1/5</span><span id="route-idioms">성어 1/8</span></div>
+        <div class="route-build-bar"><span id="route-hp">체력 115/115</span><span id="route-ink">먹 0</span><span id="route-party">자령 1/5</span><span id="route-idioms">성어 1/8</span></div>
       </div>
     </div>
 
@@ -594,7 +756,7 @@
         <h2 id="story-result-title">첫 빛을 이었습니다</h2>
         <p id="story-result-copy">타일을 잡고, 이웃 칸을 지나, 손을 떼면 같은 빛이 연성됩니다.</p>
         <div id="story-lesson-recap" class="story-lesson-recap" aria-label="이번 장에서 배운 규칙">
-          <span><b>1</b>타일 잡기</span><span><b>2</b>5초 이동</span><span><b>3</b>놓아서 연성</span>
+          <span><b>1</b>누르고 유지</span><span><b>2</b>경로 이동</span><span><b>3</b>놓아서 판정</span>
         </div>
         <button id="story-journey-button" class="primary-button" type="button">연성행로 구경하기 <span>行</span></button>
         <button id="story-replay-button" class="text-button" type="button">제1장 다시 하기</button>
@@ -602,7 +764,7 @@
       </div>
     </div>
 
-    <div id="pang-result-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="pang-result-title">
+    <div id="pang-result-modal" class="modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="pang-result-title">
       <div class="modal-card result-card pang-result-card">
         <p class="eyebrow">TIME UP · 연성 종료</p>
         <h2 id="pang-result-title">60초의 기록</h2>
@@ -639,6 +801,6 @@
 
     <script src="data/sajayeonseong-hanja-v2.js?v=20260807-data-2"></script>
     <script src="data/hanja-hun-eum.js?v=20260807-hun-1"></script>
-    <script type="module" src="game.js?v=20260809-forest-shield-fallback-2"></script>
+    <script type="module" src="game.js?v=20260809-loot-layer-v3"></script>
   </body>
 </html>

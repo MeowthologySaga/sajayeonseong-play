@@ -1,4 +1,4 @@
-export const STORY_TRAINING_STORAGE_KEY = "sajayeonseong-story-v1";
+export const STORY_TRAINING_STORAGE_KEY = "sajayeonseong-story-v3";
 
 export const STORY_TRAINING_EVENT = Object.freeze({
   MATCH: "match",

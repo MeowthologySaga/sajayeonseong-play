@@ -13,7 +13,7 @@
   --earth: #d7a84a;
   --metal: #c7d4df;
   --water: #4c9ee8;
-  font-family: "Noto Sans KR", sans-serif;
+  font-family: "Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo","Noto Sans CJK KR",sans-serif;
   color: #f2ead7;
   background: #091312;
 }
@@ -35,12 +35,12 @@ button { font: inherit; }
 .game-shell { width: min(1440px, calc(100% - 32px)); margin: 0 auto; padding: 22px 0 28px; }
 .masthead { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
 .eyebrow { color: var(--gold); text-transform: uppercase; letter-spacing:.18em; font-size:11px; font-weight:800; margin:0 0 3px; }
-.masthead h1 { font-family:"Gowun Batang",serif; font-size:31px; letter-spacing:.15em; line-height:1; margin:0; }
+.masthead h1 { font-family:"Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; font-size:31px; letter-spacing:.15em; line-height:1; margin:0; }
 .masthead h1 span { color:var(--gold); }
 .header-actions { display:flex; gap:10px; align-items:center; }
 .stage-chip { text-align:right; border-right:1px solid var(--line); padding-right:15px; }
 .stage-chip span { display:block; font-size:9px; color:#93aaa2; letter-spacing:.2em; }
-.stage-chip strong { font-family:"Gowun Batang",serif; font-size:15px; }
+.stage-chip strong { font-family:"Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; font-size:15px; }
 .icon-button { width:34px; height:34px; border:1px solid var(--line); border-radius:50%; color:#e9debf; background:rgba(255,255,255,.04); cursor:pointer; }
 .icon-button:hover { border-color:var(--gold); }
 .debug-button { color:#ffcf8a; border-color:rgba(230,184,92,.34); }
@@ -59,7 +59,7 @@ button { font: inherit; }
 .enemy-copy { min-width:0; }
 .wave-line { display:flex; gap:8px; color:#8ca49b; font-size:11px; letter-spacing:.12em; }
 .wave-line span:first-child { color:var(--gold); }
-.enemy-copy h2 { font-family:"Gowun Batang",serif; font-size:26px; margin:8px 0 6px; }
+.enemy-copy h2 { font-family:"Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; font-size:26px; margin:8px 0 6px; }
 .enemy-kind-label { margin:-2px 0 6px; color:#9bd9bd; font-size:9px; font-weight:700; letter-spacing:.08em; }
 .intent { display:inline-flex; align-items:center; gap:8px; padding:7px 10px; border:1px solid rgba(234,104,83,.35); background:rgba(134,43,31,.24); border-radius:6px; font-size:12px; color:#ffd3c8; }
 .intent-icon { color:#ff806c; }
@@ -77,7 +77,7 @@ button { font: inherit; }
 .intent-threat.threat-low { color:#9be6c8; border:1px solid rgba(87,214,176,.35); background:rgba(87,214,176,.12); }
 .intent-threat.threat-medium { color:#ffe5a6; border:1px solid rgba(230,184,92,.4); background:rgba(230,184,92,.12); }
 .intent-threat.threat-high { color:#ffd1c5; border:1px solid rgba(234,98,85,.42); background:rgba(234,98,85,.16); }
-.enemy-intent-card > strong { overflow:hidden; color:#fff1dc; font:700 17px/1.2 "Gowun Batang",serif; text-overflow:ellipsis; white-space:nowrap; }
+.enemy-intent-card > strong { overflow:hidden; color:#fff1dc; font:700 17px/1.2 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; text-overflow:ellipsis; white-space:nowrap; }
 .enemy-intent-card > span { color:#f0c5b8; font-size:11px; font-weight:700; }
 .enemy-intent-card > p { margin:1px 0 0; color:#d2e0d6; font-size:10px; line-height:1.35; }
 .enemy-intent-card.telegraphing { animation:intentTelegraph .56s ease; }
@@ -104,7 +104,7 @@ button { font: inherit; }
 .enemy-sprite { position:relative; width:124px; height:120px; display:flex; align-items:center; justify-content:center; filter:drop-shadow(0 15px 10px rgba(0,0,0,.7)); transition:transform .2s, filter .2s; animation:enemyFloat 2.5s ease-in-out infinite; }
 .enemy-sprite::before { content:""; position:absolute; inset:4px; border-radius:48% 52% 36% 43%; background:radial-gradient(circle at 50% 35%,#38494a 0 19%,#182526 52%,#080d0d 100%); border:2px solid rgba(143,184,165,.24); box-shadow:inset 0 0 20px #000,0 0 22px rgba(68,127,108,.25); }
 .enemy-sprite::after { content:""; position:absolute; width:148px; height:30px; bottom:-2px; border-radius:50%; background:rgba(0,0,0,.5); filter:blur(8px); z-index:-1; }
-.enemy-glyph { position:relative; z-index:2; color:#869d92; font:700 43px "Gowun Batang",serif; opacity:.65; }
+.enemy-glyph { position:relative; z-index:2; color:#869d92; font:700 43px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; opacity:.65; }
 .enemy-eye { position:absolute; top:47px; z-index:3; width:10px; height:4px; border-radius:50%; background:#ff7a5d; box-shadow:0 0 8px #ff5332; }
 .eye-left { left:43px; transform:rotate(8deg); }.eye-right { right:43px; transform:rotate(-8deg); }
 .enemy-2::before { border-radius:20px 20px 38px 38px; background:linear-gradient(140deg,#6b6656,#252720 58%,#10120f); border-color:#b99c5e; }
@@ -128,7 +128,7 @@ button { font: inherit; }
 .enemy-affinity b { margin-right:2px; font-weight:800; }
 .enemy-affinity .affinity-weak { color:#9be6c8; border-color:rgba(87,214,176,.35); background:rgba(87,214,176,.08); }
 .enemy-affinity .affinity-resist { color:#ffcfb9; border-color:rgba(234,98,85,.3); background:rgba(234,98,85,.08); }
-.damage-float { position:absolute; left:50%; top:28%; transform:translateX(-50%); z-index:8; font:800 30px "Noto Sans KR",sans-serif; color:#fff4bd; text-shadow:0 2px 3px #000,0 0 15px #ff4c30; opacity:0; }
+.damage-float { position:absolute; left:50%; top:28%; transform:translateX(-50%); z-index:8; font:800 30px "Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo","Noto Sans CJK KR",sans-serif; color:#fff4bd; text-shadow:0 2px 3px #000,0 0 15px #ff4c30; opacity:0; }
 .damage-float.show { animation:floatDamage .9s ease forwards; }
 .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 
@@ -139,9 +139,9 @@ button { font: inherit; }
 .puzzle-panel { border-radius:7px; padding:14px; background:rgba(9,19,18,.95); }
 .section-heading { display:flex; justify-content:space-between; align-items:center; margin-bottom:13px; }
 .section-heading > div { display:flex; align-items:center; gap:8px; }
-.section-heading h2 { margin:0; font:700 18px "Gowun Batang",serif; letter-spacing:.1em; }
+.section-heading h2 { margin:0; font:700 18px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; letter-spacing:.1em; }
 .section-heading small { font-size:9px; color:#71837d; }
-.section-number { display:grid; place-items:center; width:25px; height:25px; color:var(--gold); border:1px solid rgba(230,184,92,.35); border-radius:50%; font:700 11px "Gowun Batang",serif; }
+.section-number { display:grid; place-items:center; width:25px; height:25px; color:var(--gold); border:1px solid rgba(230,184,92,.35); border-radius:50%; font:700 11px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
 .idiom-cards { display:grid; gap:9px; }
 .idiom-set { display:grid; gap:5px; min-width:0; }
 .idiom-set-heading { display:flex; align-items:center; justify-content:space-between; min-width:0; color:#768a82; font-size:7px; }
@@ -156,12 +156,12 @@ button { font: inherit; }
 .idiom-card.ready { border-color:rgba(230,184,92,.75); background:rgba(230,184,92,.08); box-shadow:0 0 18px rgba(230,184,92,.08); }
 .idiom-card.ready::before { background:var(--gold); box-shadow:0 0 8px var(--gold); }
 .idiom-title { display:flex; justify-content:space-between; align-items:center; }
-.idiom-title strong { min-width:0; overflow:hidden; font:700 10px "Gowun Batang",serif; text-overflow:ellipsis; white-space:nowrap; }
+.idiom-title strong { min-width:0; overflow:hidden; font:700 10px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; text-overflow:ellipsis; white-space:nowrap; }
 .idiom-title em { display:none; color:#71847d; font-size:7px; font-style:normal; }
 .idiom-slots { display:grid; grid-template-columns:repeat(4,1fr); gap:2px; margin:5px 0 4px; }
 .idiom-slot { position:relative; display:grid; grid-template-rows:1fr auto; place-items:center; aspect-ratio:1; max-height:46px; padding:3px 1px 2px; border-radius:4px; border:1px dashed #42534d; color:#66766f; background:rgba(0,0,0,.1); }
-.idiom-slot b { font:700 14px/1 "Gowun Batang",serif; }
-.idiom-slot small { width:100%; overflow:hidden; color:#64756e; font:600 7px/1 "Noto Sans KR",sans-serif; text-align:center; text-overflow:ellipsis; white-space:nowrap; }
+.idiom-slot b { font:700 14px/1 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
+.idiom-slot small { width:100%; overflow:hidden; color:#64756e; font:600 7px/1 "Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo","Noto Sans CJK KR",sans-serif; text-align:center; text-overflow:ellipsis; white-space:nowrap; }
 .idiom-slot.collected { color:#fff2c7; border:1px solid rgba(230,184,92,.48); background:rgba(230,184,92,.1); text-shadow:0 0 9px rgba(230,184,92,.5); }
 .idiom-slot.collected small { color:#b9cfbf; text-shadow:none; }
 .idiom-slot.collected::after { content:"✓"; position:absolute; top:1px; right:2px; font:700 7px sans-serif; color:var(--jade); }
@@ -172,17 +172,17 @@ button { font: inherit; }
 .jaryeong-panel { display:none; margin:-2px 0 10px; padding:8px 9px 9px; border:1px solid rgba(185,150,239,.25); border-radius:8px; background:linear-gradient(135deg,rgba(185,150,239,.09),rgba(87,214,176,.035)); }
 body.roguelike-mode .jaryeong-panel { display:block; }
 .jaryeong-heading { display:flex; align-items:center; gap:7px; margin-bottom:7px; }
-.jaryeong-heading > span { display:grid; place-items:center; width:26px; height:26px; border:1px solid rgba(185,150,239,.45); border-radius:50%; color:#d1b7f3; font:700 13px "Gowun Batang",serif; }
+.jaryeong-heading > span { display:grid; place-items:center; width:26px; height:26px; border:1px solid rgba(185,150,239,.45); border-radius:50%; color:#d1b7f3; font:700 13px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
 .jaryeong-heading > div { display:grid; gap:1px; min-width:0; }
 .jaryeong-heading small { color:#8d7aac; font-size:6px; letter-spacing:.12em; }
-.jaryeong-heading strong { color:#eadcf8; font:700 12px "Gowun Batang",serif; }
+.jaryeong-heading strong { color:#eadcf8; font:700 12px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
 .jaryeong-heading > b { margin-left:auto; color:#9cb5ac; font-size:8px; font-weight:600; }
 .jaryeong-party { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:4px; }
 .jaryeong-slot { position:relative; min-width:0; min-height:57px; display:grid; grid-template-rows:auto 1fr auto; justify-items:center; gap:2px; padding:4px 2px 3px; border:1px solid rgba(151,178,164,.22); border-radius:6px; background:rgba(5,13,12,.34); }
 .jaryeong-slot.empty { align-content:center; color:#61736c; border-style:dashed; }
 .jaryeong-empty-glyph { color:#738a81; font-size:13px; line-height:1; }
 .jaryeong-slot > small { font-size:7px; }
-.jaryeong-glyph { display:grid; place-items:center; width:25px; height:25px; border-radius:7px; color:#13221e; font:700 16px "Gowun Batang",serif; box-shadow:inset 0 1px rgba(255,255,255,.35); }
+.jaryeong-glyph { display:grid; place-items:center; width:25px; height:25px; border-radius:7px; color:#13221e; font:700 16px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; box-shadow:inset 0 1px rgba(255,255,255,.35); }
 .jaryeong-glyph.wood,.jaryeong-choice-glyph.wood { background:linear-gradient(145deg,#9ce5a8,#4fba78); }
 .jaryeong-glyph.fire,.jaryeong-choice-glyph.fire { background:linear-gradient(145deg,#ffb26f,#e05c4b); }
 .jaryeong-glyph.earth,.jaryeong-choice-glyph.earth { background:linear-gradient(145deg,#efd18a,#b5893b); }
@@ -199,7 +199,7 @@ body.roguelike-mode .jaryeong-panel { display:block; }
 .puzzle-head { min-height:44px; display:flex; justify-content:space-between; align-items:center; margin-bottom:9px; }
 .player-vitals { display:flex; align-items:center; gap:9px; width:68%; }
 .portrait { width:38px;height:38px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(145deg,#cdaa60,#5b4725);border:2px solid #e2c483;box-shadow:0 0 0 3px #172622; }
-.portrait span { color:#13221f; font:700 18px "Gowun Batang",serif; }.player-bars { flex:1; }.player-bar i { background:linear-gradient(90deg,#237a61,#5bd6ad); box-shadow:0 0 9px #54d6ad; }
+.portrait span { color:#13221f; font:700 18px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }.player-bars { flex:1; }.player-bar i { background:linear-gradient(90deg,#237a61,#5bd6ad); box-shadow:0 0 9px #54d6ad; }
 .shield-badge { min-width:44px; color:#8dbff1; font-size:12px; text-align:center; }.shield-badge b { color:#d5eafe; }
 .move-timer { position:relative; min-width:86px; display:flex; align-items:baseline; justify-content:flex-end; gap:5px; padding-bottom:7px; }
 .move-timer span { font-size:9px; color:#788b84; }.move-timer strong { color:#eee2c6; font-size:17px; font-variant-numeric:tabular-nums; }
@@ -212,7 +212,7 @@ body.roguelike-mode .jaryeong-panel { display:block; }
 .tile { position:relative; aspect-ratio:1; min-width:0; border:0; border-radius:10px; padding:0; cursor:grab; color:#f3ead4; display:grid; place-items:center; box-shadow:inset 0 1px 1px rgba(255,255,255,.18), inset 0 -5px 12px rgba(0,0,0,.34), 0 3px 4px rgba(0,0,0,.38); transition:transform .13s,opacity .2s,filter .15s; overflow:hidden; will-change:transform; }
 .tile::before { content:""; position:absolute; inset:5px; border:1px solid rgba(255,255,255,.15); border-radius:7px; }
 .tile::after { content:attr(data-symbol); position:absolute; left:4px; top:4px; font-size:7px; color:rgba(255,255,255,.43); }
-.tile .hanja { position:relative; z-index:2; margin-top:-8px; font:700 clamp(20px,2.2vw,31px) "Gowun Batang",serif; text-shadow:0 2px 2px rgba(0,0,0,.5); }
+.tile .hanja { position:relative; z-index:2; margin-top:-8px; font:700 clamp(20px,2.2vw,31px) "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; text-shadow:0 2px 2px rgba(0,0,0,.5); }
 /* Compact 훈음은 타일 모서리에 붙여 잘라내지 않고, 속뜻과 음을 함께 읽을 수 있게 한다. */
 .tile-reading { position:absolute; z-index:2; left:3px; right:3px; bottom:3px; overflow:hidden; color:rgba(255,248,229,.82); font-size:clamp(5px,.5vw,8px); font-weight:600; letter-spacing:-.04em; line-height:1; text-align:center; text-overflow:ellipsis; white-space:nowrap; }
 .tile.wood { background:radial-gradient(circle at 35% 25%,#53b57b,#1e6845 63%,#143e2e); }
@@ -223,7 +223,7 @@ body.roguelike-mode .jaryeong-panel { display:block; }
 .tile.selected { transform:scale(1.08); filter:brightness(1.2); z-index:10; cursor:grabbing; box-shadow:0 0 0 2px #f4df9d,0 0 18px rgba(245,214,129,.55); }
 .tile.dragging-source { opacity:.24; filter:saturate(.65) brightness(.9); transform:scale(.95); z-index:11; box-shadow:0 0 0 2px rgba(246,225,157,.58),inset 0 0 14px rgba(255,255,255,.16); }
 .tile.locked { cursor:not-allowed; filter:grayscale(.28) brightness(.72); box-shadow:0 0 0 2px rgba(181,201,207,.55),inset 0 0 16px rgba(193,224,232,.24); }
-.tile.locked::before { content:"封"; inset:4px; z-index:3; display:grid; place-items:center; border:1px solid rgba(255,219,142,.72); border-radius:6px; color:#41130f; background:linear-gradient(155deg,rgba(255,226,139,.9),rgba(203,77,50,.88)); font:800 clamp(13px,1.25vw,20px)/1 "Gowun Batang",serif; text-shadow:0 1px rgba(255,244,190,.55); box-shadow:0 0 12px rgba(232,84,54,.7),inset 0 0 0 2px rgba(85,21,14,.25); transform:rotate(-4deg); }
+.tile.locked::before { content:"封"; inset:4px; z-index:3; display:grid; place-items:center; border:1px solid rgba(255,219,142,.72); border-radius:6px; color:#41130f; background:linear-gradient(155deg,rgba(255,226,139,.9),rgba(203,77,50,.88)); font:800 clamp(13px,1.25vw,20px)/1 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; text-shadow:0 1px rgba(255,244,190,.55); box-shadow:0 0 12px rgba(232,84,54,.7),inset 0 0 0 2px rgba(85,21,14,.25); transform:rotate(-4deg); }
 .tile.locked.seal-vine::before { content:"蔓"; color:#173c22; background:radial-gradient(circle,rgba(202,239,151,.94),rgba(67,132,66,.9)); box-shadow:0 0 13px #70b65b,inset 0 0 0 2px rgba(25,74,36,.45); }
 .tile.locked.seal-magma-chain::before { content:"鎖"; color:#3d1007; background:radial-gradient(circle,rgba(255,219,91,.96),rgba(202,55,24,.92)); box-shadow:0 0 15px #ff5a2d,inset 0 0 0 2px rgba(88,20,8,.52); }
 .tile.locked.seal-seaweed-net::before { content:"藻"; color:#052f35; background:radial-gradient(circle,rgba(139,235,212,.96),rgba(25,116,128,.92)); box-shadow:0 0 15px #46cbb4,inset 0 0 0 2px rgba(4,66,74,.52); }
@@ -234,21 +234,21 @@ body.roguelike-mode .jaryeong-panel { display:block; }
 .tile.invalid { animation:invalidSwap .32s ease; box-shadow:0 0 0 2px #ff7764,0 0 18px rgba(233,98,85,.55); }
 .combo-badge { position:absolute; z-index:12; right:18px; top:42%; transform:scale(.7) rotate(-4deg); display:flex; align-items:baseline; gap:5px; opacity:0; pointer-events:none; }
 .combo-badge.show { animation:comboPop .7s ease forwards; }
-.combo-badge strong { font:800 42px "Noto Sans KR",sans-serif; color:#fff0a9; text-shadow:0 3px #9d4127,0 0 15px #eabf5d; }
+.combo-badge strong { font:800 42px "Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo","Noto Sans CJK KR",sans-serif; color:#fff0a9; text-shadow:0 3px #9d4127,0 0 15px #eabf5d; }
 .combo-badge span { color:#fff; font-weight:800; font-size:13px; letter-spacing:.1em; }
 .combo-badge.chain span { color:#ffe19a; text-shadow:0 1px 8px rgba(239,184,82,.8); }
 .queue-area { padding-top:10px; }
 .queue-title { display:flex; justify-content:space-between; font-size:10px; color:#8da098; margin-bottom:7px; }.queue-title > span { color:#d8cfb8; font-weight:700; }.queue-title b { color:var(--gold); }
 .letter-queue { display:grid; grid-template-columns:repeat(var(--queue-size,20),minmax(0,1fr)); gap:3px; min-height:30px; }
-.queue-slot { position:relative; display:grid; place-items:center; min-width:0; aspect-ratio:1.15; border:1px dashed #35443f; border-radius:4px; color:#364640; font:700 clamp(13px,1.2vw,18px) "Gowun Batang",serif; }
+.queue-slot { position:relative; display:grid; place-items:center; min-width:0; aspect-ratio:1.15; border:1px dashed #35443f; border-radius:4px; color:#364640; font:700 clamp(13px,1.2vw,18px) "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
 .queue-slot.filled { color:#e8dcc0; border-style:solid; border-color:#556960; background:rgba(87,214,176,.06); }
 .queue-slot.new { animation:queueIn .5s ease; border-color:var(--jade); box-shadow:inset 0 0 8px rgba(87,214,176,.18); }
 .queue-life { position:absolute; display:flex; gap:2px; bottom:2px; }
 .queue-life i { width:3px; height:3px; border-radius:50%; background:#34443e; }.queue-life i.on { background:var(--jade); }
 
 .element-legend { display:grid; grid-template-columns:repeat(5,1fr); gap:4px; margin-bottom:14px; }
-.element-legend span { display:grid; place-items:center; gap:1px; padding:6px 1px; border-radius:4px; background:rgba(255,255,255,.03); font:700 14px "Gowun Batang",serif; }
-.element-legend em { font:normal 8px "Noto Sans KR",sans-serif; color:#71847c; }.element-legend .wood{color:var(--wood)}.element-legend .fire{color:var(--fire)}.element-legend .earth{color:var(--earth)}.element-legend .metal{color:var(--metal)}.element-legend .water{color:var(--water)}
+.element-legend span { display:grid; place-items:center; gap:1px; padding:6px 1px; border-radius:4px; background:rgba(255,255,255,.03); font:700 14px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
+.element-legend em { font:normal 8px "Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo","Noto Sans CJK KR",sans-serif; color:#71847c; }.element-legend .wood{color:var(--wood)}.element-legend .fire{color:var(--fire)}.element-legend .earth{color:var(--earth)}.element-legend .metal{color:var(--metal)}.element-legend .water{color:var(--water)}
 .battle-log { flex:1; min-height:190px; max-height:290px; overflow:hidden; border-top:1px solid var(--line); padding-top:5px; }
 .log-entry { display:grid; grid-template-columns:22px 1fr; gap:7px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,.045); animation:logIn .25s ease; }
 .log-entry b { display:grid;place-items:center;width:21px;height:21px;border-radius:50%;font-size:9px;background:rgba(255,255,255,.06);color:#8ea098; }
@@ -267,11 +267,11 @@ body.roguelike-mode .jaryeong-panel { display:block; }
 .pang-guide { margin:10px 0 0; color:#83968f; font-size:10px; text-align:center; }
 .pang-idiom-strip { grid-template-columns:repeat(3,1fr); gap:6px; margin:0 0 10px; }
 .pang-idiom-card { display:grid; grid-template-columns:auto 1fr; align-items:center; gap:8px; padding:7px 9px; border:1px solid var(--line); border-radius:6px; background:rgba(255,255,255,.025); transition:.2s; }.pang-idiom-card.ready { border-color:rgba(230,184,92,.65); background:rgba(230,184,92,.08); box-shadow:0 0 14px rgba(230,184,92,.08); }
-.pang-idiom-card > b { color:#d9ceb5; font:700 11px "Gowun Batang",serif; white-space:nowrap; }.pang-mini-slots { display:grid; grid-template-columns:repeat(4,1fr); gap:3px; }.pang-mini-slots span { display:grid; place-items:center; min-height:24px; border:1px dashed #3e4f49; border-radius:3px; color:#566861; font:700 13px "Gowun Batang",serif; }.pang-mini-slots span.on { color:#fff0bd; border-style:solid; border-color:rgba(230,184,92,.45); background:rgba(230,184,92,.08); }
+.pang-idiom-card > b { color:#d9ceb5; font:700 11px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; white-space:nowrap; }.pang-mini-slots { display:grid; grid-template-columns:repeat(4,1fr); gap:3px; }.pang-mini-slots span { display:grid; place-items:center; min-height:24px; border:1px dashed #3e4f49; border-radius:3px; color:#566861; font:700 13px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }.pang-mini-slots span.on { color:#fff0bd; border-style:solid; border-color:rgba(230,184,92,.45); background:rgba(230,184,92,.08); }
 .pang-skill-rail { position:sticky; top:14px; align-self:start; min-height:260px; max-height:620px; padding:15px; overflow:hidden; border-radius:7px 18px 18px 7px; background:linear-gradient(160deg,rgba(21,37,33,.95),rgba(9,18,17,.96)); }
-.pang-skill-heading { display:flex; align-items:center; gap:9px; padding-bottom:12px; border-bottom:1px solid var(--line); }.pang-skill-heading > span { display:grid; place-items:center; width:33px; height:33px; border:1px solid rgba(230,184,92,.4); border-radius:50%; color:var(--gold); font:700 16px "Gowun Batang",serif; }.pang-skill-heading small { display:block; color:#687d75; font-size:7px; font-weight:800; letter-spacing:.17em; }.pang-skill-heading strong { color:#e7ddc5; font:700 15px "Gowun Batang",serif; letter-spacing:.08em; }
+.pang-skill-heading { display:flex; align-items:center; gap:9px; padding-bottom:12px; border-bottom:1px solid var(--line); }.pang-skill-heading > span { display:grid; place-items:center; width:33px; height:33px; border:1px solid rgba(230,184,92,.4); border-radius:50%; color:var(--gold); font:700 16px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }.pang-skill-heading small { display:block; color:#687d75; font-size:7px; font-weight:800; letter-spacing:.17em; }.pang-skill-heading strong { color:#e7ddc5; font:700 15px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; letter-spacing:.08em; }
 .pang-skill-events { display:grid; gap:8px; margin-top:11px; }.pang-skill-empty { margin:16px 3px; color:#657871; font-size:9px; line-height:1.7; text-align:center; }.pang-skill-empty b { color:#9cafA7; font-weight:700; }
-.pang-skill-event { position:relative; padding:11px; overflow:hidden; border:1px solid rgba(230,184,92,.24); border-radius:7px; background:linear-gradient(125deg,rgba(230,184,92,.09),rgba(87,214,176,.04)); opacity:0; transform:translateX(18px); }.pang-skill-event.show { animation:skillRailIn .34s ease forwards; }.pang-skill-event::before { content:""; position:absolute; inset:0 auto 0 0; width:2px; background:var(--gold); box-shadow:0 0 9px var(--gold); }.pang-skill-event small { display:block; margin-bottom:4px; color:#799087; font-size:7px; letter-spacing:.12em; }.pang-skill-event h3 { margin:0; color:#f3dda4; font:700 17px "Gowun Batang",serif; }.pang-skill-glyphs { display:grid; grid-template-columns:repeat(4,1fr); gap:3px; margin:8px 0; }.pang-skill-glyphs b { display:grid; place-items:center; min-height:34px; border:1px solid rgba(230,184,92,.3); border-radius:3px; color:#fff0bd; background:rgba(4,13,11,.4); font:700 19px "Gowun Batang",serif; }.pang-skill-event p { margin:0; color:#8de2c3; font-size:9px; font-weight:800; line-height:1.5; }
+.pang-skill-event { position:relative; padding:11px; overflow:hidden; border:1px solid rgba(230,184,92,.24); border-radius:7px; background:linear-gradient(125deg,rgba(230,184,92,.09),rgba(87,214,176,.04)); opacity:0; transform:translateX(18px); }.pang-skill-event.show { animation:skillRailIn .34s ease forwards; }.pang-skill-event::before { content:""; position:absolute; inset:0 auto 0 0; width:2px; background:var(--gold); box-shadow:0 0 9px var(--gold); }.pang-skill-event small { display:block; margin-bottom:4px; color:#799087; font-size:7px; letter-spacing:.12em; }.pang-skill-event h3 { margin:0; color:#f3dda4; font:700 17px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }.pang-skill-glyphs { display:grid; grid-template-columns:repeat(4,1fr); gap:3px; margin:8px 0; }.pang-skill-glyphs b { display:grid; place-items:center; min-height:34px; border:1px solid rgba(230,184,92,.3); border-radius:3px; color:#fff0bd; background:rgba(4,13,11,.4); font:700 19px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }.pang-skill-event p { margin:0; color:#8de2c3; font-size:9px; font-weight:800; line-height:1.5; }
 body.pang-mode .battlefield,body.pang-mode .idiom-panel,body.pang-mode .chronicle-panel { display:none; }
 body.pang-mode .main-grid { grid-template-columns:minmax(520px,760px) minmax(210px,250px); justify-content:center; align-items:start; margin-top:18px; }
 body.pang-mode .puzzle-panel { position:relative; width:100%; padding:16px; border-radius:12px; }
@@ -291,23 +291,23 @@ body.pang-mode .combo-badge strong { font-size:54px; }
 body.roguelike-mode .roguelike-hud { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 0 10px; padding:9px 12px; border:1px solid rgba(87,214,176,.22); border-radius:8px; background:linear-gradient(100deg,rgba(87,214,176,.09),rgba(230,184,92,.05)); }
 .story-training-hud { display:none; }
 body.puzzle-mode .story-training-hud:not([hidden]) { display:grid; grid-template-columns:32px minmax(0,1fr) auto; align-items:center; gap:8px; min-height:42px; margin:0 0 5px; padding:5px 9px; border:1px solid rgba(230,184,92,.45); border-radius:8px; background:linear-gradient(105deg,rgba(104,72,21,.3),rgba(13,48,37,.4)); box-shadow:inset 0 0 16px rgba(230,184,92,.05); }
-.story-training-glyph { display:grid; place-items:center; width:31px; height:31px; border:1px solid rgba(230,184,92,.62); border-radius:5px 11px 5px 9px; color:#f4d176; background:rgba(17,39,30,.9); font:700 18px/1 "Gowun Batang",serif; transform:rotate(-2deg); }
+.story-training-glyph { display:grid; place-items:center; width:31px; height:31px; border:1px solid rgba(230,184,92,.62); border-radius:5px 11px 5px 9px; color:#f4d176; background:rgba(17,39,30,.9); font:700 18px/1 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; transform:rotate(-2deg); }
 .story-training-copy { min-width:0; display:grid; grid-template-columns:auto 1fr; align-items:baseline; gap:1px 7px; }
 .story-training-copy small { color:#91b6a5; font-size:7px; letter-spacing:.1em; }
-.story-training-copy strong { overflow:hidden; color:#ffe7a5; font:700 12px/1.2 "Gowun Batang",serif; text-overflow:ellipsis; white-space:nowrap; }
+.story-training-copy strong { overflow:hidden; color:#ffe7a5; font:700 12px/1.2 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; text-overflow:ellipsis; white-space:nowrap; }
 .story-training-copy em { grid-column:1/3; overflow:hidden; color:#b9c9c1; font-size:8px; font-style:normal; text-overflow:ellipsis; white-space:nowrap; }
 .story-training-hud > b { color:#f5d77e; font-size:10px; white-space:nowrap; }
 .story-training-hud.is-complete { border-color:rgba(87,214,176,.62); background:linear-gradient(105deg,rgba(40,108,82,.42),rgba(13,48,37,.4)); }
 body.puzzle-mode .tile.story-guide-start { z-index:3; border-color:#fff0a6; box-shadow:0 0 0 3px rgba(255,225,126,.62),0 0 24px rgba(255,204,78,.74); animation:storyGuidePulse 1.15s ease-in-out infinite; }
 body.puzzle-mode .tile.story-guide-target { z-index:2; border-color:#7de8bc; box-shadow:inset 0 0 0 3px rgba(98,224,177,.48),0 0 17px rgba(98,224,177,.42); }
-body.puzzle-mode .tile.story-guide-target::before { content:"목표"; position:absolute; z-index:4; inset:3px 3px auto auto; padding:2px 4px; border:0; border-radius:999px; color:#10241c; background:#9df0cd; font:800 7px/1 "Noto Sans KR",sans-serif; white-space:nowrap; transform:none; }
+body.puzzle-mode .tile.story-guide-target::before { content:"목표"; position:absolute; z-index:4; inset:3px 3px auto auto; padding:2px 4px; border:0; border-radius:999px; color:#10241c; background:#9df0cd; font:800 7px/1 "Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo","Noto Sans CJK KR",sans-serif; white-space:nowrap; transform:none; }
 .roguelike-hud > div { display:grid; gap:2px; }
 .roguelike-hud small { color:#78a497; font-size:8px; letter-spacing:.14em; }
-.roguelike-hud strong { color:#e9dcae; font:700 15px "Gowun Batang",serif; }
+.roguelike-hud strong { color:#e9dcae; font:700 15px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
 .roguelike-hud p { margin:0; color:#8ca59c; font-size:10px; text-align:right; }
 .combat-mission[hidden] { display:none; }
 body.roguelike-mode .combat-mission:not([hidden]) { min-width:0; display:grid; grid-template-columns:26px minmax(0,1fr) auto; align-items:center; gap:6px; padding:4px 7px; border:1px solid rgba(230,184,92,.3); border-radius:7px; background:linear-gradient(105deg,rgba(92,65,18,.24),rgba(9,32,26,.32)); box-shadow:inset 0 0 12px rgba(230,184,92,.04); }
-.combat-mission-glyph { display:grid; place-items:center; width:25px; height:25px; border:1px solid rgba(230,184,92,.52); border-radius:3px 8px 3px 7px; color:#f1d582; background:rgba(25,48,36,.78); font:700 15px/1 "Gowun Batang",serif; transform:rotate(-2deg); }
+.combat-mission-glyph { display:grid; place-items:center; width:25px; height:25px; border:1px solid rgba(230,184,92,.52); border-radius:3px 8px 3px 7px; color:#f1d582; background:rgba(25,48,36,.78); font:700 15px/1 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; transform:rotate(-2deg); }
 .combat-mission-copy { min-width:0; display:grid; gap:1px; }
 .combat-mission-copy small { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .combat-mission-copy strong { overflow:hidden; max-width:180px; font-size:10px; text-overflow:ellipsis; white-space:nowrap; }
@@ -320,10 +320,10 @@ body.roguelike-mode .combat-mission:not([hidden]) { min-width:0; display:grid; g
 .main-menu { position:fixed; inset:0; z-index:70; display:grid; place-items:center; padding:18px 24px; overflow:auto; background:linear-gradient(180deg,rgba(4,10,17,.34),rgba(5,13,16,.66) 48%,rgba(3,9,9,.88)),url("assets/backgrounds/menu-sanctuary.png") center/cover no-repeat; opacity:0; visibility:hidden; transition:.35s; }
 body.menu-mode { height:100dvh; overflow:hidden; }
 body.menu-mode .game-shell { display:none; }
-.main-menu::before { content:"四字鍊成"; position:fixed; left:50%; top:50%; transform:translate(-50%,-52%); color:rgba(232,216,174,.025); font:700 min(18vw,260px)/1 "Gowun Batang",serif; white-space:nowrap; pointer-events:none; }
+.main-menu::before { content:"四字鍊成"; position:fixed; left:50%; top:50%; transform:translate(-50%,-52%); color:rgba(232,216,174,.025); font:700 min(18vw,260px)/1 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; white-space:nowrap; pointer-events:none; }
 .main-menu.open { opacity:1; visibility:visible; }
 .menu-content { position:relative; z-index:1; width:min(920px,100%); text-align:center; }
-.menu-content > h2 { margin:4px 0 2px; font:700 clamp(44px,7vw,76px)/1 "Gowun Batang",serif; letter-spacing:.12em; }.menu-content > h2 span { color:var(--gold); }
+.menu-content > h2 { margin:4px 0 2px; font:700 clamp(44px,7vw,76px)/1 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; letter-spacing:.12em; }.menu-content > h2 span { color:var(--gold); }
 .menu-copy { margin:8px 0 2px; color:#e9dec6; font-size:13px; text-shadow:0 2px 5px #000; }
 .menu-spirit-parade { display:flex; justify-content:center; align-items:flex-end; height:102px; margin:0 auto 2px; pointer-events:none; }
 .menu-spirit-parade span { position:relative; width:94px; height:94px; margin:0 -8px; filter:drop-shadow(0 7px 5px rgba(0,0,0,.65)); animation:squadBreathe 2.1s ease-in-out infinite alternate; animation-delay:calc(var(--spirit-index,0) * -150ms); }
@@ -334,16 +334,16 @@ body.menu-mode .game-shell { display:none; }
 .mode-select-card::before { content:""; position:absolute; inset:0; opacity:.25; transition:.25s; }
 .puzzle-select::before { background:radial-gradient(circle at 85% 15%,#4dbea0,transparent 38%); }.pang-select::before { background:radial-gradient(circle at 85% 15%,#e1a945,transparent 38%); }.roguelike-select::before { background:radial-gradient(circle at 85% 15%,#aa7ee1,transparent 38%); }
 .mode-select-card:hover { transform:translateY(-6px); border-color:rgba(230,184,92,.55); box-shadow:0 25px 60px rgba(0,0,0,.32); }.mode-select-card:hover::before { opacity:.42; }
-.mode-glyph { position:absolute; right:25px; top:18px; color:rgba(238,220,171,.16); font:700 92px "Gowun Batang",serif; }
+.mode-glyph { position:absolute; right:25px; top:18px; color:rgba(238,220,171,.16); font:700 92px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
 .mode-tag { position:relative; color:#8ca097; font-size:9px; font-weight:800; letter-spacing:.17em; }
-.mode-select-card > strong { position:relative; margin-top:42px; font:700 34px "Gowun Batang",serif; }.mode-select-card > em { position:relative; margin-top:5px; color:var(--gold); font-size:12px; font-style:normal; }.mode-select-card > small { position:relative; max-width:340px; margin-top:20px; color:#899c95; font-size:11px; line-height:1.8; }
+.mode-select-card > strong { position:relative; margin-top:42px; font:700 34px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }.mode-select-card > em { position:relative; margin-top:5px; color:var(--gold); font-size:12px; font-style:normal; }.mode-select-card > small { position:relative; max-width:340px; margin-top:20px; color:#899c95; font-size:11px; line-height:1.8; }
 .mode-select-card > b { position:absolute; left:28px; right:28px; bottom:25px; display:flex; justify-content:space-between; padding-top:14px; border-top:1px solid var(--line); color:#e8dcbf; font-size:12px; }.mode-select-card > b i { color:var(--gold); font-style:normal; }
 .menu-foot { display:flex; justify-content:center; align-items:center; gap:14px; margin:18px 0 0; color:#5f746c; font-size:9px; }.menu-foot .text-button { color:#a5b6a9; font-size:10px; }
-.pang-intro-card h2 { font:700 clamp(29px,5vw,44px)/1.2 "Gowun Batang",serif; margin:10px 0 14px; }.pang-intro-card h2 span { color:var(--gold); }
+.pang-intro-card h2 { font:700 clamp(29px,5vw,44px)/1.2 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; margin:10px 0 14px; }.pang-intro-card h2 span { color:var(--gold); }
 .pang-rules { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin:0 0 20px; }.pang-rules span { padding:10px 5px; border:1px solid var(--line); border-radius:6px; color:#80938c; font-size:9px; }.pang-rules b { display:block; color:#e3d8be; font-size:15px; }
 .pang-intro-card > .text-button,.pang-result-card > .text-button,.intro-card > .text-button,.result-card > .text-button { display:block; margin:13px auto 0; }
 body.pang-mode #help-button { display:none; }
-.roguelike-intro-card h2,.roguelike-picker-card h2 { font:700 clamp(29px,5vw,44px)/1.2 "Gowun Batang",serif; margin:10px 0 14px; }
+.roguelike-intro-card h2,.roguelike-picker-card h2 { font:700 clamp(29px,5vw,44px)/1.2 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; margin:10px 0 14px; }
 .roguelike-intro-card h2 span { color:#b996ef; }
 .roguelike-rules b { color:#d0b5f1; }
 .roguelike-picker-card { width:min(880px,100%); }
@@ -353,10 +353,10 @@ body.pang-mode #help-button { display:none; }
 .roguelike-choice { position:relative; display:flex; flex-direction:column; align-items:flex-start; min-height:205px; padding:13px; border:1px solid rgba(135,161,149,.24); border-radius:9px; color:#e9e0ca; background:linear-gradient(145deg,rgba(87,214,176,.08),rgba(255,255,255,.018)); text-align:left; cursor:pointer; transition:transform .18s,border-color .18s,background .18s; }
 .roguelike-choice:hover,.roguelike-choice:focus-visible { transform:translateY(-4px); border-color:rgba(230,184,92,.7); background:rgba(230,184,92,.1); outline:none; }
 .roguelike-choice-glyphs { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; width:100%; margin-bottom:13px; }
-.roguelike-choice-glyphs b { display:grid; place-items:center; aspect-ratio:1; border:1px solid rgba(230,184,92,.35); border-radius:4px; color:#ffe8ab; background:rgba(230,184,92,.08); font:700 20px "Gowun Batang",serif; }
+.roguelike-choice-glyphs b { display:grid; place-items:center; aspect-ratio:1; border:1px solid rgba(230,184,92,.35); border-radius:4px; color:#ffe8ab; background:rgba(230,184,92,.08); font:700 20px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
 .roguelike-choice-meta { display:grid; gap:3px; }
 .roguelike-choice-meta em { color:#b59cdc; font-size:8px; font-style:normal; }
-.roguelike-choice-meta strong { color:#f3e4bf; font:700 18px "Gowun Batang",serif; }
+.roguelike-choice-meta strong { color:#f3e4bf; font:700 18px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
 .roguelike-choice-meta small { color:#a5b8ad; font-size:9px; line-height:1.35; }
 .roguelike-choice-desc { margin-top:auto; padding-top:10px; color:#91a59b; font-size:9px; line-height:1.5; }
 .reward-idiom-copy { display:grid; grid-template-columns:auto minmax(0,1fr); align-items:start; gap:3px 6px; width:100%; }
@@ -367,7 +367,7 @@ body.pang-mode #help-button { display:none; }
 .roguelike-choice-grid.has-four .reward-idiom-meaning { display:none; }
 .jaryeong-choice-grid { grid-template-columns:repeat(5,1fr); }
 .jaryeong-choice { min-height:190px; }
-.jaryeong-choice-glyph { display:grid; place-items:center; width:58px; height:58px; margin-bottom:11px; border:2px solid rgba(255,255,255,.3); border-radius:16px 16px 20px 20px; color:#15231f; font:700 30px "Gowun Batang",serif; box-shadow:0 6px 14px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.55); }
+.jaryeong-choice-glyph { display:grid; place-items:center; width:58px; height:58px; margin-bottom:11px; border:2px solid rgba(255,255,255,.3); border-radius:16px 16px 20px 20px; color:#15231f; font:700 30px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; box-shadow:0 6px 14px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.55); }
 .jaryeong-choice-portrait { position:relative; display:block; width:122px; height:122px; margin:-20px auto 0; filter:drop-shadow(0 8px 6px rgba(0,0,0,.42)); }
 .jaryeong-choice-portrait .sprite-body { width:100%; height:100%; object-fit:contain; }
 .jaryeong-choice .roguelike-choice-meta strong { font-size:17px; }
@@ -375,13 +375,13 @@ body.pang-mode #help-button { display:none; }
 .jaryeong-reward-choice { min-height:205px; }
 .jaryeong-reward-choice .jaryeong-choice-glyph { width:50px; height:50px; font-size:26px; border-radius:13px 13px 18px 18px; }
 .reward-choice { min-height:180px; }
-.reward-glyph { display:grid; place-items:center; width:43px; height:43px; margin-bottom:12px; border:1px solid rgba(230,184,92,.45); border-radius:50%; color:#f4d898; background:rgba(230,184,92,.1); font:700 22px "Gowun Batang",serif; }
+.reward-glyph { display:grid; place-items:center; width:43px; height:43px; margin-bottom:12px; border:1px solid rgba(230,184,92,.45); border-radius:50%; color:#f4d898; background:rgba(230,184,92,.1); font:700 22px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
 .picker-progress { margin:14px 0 0; color:#7f978b; font-size:10px; }
 .contract-card { width:min(760px,100%); }
 .contract-candidate { display:flex; align-items:center; gap:12px; margin:16px auto 14px; padding:10px 12px; border:1px solid rgba(230,184,92,.34); border-radius:9px; background:rgba(230,184,92,.07); text-align:left; }
 .contract-candidate .jaryeong-choice-glyph { flex:none; width:48px; height:48px; margin:0; font-size:25px; }
 .contract-candidate-copy { display:grid; gap:3px; min-width:0; }
-.contract-candidate-copy strong { color:#f3e4bf; font:700 18px "Gowun Batang",serif; }
+.contract-candidate-copy strong { color:#f3e4bf; font:700 18px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
 .contract-candidate-copy small { color:#a5b8ad; font-size:9px; line-height:1.4; }
 .contract-party-options { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:7px; margin-top:10px; }
 .contract-party-option { display:grid; gap:5px; justify-items:center; min-width:0; padding:9px 5px; border:1px solid rgba(135,161,149,.24); border-radius:8px; color:#e9e0ca; background:rgba(87,214,176,.05); cursor:pointer; transition:transform .18s,border-color .18s,background .18s; }
@@ -394,7 +394,7 @@ body.pang-mode #help-button { display:none; }
 .contract-actions .text-button { padding:10px 8px; border:1px solid var(--line); border-radius:7px; color:#b8c8bf; background:rgba(255,255,255,.025); font-size:10px; }
 .contract-actions .text-button:hover { border-color:rgba(230,184,92,.55); color:#f0d995; }
 .roguelike-result-build { display:grid; gap:4px; margin:0 0 16px; padding:10px; border:1px solid var(--line); border-radius:7px; background:rgba(255,255,255,.025); }
-.roguelike-result-build small { color:#71847d; font-size:9px; }.roguelike-result-build strong { color:#eddaa8; font:700 14px "Gowun Batang",serif; }
+.roguelike-result-build small { color:#71847d; font-size:9px; }.roguelike-result-build strong { color:#eddaa8; font:700 14px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
 
 body.reading-large .tile { grid-template-rows:1fr auto; align-content:center; padding:4px 2px 5px; }
 body.reading-large .tile::after { left:4px; top:4px; right:auto; bottom:auto; font-size:7px; }
@@ -406,28 +406,28 @@ body.pang-mode.reading-large .tile-reading { left:auto; right:auto; bottom:auto;
 
 .modal { position:fixed; inset:0; z-index:50; display:grid; place-items:center; padding:20px; background:rgba(3,9,8,.86); backdrop-filter:blur(9px); opacity:0; visibility:hidden; transition:.3s; }
 .modal.open { opacity:1; visibility:visible; }
-.settings-modal { z-index:85; }.settings-card { width:min(620px,100%); max-height:calc(100dvh - 24px); overflow:auto; scrollbar-width:thin; scrollbar-color:#d2a84f rgba(255,255,255,.05); }.settings-card::-webkit-scrollbar{width:7px}.settings-card::-webkit-scrollbar-track{border-radius:8px;background:rgba(255,255,255,.04)}.settings-card::-webkit-scrollbar-thumb{border:1px solid rgba(8,18,16,.8);border-radius:8px;background:linear-gradient(#f0ce7d,#a97a31)}.settings-card h2 { margin:10px 0 8px; font:700 clamp(29px,5vw,44px)/1.2 "Gowun Batang",serif; }.settings-card .intro-copy { margin-bottom:20px; }
+.settings-modal { z-index:85; }.settings-card { width:min(620px,100%); max-height:calc(100dvh - 24px); overflow:auto; scrollbar-width:thin; scrollbar-color:#d2a84f rgba(255,255,255,.05); }.settings-card::-webkit-scrollbar{width:7px}.settings-card::-webkit-scrollbar-track{border-radius:8px;background:rgba(255,255,255,.04)}.settings-card::-webkit-scrollbar-thumb{border:1px solid rgba(8,18,16,.8);border-radius:8px;background:linear-gradient(#f0ce7d,#a97a31)}.settings-card h2 { margin:10px 0 8px; font:700 clamp(29px,5vw,44px)/1.2 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }.settings-card .intro-copy { margin-bottom:20px; }
 .idiom-detail-modal { z-index:88; }
 .idiom-detail-card { width:min(520px,100%); background:radial-gradient(circle at 50% 0,rgba(90,73,31,.28),transparent 45%),#111c1a; }
 .idiom-detail-glyphs { display:flex; justify-content:center; gap:6px; margin:6px 0 12px; }
-.idiom-detail-glyphs b { display:grid; place-items:center; width:50px; height:58px; border:1px solid rgba(230,184,92,.56); border-radius:6px; color:#fff0bf; background:linear-gradient(150deg,rgba(230,184,92,.16),rgba(8,19,16,.86)); font:700 31px/1 "Gowun Batang",serif; box-shadow:inset 0 0 14px rgba(230,184,92,.08); }
-.idiom-detail-card h2 { margin:0; color:#f0d487; font:700 clamp(27px,4vw,38px)/1.2 "Gowun Batang",serif; }
+.idiom-detail-glyphs b { display:grid; place-items:center; width:50px; height:58px; border:1px solid rgba(230,184,92,.56); border-radius:6px; color:#fff0bf; background:linear-gradient(150deg,rgba(230,184,92,.16),rgba(8,19,16,.86)); font:700 31px/1 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; box-shadow:inset 0 0 14px rgba(230,184,92,.08); }
+.idiom-detail-card h2 { margin:0; color:#f0d487; font:700 clamp(27px,4vw,38px)/1.2 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
 .idiom-detail-reading { margin:5px 0 18px; color:#92a79f; font-size:11px; }
 .idiom-detail-copy { display:grid; gap:8px; margin:0 0 18px; text-align:left; }
 .idiom-detail-copy div { display:grid; grid-template-columns:70px 1fr; gap:10px; padding:11px 12px; border:1px solid var(--line); border-radius:8px; background:rgba(255,255,255,.025); }
 .idiom-detail-copy dt { color:#e6c77c; font-size:9px; font-weight:800; }
 .idiom-detail-copy dd { margin:0; color:#c8d5cf; font-size:11px; line-height:1.55; }
-.debug-modal { z-index:90; }.debug-card { width:min(620px,100%); }.debug-card h2 { margin:10px 0 8px; font:700 clamp(29px,5vw,44px)/1.2 "Gowun Batang",serif; }.debug-card .intro-copy { margin-bottom:16px; }
+.debug-modal { z-index:90; }.debug-card { width:min(620px,100%); }.debug-card h2 { margin:10px 0 8px; font:700 clamp(29px,5vw,44px)/1.2 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }.debug-card .intro-copy { margin-bottom:16px; }
 .debug-status { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:0 0 14px; }.debug-status div { display:grid; gap:4px; padding:10px 8px; border:1px solid var(--line); border-radius:7px; background:rgba(255,255,255,.025); }.debug-status small { color:#71847d; font-size:8px; letter-spacing:.12em; }.debug-status strong { overflow:hidden; color:#eddaa8; font-size:13px; text-overflow:ellipsis; white-space:nowrap; }
 .debug-action-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }.debug-action-button { min-height:42px; padding:9px 10px; border:1px solid rgba(87,214,176,.28); border-radius:7px; color:#d8e6da; background:rgba(87,214,176,.06); cursor:pointer; font-size:11px; font-weight:700; }.debug-action-button:hover:not(:disabled) { border-color:var(--jade); background:rgba(87,214,176,.12); }.debug-action-button.debug-danger { color:#ffd1c7; border-color:rgba(234,98,85,.42); background:rgba(134,43,31,.18); }.debug-action-button.debug-danger:hover:not(:disabled) { border-color:#ff806c; background:rgba(134,43,31,.3); }.debug-action-button:disabled { opacity:.38; cursor:not-allowed; }.debug-message { min-height:18px; margin:13px 0 14px; color:#9cafA7; font-size:10px; line-height:1.5; }.debug-card > .primary-button { margin-top:0; }
-.reading-options { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin:0 0 20px; }.reading-option { display:flex; align-items:center; gap:11px; min-height:102px; padding:10px; border:1px solid var(--line); border-radius:8px; color:#dcd3bd; background:rgba(255,255,255,.025); text-align:left; cursor:pointer; transition:.18s; }.reading-option:hover,.reading-option.selected { border-color:rgba(230,184,92,.72); background:rgba(230,184,92,.09); box-shadow:0 0 18px rgba(230,184,92,.09); }.reading-option > span:last-child { display:grid; gap:4px; }.reading-option strong { font-size:12px; }.reading-option em { color:#81938b; font-size:8px; font-style:normal; line-height:1.4; }.reading-preview { display:grid; place-items:center; flex:none; width:68px; height:78px; padding:5px; border:1px solid rgba(230,184,92,.3); border-radius:6px; background:linear-gradient(145deg,#5d866f,#183b31); color:#fff1c2; }.reading-preview b { font:700 30px/1 "Gowun Batang",serif; }.reading-preview small { display:block; color:#d7eadb; font-size:8px; line-height:1; }.reading-preview-compact { align-content:center; }.reading-preview-compact small { justify-self:end; width:100%; text-align:right; }.reading-preview-large { grid-template-rows:1fr auto; }.reading-preview-large b { align-self:end; }.reading-preview-large small { align-self:start; margin-top:5px; font-size:12px; color:#f7e2aa; }
+.reading-options { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin:0 0 20px; }.reading-option { display:flex; align-items:center; gap:11px; min-height:102px; padding:10px; border:1px solid var(--line); border-radius:8px; color:#dcd3bd; background:rgba(255,255,255,.025); text-align:left; cursor:pointer; transition:.18s; }.reading-option:hover,.reading-option.selected { border-color:rgba(230,184,92,.72); background:rgba(230,184,92,.09); box-shadow:0 0 18px rgba(230,184,92,.09); }.reading-option > span:last-child { display:grid; gap:4px; }.reading-option strong { font-size:12px; }.reading-option em { color:#81938b; font-size:8px; font-style:normal; line-height:1.4; }.reading-preview { display:grid; place-items:center; flex:none; width:68px; height:78px; padding:5px; border:1px solid rgba(230,184,92,.3); border-radius:6px; background:linear-gradient(145deg,#5d866f,#183b31); color:#fff1c2; }.reading-preview b { font:700 30px/1 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }.reading-preview small { display:block; color:#d7eadb; font-size:8px; line-height:1; }.reading-preview-compact { align-content:center; }.reading-preview-compact small { justify-self:end; width:100%; text-align:right; }.reading-preview-large { grid-template-rows:1fr auto; }.reading-preview-large b { align-self:end; }.reading-preview-large small { align-self:start; margin-top:5px; font-size:12px; color:#f7e2aa; }
 .idiom-speed-setting { display:grid; grid-template-columns:minmax(140px,.85fr) 1.15fr; align-items:center; gap:12px; margin:-4px 0 18px; padding:12px; border:1px solid var(--line); border-radius:8px; background:rgba(255,255,255,.02); text-align:left; }.setting-copy { display:grid; gap:3px; }.setting-copy strong { color:#eadbb8; font-size:12px; }.setting-copy small { color:#7f938a; font-size:8px; line-height:1.45; }.idiom-speed-options { display:grid; grid-template-columns:repeat(2,1fr); gap:6px; }.idiom-speed-option { display:grid; gap:2px; min-height:48px; padding:7px 9px; border:1px solid var(--line); border-radius:7px; color:#cfc6af; background:rgba(255,255,255,.025); cursor:pointer; }.idiom-speed-option b { font-size:11px; }.idiom-speed-option small { color:#71877e; font-size:7px; }.idiom-speed-option:hover,.idiom-speed-option.selected { border-color:rgba(87,214,176,.62); color:#ecf9ef; background:rgba(87,214,176,.09); box-shadow:0 0 15px rgba(87,214,176,.08); }
 .modal-card { width:min(560px,100%); padding:35px; border:1px solid rgba(228,194,112,.3); border-radius:16px; background:radial-gradient(circle at 50% 0,rgba(66,109,91,.34),transparent 45%),#111c1a; box-shadow:0 30px 100px #000; text-align:center; }
-.intro-card h2,.result-card h2,.revive-card h2 { font:700 clamp(29px,5vw,44px)/1.2 "Gowun Batang",serif; margin:10px 0 14px; }.intro-card h2 span { color:var(--gold); }.intro-copy { color:#9cafA7;font-size:13px;line-height:1.8;max-width:470px;margin:0 auto 22px; }
+.intro-card h2,.result-card h2,.revive-card h2 { font:700 clamp(29px,5vw,44px)/1.2 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; margin:10px 0 14px; }.intro-card h2 span { color:var(--gold); }.intro-copy { color:#9cafA7;font-size:13px;line-height:1.8;max-width:470px;margin:0 auto 22px; }
 .intro-card { width:min(720px,100%); max-height:calc(100dvh - 28px); overflow:auto; scrollbar-width:thin; scrollbar-color:#d2a84f rgba(255,255,255,.05); }
 .story-chapter-select { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; margin:0 0 15px; }
 .story-chapter-button { display:grid; grid-template-columns:29px minmax(0,1fr); align-items:center; gap:7px; min-width:0; min-height:50px; padding:7px 8px; border:1px solid rgba(230,184,92,.2); border-radius:8px; color:#b9c8c0; background:rgba(255,255,255,.025); text-align:left; cursor:pointer; transition:border-color .18s,background .18s,transform .18s; }
-.story-chapter-button > b { display:grid; place-items:center; width:27px; height:27px; border:1px solid rgba(230,184,92,.3); border-radius:50%; color:#e7c66f; font:700 12px/1 "Gowun Batang",serif; }
+.story-chapter-button > b { display:grid; place-items:center; width:27px; height:27px; border:1px solid rgba(230,184,92,.3); border-radius:50%; color:#e7c66f; font:700 12px/1 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
 .story-chapter-button > span { display:grid; min-width:0; gap:2px; }.story-chapter-button strong { overflow:hidden; color:#ded5bf; font-size:10px; text-overflow:ellipsis; white-space:nowrap; }.story-chapter-button small { color:#72867d; font-size:7px; }
 .story-chapter-button:hover:not(:disabled) { transform:translateY(-1px); border-color:rgba(87,214,176,.48); background:rgba(87,214,176,.055); }.story-chapter-button.selected { border-color:rgba(230,184,92,.78); background:linear-gradient(145deg,rgba(230,184,92,.15),rgba(35,73,60,.18)); box-shadow:0 0 16px rgba(230,184,92,.08); }.story-chapter-button.complete small { color:#74c8a5; }.story-chapter-button:disabled { opacity:.36; cursor:not-allowed; }
 #intro-modal.help-context .story-chapter-select,#intro-modal.help-context #start-button,#intro-modal.help-context #puzzle-intro-menu { display:none; }
@@ -437,7 +437,7 @@ body.pang-mode.reading-large .tile-reading { left:auto; right:auto; bottom:auto;
 .alchemy-overlay { position:fixed; inset:0; z-index:45; display:flex; flex-direction:column; align-items:center; justify-content:center; pointer-events:none; background:radial-gradient(circle,rgba(25,65,53,.83),rgba(2,8,7,.78) 48%,transparent 72%); opacity:0; visibility:hidden; }
 .alchemy-overlay.show { visibility:visible; animation:alchemyScene var(--alchemy-duration,1.55s) ease; }
 .seal-ring { position:absolute; width:330px;height:330px;border:1px solid rgba(229,187,87,.42);border-radius:50%;box-shadow:0 0 35px rgba(229,187,87,.1),inset 0 0 35px rgba(229,187,87,.08); }.seal-ring::before,.seal-ring::after { content:"";position:absolute;inset:18px;border:1px dashed rgba(229,187,87,.28);border-radius:50%; }.seal-ring::after { inset:50px; border-style:solid; }
-.alchemy-glyphs { position:relative;z-index:2;display:flex;gap:8px; }.alchemy-glyphs span { display:grid;place-items:center;width:62px;height:72px;font:700 42px "Gowun Batang",serif;color:#fff2c5;border:1px solid #d9ad53;background:rgba(18,38,32,.92);box-shadow:0 0 20px rgba(231,181,75,.3);animation:glyphRise .55s ease both; }.alchemy-overlay h2 { position:relative;z-index:2;font:700 24px "Gowun Batang",serif;color:var(--gold);letter-spacing:.25em;margin:17px 0 2px; }.alchemy-overlay p { position:relative;z-index:2;color:#d8cfb8;margin:0;font-size:12px; }.alchemy-overlay > strong { position:relative;z-index:2;color:var(--jade);font-size:13px;margin-top:12px; }
+.alchemy-glyphs { position:relative;z-index:2;display:flex;gap:8px; }.alchemy-glyphs span { display:grid;place-items:center;width:62px;height:72px;font:700 42px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif;color:#fff2c5;border:1px solid #d9ad53;background:rgba(18,38,32,.92);box-shadow:0 0 20px rgba(231,181,75,.3);animation:glyphRise .55s ease both; }.alchemy-overlay h2 { position:relative;z-index:2;font:700 24px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif;color:var(--gold);letter-spacing:.25em;margin:17px 0 2px; }.alchemy-overlay p { position:relative;z-index:2;color:#d8cfb8;margin:0;font-size:12px; }.alchemy-overlay > strong { position:relative;z-index:2;color:var(--jade);font-size:13px;margin-top:12px; }
 .cursor-timer { --progress:360deg; position:fixed; z-index:49; left:0; top:0; width:50px; height:50px; display:grid; grid-template-columns:auto auto; place-content:center; align-items:baseline; gap:1px; border-radius:50%; color:#f9edc9; background:conic-gradient(from -90deg,var(--jade) var(--progress),rgba(14,27,24,.76) 0); box-shadow:0 4px 16px rgba(0,0,0,.45),0 0 0 2px rgba(232,218,179,.2); opacity:0; visibility:hidden; pointer-events:none; transform:translate(-50%,-140%) scale(.75); transition:opacity .12s,transform .12s,visibility .12s; }
 .cursor-timer::before { content:""; position:absolute; inset:5px; border-radius:50%; background:rgba(9,19,17,.94); box-shadow:inset 0 0 8px rgba(0,0,0,.65); }
 .cursor-timer strong,.cursor-timer small { position:relative; z-index:1; }.cursor-timer strong { font-size:14px; font-variant-numeric:tabular-nums; }.cursor-timer small { color:#9fb1aa; font-size:7px; }
@@ -445,15 +445,15 @@ body.pang-mode.reading-large .tile-reading { left:auto; right:auto; bottom:auto;
 .drag-ghost { position:fixed; z-index:48; left:0; top:0; display:grid; grid-template-rows:1fr auto; place-items:center; border:1px solid rgba(255,255,255,.58); border-radius:10px; color:#fff3ca; pointer-events:none; opacity:0; visibility:hidden; transform:translate(-50%,-50%) scale(.9); text-shadow:0 2px 2px rgba(0,0,0,.55); box-shadow:inset 0 1px 1px rgba(255,255,255,.25),inset 0 -5px 12px rgba(0,0,0,.3),0 6px 16px rgba(0,0,0,.45),0 0 0 2px rgba(244,223,157,.46); transition:opacity .12s,transform .12s,visibility .12s; overflow:hidden; will-change:left,top,transform; }
 .drag-ghost.show { opacity:.86; visibility:visible; transform:translate(-50%,-50%) scale(1); }
 .drag-ghost::before { content:""; position:absolute; inset:5px; border:1px solid rgba(255,255,255,.18); border-radius:7px; }
-.drag-ghost .hanja { position:relative; z-index:1; align-self:end; font:700 clamp(20px,2.2vw,31px) "Gowun Batang",serif; line-height:1; }
+.drag-ghost .hanja { position:relative; z-index:1; align-self:end; font:700 clamp(20px,2.2vw,31px) "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; line-height:1; }
 .drag-ghost .tile-reading { position:relative; z-index:1; width:calc(100% - 8px); margin:0 4px 4px; color:rgba(255,248,229,.9); font-size:clamp(5px,.5vw,8px); font-weight:600; letter-spacing:-.04em; line-height:1; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .drag-ghost.wood { background:radial-gradient(circle at 35% 25%,#55b87e,#1d6344 63%,#133b2c); }.drag-ghost.fire { background:radial-gradient(circle at 35% 25%,#ec7058,#8f2c24 63%,#591e1b); }.drag-ghost.earth { background:radial-gradient(circle at 35% 25%,#dcb35e,#77541f 63%,#483516); }.drag-ghost.metal { background:radial-gradient(circle at 35% 25%,#d0dce3,#5b6d78 63%,#30414a); }.drag-ghost.water { background:radial-gradient(circle at 35% 25%,#5ba1df,#255588 63%,#183957); }
 .revive-card p:not(.eyebrow) { color:#92a69e;font-size:12px; }
 .revive-reading-guide { display:grid; grid-template-columns:58px repeat(2,minmax(0,1fr)); gap:6px; align-items:stretch; width:min(390px,100%); margin:12px auto 0; text-align:left; }
 .revive-reading-guide > span { display:grid; align-content:center; gap:2px; min-width:0; padding:7px 9px; border:1px solid rgba(230,184,92,.22); border-radius:7px; background:rgba(230,184,92,.055); }
 .revive-reading-guide small { color:#81968e; font-size:8px; font-weight:700; letter-spacing:.08em; }
-.revive-reading-guide b { color:#f7e6b2; font:700 16px/1.15 "Gowun Batang",serif; overflow-wrap:anywhere; }
-.revive-study-char { display:grid; place-items:center; grid-row:span 2; border:1px solid rgba(230,184,92,.42); border-radius:8px; background:linear-gradient(145deg,rgba(230,184,92,.2),rgba(25,55,46,.92)); color:#ffe5a0; font:700 34px/1 "Gowun Batang",serif; text-align:center; }
+.revive-reading-guide b { color:#f7e6b2; font:700 16px/1.15 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; overflow-wrap:anywhere; }
+.revive-study-char { display:grid; place-items:center; grid-row:span 2; border:1px solid rgba(230,184,92,.42); border-radius:8px; background:linear-gradient(145deg,rgba(230,184,92,.2),rgba(25,55,46,.92)); color:#ffe5a0; font:700 34px/1 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; text-align:center; }
 .revive-reading-guide .revive-hun-eum { grid-column:2 / -1; padding-block:6px; }
 .revive-reading-guide .revive-hun-eum b { font-size:13px; }
 .trace-stage { position:relative; width:min(360px,100%); aspect-ratio:720 / 460; margin:16px auto 13px; overflow:hidden; border:1px solid rgba(56,76,68,.22); border-radius:9px; background:linear-gradient(135deg,rgba(250,245,226,.96),rgba(217,205,174,.96)); box-shadow:inset 0 0 35px rgba(71,55,26,.08); }
@@ -467,10 +467,10 @@ body.pang-mode.reading-large .tile-reading { left:auto; right:auto; bottom:auto;
 .primary-button[hidden] { display:none!important; }
 .result-card p:not(.eyebrow) { color:#91a49d;font-size:12px; }.result-stats { display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px;margin:22px 0; }.result-stats div { border:1px solid var(--line);border-radius:7px;padding:12px; }.result-stats small{display:block;color:#71847d;font-size:9px}.result-stats strong{font-size:24px;color:var(--gold)}
 .story-result-card { align-items:center; justify-content:center; text-align:center; background:linear-gradient(180deg,rgba(7,17,15,.22),rgba(5,13,12,.88) 65%),url("assets/backgrounds/victory-scroll.png") center/cover no-repeat; }
-.story-result-seal { display:grid; place-items:center; width:110px; height:110px; margin:6px auto 12px; border:5px double rgba(230,184,92,.75); border-radius:50%; color:#ffe29a; background:radial-gradient(circle,rgba(56,112,81,.92),rgba(9,28,22,.96)); box-shadow:0 0 42px rgba(230,184,92,.22); font:700 58px/1 "Gowun Batang",serif; }
+.story-result-seal { display:grid; place-items:center; width:110px; height:110px; margin:6px auto 12px; border:5px double rgba(230,184,92,.75); border-radius:50%; color:#ffe29a; background:radial-gradient(circle,rgba(56,112,81,.92),rgba(9,28,22,.96)); box-shadow:0 0 42px rgba(230,184,92,.22); font:700 58px/1 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
 .story-lesson-recap { width:min(520px,100%); display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin:18px auto 24px; }
 .story-lesson-recap span { display:grid; gap:5px; padding:10px 6px; border:1px solid rgba(230,184,92,.3); border-radius:8px; color:#dce7df; background:rgba(5,18,15,.8); font-size:9px; }
-.story-lesson-recap b { color:#f0ca70; font:700 20px/1 "Gowun Batang",serif; }
+.story-lesson-recap b { color:#f0ca70; font:700 20px/1 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
 
 @keyframes enemyFloat{50%{transform:translateY(-6px)}}
 @keyframes enemyHit{25%{transform:translateX(-9px);filter:brightness(2)}70%{transform:translateX(6px)}}
@@ -652,7 +652,7 @@ body.pang-mode.reading-large .tile-reading { left:auto; right:auto; bottom:auto;
 .volume-picker { display:grid; gap:9px; margin:14px 0 18px; padding:12px; border:1px solid rgba(230,184,92,.25); border-radius:12px; background:rgba(230,184,92,.055); text-align:left; }
 .volume-picker > div:first-child { display:flex; align-items:baseline; gap:9px; }
 .volume-picker small { color:#8b9f96; font-size:7px; letter-spacing:.12em; }
-.volume-picker strong { color:#ead9aa; font:700 13px "Gowun Batang",serif; }
+.volume-picker strong { color:#ead9aa; font:700 13px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
 .volume-picker span { margin-left:auto; color:#a9b9b0; font-size:9px; }
 .volume-options { display:grid; grid-template-columns:repeat(10,minmax(0,1fr)); gap:4px; }
 .volume-option { display:grid; place-items:center; gap:2px; min-width:0; padding:7px 2px; border:1px solid rgba(151,178,164,.18); border-radius:7px; color:#8ea298; background:rgba(5,13,12,.3); cursor:pointer; }
@@ -685,7 +685,7 @@ body.pang-mode.reading-large .tile-reading { left:auto; right:auto; bottom:auto;
 .route-modal,.node-modal,.codex-modal { z-index:82; }
 .route-card { width:min(940px,100%); padding:25px; overflow:hidden; text-align:left; background:radial-gradient(circle at 78% 14%,rgba(202,151,73,.24),transparent 34%),linear-gradient(145deg,#152a23,#0d1715 70%); }
 .route-heading,.codex-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:18px; }
-.route-heading h2,.codex-heading h2 { margin:5px 0 5px; color:#f3e3bd; font:700 clamp(25px,3vw,38px)/1.15 "Gowun Batang",serif; }
+.route-heading h2,.codex-heading h2 { margin:5px 0 5px; color:#f3e3bd; font:700 clamp(25px,3vw,38px)/1.15 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
 .route-heading .intro-copy { margin:0; text-align:left; }
 .route-seed { flex:none; display:grid; gap:4px; padding:8px 10px; border:1px solid rgba(230,184,92,.25); border-radius:8px; text-align:right; }
 .route-seed small { color:#82968e; font-size:7px; letter-spacing:.14em; }.route-seed button { max-width:170px; overflow:hidden; border:0; color:#e8d5a1; background:transparent; font:700 9px monospace; text-overflow:ellipsis; cursor:pointer; }
@@ -697,17 +697,17 @@ body.pang-mode.reading-large .tile-reading { left:auto; right:auto; bottom:auto;
 .route-choice:hover,.route-choice:focus-visible { transform:translateY(-5px); border-color:#e6bd62; outline:none; box-shadow:inset 0 0 0 4px rgba(230,184,92,.08),0 17px 35px rgba(0,0,0,.35); }
 .route-choice.type-elite,.route-choice.type-boss { --route-glow:#ef7259; }.route-choice.type-shop { --route-glow:#e6b85c; }.route-choice.type-rest { --route-glow:#62b6ef; }
 .route-node-icon { position:relative; z-index:1; display:grid; place-items:center; width:54px; height:54px; border:2px solid rgba(248,230,180,.3); border-radius:50% 45% 48% 50%; color:#fff0c1; background:#24453a; font-size:25px; box-shadow:inset 0 0 12px rgba(0,0,0,.35); }
-.route-node-copy { position:relative; z-index:1; display:grid; gap:4px; }.route-node-copy em { color:#b3a078; font-size:7px; font-style:normal; letter-spacing:.1em; }.route-node-copy strong { color:#f8e8be; font:700 20px "Gowun Batang",serif; }.route-node-copy small { color:#9cafA7; font-size:9px; line-height:1.5; }.route-choice > b { position:relative; z-index:1; align-self:end; color:#dec785; font-size:9px; }
+.route-node-copy { position:relative; z-index:1; display:grid; gap:4px; }.route-node-copy em { color:#b3a078; font-size:7px; font-style:normal; letter-spacing:.1em; }.route-node-copy strong { color:#f8e8be; font:700 20px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }.route-node-copy small { color:#9cafA7; font-size:9px; line-height:1.5; }.route-choice > b { position:relative; z-index:1; align-self:end; color:#dec785; font-size:9px; }
 .route-build-bar { display:flex; gap:8px; margin-top:12px; }.route-build-bar span { flex:1; padding:8px; border:1px solid var(--line); border-radius:8px; color:#9db1a8; background:rgba(0,0,0,.15); font-size:9px; text-align:center; }
 .node-card { width:min(650px,100%); min-height:430px; display:flex; flex-direction:column; align-items:center; justify-content:center; background:radial-gradient(circle at 50% 25%,rgba(230,184,92,.16),transparent 34%),#101c19; }
-.node-glyph { display:grid; place-items:center; width:86px; height:86px; margin:8px auto 13px; border:2px solid rgba(230,184,92,.5); border-radius:50% 44% 49% 47%; color:#f8dda1; background:#213b32; font:700 38px "Gowun Batang",serif; box-shadow:0 12px 22px rgba(0,0,0,.32),inset 0 0 18px rgba(0,0,0,.35); }
-.node-card h2 { margin:0 0 8px; color:#f4e4bb; font:700 30px "Gowun Batang",serif; }.node-choices { display:grid; gap:8px; width:min(520px,100%); }.node-choices button { display:flex; justify-content:space-between; gap:14px; padding:12px 14px; border:1px solid rgba(230,184,92,.28); border-radius:10px; color:#dce6df; background:rgba(230,184,92,.06); text-align:left; cursor:pointer; }.node-choices button:hover:not(:disabled) { border-color:#e6b85c; background:rgba(230,184,92,.13); }.node-choices button:disabled { opacity:.35; }.node-choices b { color:#e7cc87; font-size:9px; white-space:nowrap; }
+.node-glyph { display:grid; place-items:center; width:86px; height:86px; margin:8px auto 13px; border:2px solid rgba(230,184,92,.5); border-radius:50% 44% 49% 47%; color:#f8dda1; background:#213b32; font:700 38px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; box-shadow:0 12px 22px rgba(0,0,0,.32),inset 0 0 18px rgba(0,0,0,.35); }
+.node-card h2 { margin:0 0 8px; color:#f4e4bb; font:700 30px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }.node-choices { display:grid; gap:8px; width:min(520px,100%); }.node-choices button { display:flex; justify-content:space-between; gap:14px; padding:12px 14px; border:1px solid rgba(230,184,92,.28); border-radius:10px; color:#dce6df; background:rgba(230,184,92,.06); text-align:left; cursor:pointer; }.node-choices button:hover:not(:disabled) { border-color:#e6b85c; background:rgba(230,184,92,.13); }.node-choices button:disabled { opacity:.35; }.node-choices b { color:#e7cc87; font-size:9px; white-space:nowrap; }
 
 .codex-card { width:min(1080px,100%); height:min(760px,calc(100dvh - 36px)); display:flex; flex-direction:column; padding:24px; text-align:left; }
 .codex-controls { display:grid; grid-template-columns:auto minmax(170px,1fr) 180px; gap:10px; align-items:center; margin:15px 0 10px; }.codex-tabs { display:flex; gap:5px; }.codex-tabs button { padding:8px 11px; border:1px solid var(--line); border-radius:8px; color:#8ea298; background:rgba(255,255,255,.025); cursor:pointer; }.codex-tabs button.active { color:#f6dfa9; border-color:rgba(230,184,92,.6); background:rgba(230,184,92,.1); }.codex-controls input,.codex-controls select { width:100%; padding:9px 10px; border:1px solid var(--line); border-radius:8px; color:#dce8df; background:#10201c; }
 .codex-stats { margin-bottom:8px; color:#81978d; font-size:9px; }.codex-grid { flex:1; min-height:0; display:grid; gap:7px; overflow:auto; padding-right:4px; scrollbar-color:#806b3d transparent; }.character-grid { grid-template-columns:repeat(auto-fill,minmax(88px,1fr)); }.idiom-grid { grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); }.jaryeong-grid { grid-template-columns:repeat(auto-fill,minmax(145px,1fr)); }
-.codex-grid article { min-width:0; padding:10px; border:1px solid var(--line); border-radius:10px; background:rgba(255,255,255,.025); }.codex-character { display:grid; place-items:center; gap:3px; text-align:center; }.codex-character > span { color:#f1ddaa; font:700 31px "Gowun Batang",serif; }.codex-character strong { color:#c8d7cf; font-size:10px; }.codex-grid small { color:#738a80; font-size:7px; }.codex-grid .unknown { filter:saturate(.35); opacity:.58; }.codex-grid .mastered { border-color:rgba(230,184,92,.55); box-shadow:inset 0 0 14px rgba(230,184,92,.07); }
-.codex-idiom div { display:grid; grid-template-columns:repeat(4,1fr); gap:3px; margin-bottom:7px; }.codex-idiom b { display:grid; place-items:center; aspect-ratio:1; border:1px solid rgba(230,184,92,.25); border-radius:5px; color:#ffe8ad; font:700 18px "Gowun Batang",serif; }.codex-idiom strong,.codex-jaryeong strong { color:#e9d9b0; font:700 15px "Gowun Batang",serif; }.codex-idiom p,.codex-jaryeong p { margin:4px 0 7px; color:#92a69d; font-size:8px; }
+.codex-grid article { min-width:0; padding:10px; border:1px solid var(--line); border-radius:10px; background:rgba(255,255,255,.025); }.codex-character { display:grid; place-items:center; gap:3px; text-align:center; }.codex-character > span { color:#f1ddaa; font:700 31px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }.codex-character strong { color:#c8d7cf; font-size:10px; }.codex-grid small { color:#738a80; font-size:7px; }.codex-grid .unknown { filter:saturate(.35); opacity:.58; }.codex-grid .mastered { border-color:rgba(230,184,92,.55); box-shadow:inset 0 0 14px rgba(230,184,92,.07); }
+.codex-idiom div { display:grid; grid-template-columns:repeat(4,1fr); gap:3px; margin-bottom:7px; }.codex-idiom b { display:grid; place-items:center; aspect-ratio:1; border:1px solid rgba(230,184,92,.25); border-radius:5px; color:#ffe8ad; font:700 18px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }.codex-idiom strong,.codex-jaryeong strong { color:#e9d9b0; font:700 15px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }.codex-idiom p,.codex-jaryeong p { margin:4px 0 7px; color:#92a69d; font-size:8px; }
 .codex-jaryeong-art { position:relative; width:110px; height:110px; margin:0 auto 7px; }.codex-jaryeong-art .sprite-body { width:100%; height:100%; object-fit:contain; }
 
 body.roguelike-mode .alchemy-overlay { inset:125px 20px auto auto; width:min(310px,calc(100vw - 40px)); height:auto; min-height:145px; padding:16px; border:2px solid rgba(230,184,92,.6); border-radius:18px; background:linear-gradient(145deg,rgba(33,59,50,.97),rgba(8,18,16,.98)); box-shadow:0 18px 50px rgba(0,0,0,.55); }
@@ -896,44 +896,44 @@ body.roguelike-mode .alchemy-overlay p,body.roguelike-mode .alchemy-overlay > st
 
 /* Approved non-combat scene board: shrine menu, prepared party, results, and Jaryeong meta hall. */
 .shrine-menu-content { width:min(1120px,100%); min-height:min(900px,calc(100dvh - 30px)); display:grid; grid-template-rows:auto 1fr auto auto auto; place-items:center; align-content:center; gap:10px; }
-.menu-plaque { min-width:330px; padding:10px 42px 12px; border:2px solid #6f5425; outline:1px solid rgba(255,220,127,.38); border-radius:8px 8px 20px 20px; color:#f3cf78; background:linear-gradient(180deg,#172b27,#071311); box-shadow:inset 0 0 22px rgba(0,0,0,.55),0 8px 20px rgba(0,0,0,.38); font:700 28px "Gowun Batang",serif; letter-spacing:.16em; }
+.menu-plaque { min-width:330px; padding:10px 42px 12px; border:2px solid #6f5425; outline:1px solid rgba(255,220,127,.38); border-radius:8px 8px 20px 20px; color:#f3cf78; background:linear-gradient(180deg,#172b27,#071311); box-shadow:inset 0 0 22px rgba(0,0,0,.55),0 8px 20px rgba(0,0,0,.38); font:700 28px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; letter-spacing:.16em; }
 .menu-logo-seal { position:relative; display:grid; place-items:center; align-content:center; width:290px; height:290px; margin:-2px 0 -86px; border:8px double #9a7130; border-radius:50%; color:#f8e4ad; background:radial-gradient(circle at 50% 40%,#253a30 0 34%,#0c1815 68%,#050c0b 100%); box-shadow:0 18px 40px rgba(0,0,0,.52),inset 0 0 35px rgba(0,0,0,.65),0 0 0 3px #24180c; transform:translateY(-14px); }
 .menu-logo-seal::after { content:""; position:absolute; inset:15px; border:1px solid rgba(242,198,99,.35); border-radius:50%; }
-.menu-logo-seal .eyebrow { color:#a98d59; font-size:8px; }.menu-logo-seal h2 { margin:4px 0; font:700 58px/.92 "Gowun Batang",serif; letter-spacing:.02em; text-shadow:0 3px 0 #3a250e; }.menu-logo-seal h2 span { display:block; color:#f5ce72; }.menu-logo-seal small { color:#9eb1a7; font-size:10px; letter-spacing:.12em; }
+.menu-logo-seal .eyebrow { color:#a98d59; font-size:8px; }.menu-logo-seal h2 { margin:4px 0; font:700 58px/.92 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; letter-spacing:.02em; text-shadow:0 3px 0 #3a250e; }.menu-logo-seal h2 span { display:block; color:#f5ce72; }.menu-logo-seal small { color:#9eb1a7; font-size:10px; letter-spacing:.12em; }
 .shrine-menu-content .menu-spirit-parade { position:relative; z-index:2; height:108px; margin:0; transform:translateY(4px); }
 .menu-shrine-actions { width:min(720px,100%); display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
 .menu-shrine-button { display:grid; grid-template-columns:42px 1fr; grid-template-rows:auto auto; align-items:center; gap:1px 10px; min-height:72px; padding:10px 14px; border:3px double #725927; border-radius:8px 8px 14px 14px; color:#e8dcbd; background:linear-gradient(150deg,rgba(28,48,41,.96),rgba(7,16,14,.97)); box-shadow:0 8px 18px rgba(0,0,0,.42),inset 0 0 18px rgba(230,184,92,.04); cursor:pointer; transition:.18s; }
-.menu-shrine-button:hover,.menu-shrine-button:focus-visible { transform:translateY(-3px); border-color:#c99b43; outline:none; box-shadow:0 11px 24px rgba(0,0,0,.48),0 0 18px rgba(230,184,92,.14); }.menu-shrine-button>span { grid-row:1/3; display:grid; place-items:center; width:42px; height:42px; border:1px solid rgba(230,184,92,.45); border-radius:50%; color:#f0ca70; background:#152820; font:700 23px "Gowun Batang",serif; }.menu-shrine-button strong { align-self:end; font:700 17px "Gowun Batang",serif; }.menu-shrine-button small { align-self:start; color:#82968c; font-size:8px; }
-.menu-journey-button { width:min(620px,100%); min-height:92px; display:grid; grid-template-columns:70px 1fr 34px; align-items:center; gap:10px; padding:10px 24px; border:5px double #b28535; clip-path:polygon(5% 0,95% 0,100% 50%,95% 100%,5% 100%,0 50%); color:#f7e2ab; background:linear-gradient(180deg,#24543f,#0b211a); box-shadow:0 12px 28px rgba(0,0,0,.48),inset 0 0 24px rgba(230,184,92,.14); cursor:pointer; }.menu-journey-button:hover,.menu-journey-button:focus-visible { filter:brightness(1.12); outline:none; }.menu-journey-button .mode-glyph { position:static; display:grid; place-items:center; font-size:42px; color:#e8bf61; }.menu-journey-button>span:nth-child(2) { display:grid; gap:2px; text-align:left; }.menu-journey-button small { color:#87ab9b; font-size:8px; letter-spacing:.14em; }.menu-journey-button strong { font:700 26px "Gowun Batang",serif; }.menu-journey-button em { color:#9bb0a7; font-size:9px; font-style:normal; }.menu-journey-button>b { color:#f2cf75; font-size:28px; }
+.menu-shrine-button:hover,.menu-shrine-button:focus-visible { transform:translateY(-3px); border-color:#c99b43; outline:none; box-shadow:0 11px 24px rgba(0,0,0,.48),0 0 18px rgba(230,184,92,.14); }.menu-shrine-button>span { grid-row:1/3; display:grid; place-items:center; width:42px; height:42px; border:1px solid rgba(230,184,92,.45); border-radius:50%; color:#f0ca70; background:#152820; font:700 23px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }.menu-shrine-button strong { align-self:end; font:700 17px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }.menu-shrine-button small { align-self:start; color:#82968c; font-size:8px; }
+.menu-journey-button { width:min(620px,100%); min-height:92px; display:grid; grid-template-columns:70px 1fr 34px; align-items:center; gap:10px; padding:10px 24px; border:5px double #b28535; clip-path:polygon(5% 0,95% 0,100% 50%,95% 100%,5% 100%,0 50%); color:#f7e2ab; background:linear-gradient(180deg,#24543f,#0b211a); box-shadow:0 12px 28px rgba(0,0,0,.48),inset 0 0 24px rgba(230,184,92,.14); cursor:pointer; }.menu-journey-button:hover,.menu-journey-button:focus-visible { filter:brightness(1.12); outline:none; }.menu-journey-button .mode-glyph { position:static; display:grid; place-items:center; font-size:42px; color:#e8bf61; }.menu-journey-button>span:nth-child(2) { display:grid; gap:2px; text-align:left; }.menu-journey-button small { color:#87ab9b; font-size:8px; letter-spacing:.14em; }.menu-journey-button strong { font:700 26px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }.menu-journey-button em { color:#9bb0a7; font-size:9px; font-style:normal; }.menu-journey-button>b { color:#f2cf75; font-size:28px; }
 .shrine-menu-content .menu-foot { margin:0; }
 
 .roguelike-intro-card { width:min(900px,calc(100vw - 28px)); background:linear-gradient(180deg,rgba(9,24,21,.88),rgba(5,13,12,.96)),url("assets/backgrounds/menu-sanctuary.png") center/cover no-repeat; border:3px double rgba(230,184,92,.48); }
 .story-graduation-banner { display:grid; gap:2px; margin:0 0 10px; padding:8px 10px; border:1px solid rgba(230,184,92,.48); border-radius:10px; color:#dce9df; background:linear-gradient(105deg,rgba(230,184,92,.14),rgba(87,214,176,.08)); text-align:left; }
 .story-graduation-banner[hidden] { display:none!important; }
 .story-graduation-banner p { margin:0; color:#f0cb78; font-size:8px; font-weight:800; letter-spacing:.12em; }
-.story-graduation-banner strong { color:#f5e8c6; font:700 14px/1.25 "Gowun Batang",serif; }
+.story-graduation-banner strong { color:#f5e8c6; font:700 14px/1.25 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
 .story-graduation-banner span { color:#a9c5b7; font-size:8px; line-height:1.45; }
-.roguelike-prep-party { margin:12px 0; padding:10px; border:1px solid rgba(230,184,92,.3); border-radius:14px; background:rgba(3,12,11,.72); }.roguelike-prep-party>div:first-child { display:flex; align-items:center; gap:10px; margin-bottom:7px; text-align:left; }.roguelike-prep-party small { color:#789388; font-size:7px; letter-spacing:.12em; }.roguelike-prep-party strong { color:#ead7a6; font:700 14px "Gowun Batang",serif; }.roguelike-prep-party .text-button { margin-left:auto; }
+.roguelike-prep-party { margin:12px 0; padding:10px; border:1px solid rgba(230,184,92,.3); border-radius:14px; background:rgba(3,12,11,.72); }.roguelike-prep-party>div:first-child { display:flex; align-items:center; gap:10px; margin-bottom:7px; text-align:left; }.roguelike-prep-party small { color:#789388; font-size:7px; letter-spacing:.12em; }.roguelike-prep-party strong { color:#ead7a6; font:700 14px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }.roguelike-prep-party .text-button { margin-left:auto; }
 .roguelike-prep-party .roguelike-build-note { display:block; margin-top:6px; color:#a9c8b9; font-size:8px; line-height:1.45; letter-spacing:0; text-align:center; }
 .meta-prep-party { display:grid; grid-template-columns:repeat(5,1fr); gap:7px; }.meta-prep-slot { position:relative; min-height:104px; padding:5px; overflow:hidden; border:2px double rgba(230,184,92,.3); border-radius:22px 22px 8px 8px; background:linear-gradient(180deg,rgba(40,65,55,.7),rgba(6,16,14,.9)); }.meta-prep-slot>small { position:absolute; z-index:2; left:5px; top:4px; padding:2px 5px; border-radius:999px; color:#f3cf78; background:rgba(6,14,12,.85); }.meta-prep-slot>div { position:relative; width:76px; height:76px; margin:0 auto; }.meta-prep-slot .sprite-body,.meta-prep-slot .tamed-talisman { position:absolute; }.meta-prep-slot .sprite-body { width:100%; height:100%; object-fit:contain; }.meta-prep-slot>strong { display:block; margin-top:-4px; color:#dce6de; font-size:9px; }
 
 .jaryeong-meta-modal { z-index:88; padding:10px; background:rgba(1,7,7,.82); }.jaryeong-meta-card { width:min(1480px,calc(100vw - 20px)); height:min(920px,calc(100dvh - 20px)); display:grid; grid-template-rows:auto auto minmax(0,1fr); gap:10px; padding:18px 22px; overflow:hidden; text-align:left; background:linear-gradient(90deg,rgba(5,17,15,.96),rgba(8,24,20,.88)),url("assets/backgrounds/menu-sanctuary.png") center/cover no-repeat; border:4px double #785c2b; box-shadow:0 26px 90px rgba(0,0,0,.75),inset 0 0 60px rgba(0,0,0,.4); }
-.jaryeong-meta-heading { display:flex; justify-content:space-between; align-items:center; }.jaryeong-meta-heading h2 { margin:2px 0; color:#f1d489; font:700 30px "Gowun Batang",serif; }.jaryeong-meta-heading p { margin:0; color:#8da198; font-size:9px; }
-.jaryeong-meta-tabs { display:grid; grid-template-columns:repeat(3,minmax(0,210px)); justify-content:center; gap:8px; }.jaryeong-meta-tabs button { padding:10px 14px; border:2px double #5c4826; border-radius:9px 9px 16px 16px; color:#8fa69a; background:rgba(5,16,14,.88); font:700 15px "Gowun Batang",serif; cursor:pointer; }.jaryeong-meta-tabs button.active { color:#f5d57e; border-color:#b68a38; background:linear-gradient(180deg,#244c3a,#0b2019); box-shadow:0 0 18px rgba(230,184,92,.1); }
+.jaryeong-meta-heading { display:flex; justify-content:space-between; align-items:center; }.jaryeong-meta-heading h2 { margin:2px 0; color:#f1d489; font:700 30px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }.jaryeong-meta-heading p { margin:0; color:#8da198; font-size:9px; }
+.jaryeong-meta-tabs { display:grid; grid-template-columns:repeat(3,minmax(0,210px)); justify-content:center; gap:8px; }.jaryeong-meta-tabs button { padding:10px 14px; border:2px double #5c4826; border-radius:9px 9px 16px 16px; color:#8fa69a; background:rgba(5,16,14,.88); font:700 15px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; cursor:pointer; }.jaryeong-meta-tabs button.active { color:#f5d57e; border-color:#b68a38; background:linear-gradient(180deg,#244c3a,#0b2019); box-shadow:0 0 18px rgba(230,184,92,.1); }
 .meta-view-panel { min-height:0; display:none; }.jaryeong-meta-card[data-meta-view="collection"] .jaryeong-collection-view,.jaryeong-meta-card[data-meta-view="party"] .jaryeong-party-view,.jaryeong-meta-card[data-meta-view="summon"] .jaryeong-summon-view { display:grid; }
-.jaryeong-collection-view { grid-template-columns:58px minmax(0,1fr) minmax(280px,370px); gap:12px; }.jaryeong-element-filters { display:grid; align-content:start; gap:7px; }.jaryeong-element-filters button { aspect-ratio:1; border:2px double #5e4928; border-radius:50% 50% 12px 12px; color:#b5c2bb; background:#10231d; font:700 20px "Gowun Batang",serif; cursor:pointer; }.jaryeong-element-filters button.active { color:#f5d98d; border-color:#d0a246; box-shadow:0 0 16px rgba(230,184,92,.2); }
-.jaryeong-meta-grid { min-height:0; display:grid; grid-template-columns:repeat(4,minmax(105px,1fr)); grid-auto-rows:minmax(150px,1fr); gap:8px; overflow:auto; padding:3px; }.jaryeong-meta-tile { position:relative; display:grid; grid-template-rows:minmax(0,1fr) auto auto; min-height:150px; padding:7px; overflow:hidden; border:2px double rgba(230,184,92,.25); border-radius:12px 12px 20px 20px; color:#dce5df; background:linear-gradient(180deg,rgba(34,60,50,.82),rgba(5,15,13,.94)); cursor:pointer; }.jaryeong-meta-tile.selected { border-color:#e6b85c; box-shadow:0 0 20px rgba(230,184,92,.18),inset 0 0 18px rgba(230,184,92,.08); }.jaryeong-meta-tile.locked>div { filter:grayscale(1) brightness(.23); }.jaryeong-meta-tile>div { position:relative; min-height:95px; }.jaryeong-meta-tile .sprite-body,.jaryeong-meta-tile .tamed-talisman { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }.jaryeong-meta-tile strong { color:#ead6a1; font:700 14px "Gowun Batang",serif; }.jaryeong-meta-tile small { color:#81948b; font-size:7px; }
-.jaryeong-meta-detail { display:flex; flex-direction:column; min-height:0; padding:16px; border:3px double #664e27; border-radius:16px; background:linear-gradient(180deg,rgba(8,25,21,.95),rgba(4,13,12,.98)); }.meta-detail-art { position:relative; flex:1; min-height:210px; }.meta-detail-art .sprite-body,.meta-detail-art .tamed-talisman { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }.jaryeong-meta-detail>p { margin:0; color:#87a99b; font-size:9px; }.jaryeong-meta-detail h3 { margin:2px 0; color:#f1d17f; font:700 28px "Gowun Batang",serif; }.jaryeong-meta-detail>strong { color:#b6c5bd; font-size:10px; }.jaryeong-meta-detail dl { display:grid; gap:7px; margin:12px 0; }.jaryeong-meta-detail dl div { display:grid; grid-template-columns:42px 1fr; gap:7px; }.jaryeong-meta-detail dt { color:#d8b45f; font-size:8px; }.jaryeong-meta-detail dd { margin:0; color:#9cafA5; font-size:8px; line-height:1.5; }.meta-fragment-meter,.summon-meter { position:relative; height:28px; overflow:hidden; border:1px solid #71572c; border-radius:999px; background:#07120f; }.meta-fragment-meter span,.summon-meter span { position:absolute; inset:0 auto 0 0; width:var(--fragment-progress); background:linear-gradient(90deg,#205e8b,#55cfee); }.meta-fragment-meter b,.summon-meter b { position:relative; z-index:1; display:grid; place-items:center; height:100%; color:#eef8f5; font-size:9px; text-shadow:0 1px 3px #000; }
+.jaryeong-collection-view { grid-template-columns:58px minmax(0,1fr) minmax(280px,370px); gap:12px; }.jaryeong-element-filters { display:grid; align-content:start; gap:7px; }.jaryeong-element-filters button { aspect-ratio:1; border:2px double #5e4928; border-radius:50% 50% 12px 12px; color:#b5c2bb; background:#10231d; font:700 20px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; cursor:pointer; }.jaryeong-element-filters button.active { color:#f5d98d; border-color:#d0a246; box-shadow:0 0 16px rgba(230,184,92,.2); }
+.jaryeong-meta-grid { min-height:0; display:grid; grid-template-columns:repeat(4,minmax(105px,1fr)); grid-auto-rows:minmax(150px,1fr); gap:8px; overflow:auto; padding:3px; }.jaryeong-meta-tile { position:relative; display:grid; grid-template-rows:minmax(0,1fr) auto auto; min-height:150px; padding:7px; overflow:hidden; border:2px double rgba(230,184,92,.25); border-radius:12px 12px 20px 20px; color:#dce5df; background:linear-gradient(180deg,rgba(34,60,50,.82),rgba(5,15,13,.94)); cursor:pointer; }.jaryeong-meta-tile.selected { border-color:#e6b85c; box-shadow:0 0 20px rgba(230,184,92,.18),inset 0 0 18px rgba(230,184,92,.08); }.jaryeong-meta-tile.locked>div { filter:grayscale(1) brightness(.23); }.jaryeong-meta-tile>div { position:relative; min-height:95px; }.jaryeong-meta-tile .sprite-body,.jaryeong-meta-tile .tamed-talisman { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }.jaryeong-meta-tile strong { color:#ead6a1; font:700 14px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }.jaryeong-meta-tile small { color:#81948b; font-size:7px; }
+.jaryeong-meta-detail { display:flex; flex-direction:column; min-height:0; padding:16px; border:3px double #664e27; border-radius:16px; background:linear-gradient(180deg,rgba(8,25,21,.95),rgba(4,13,12,.98)); }.meta-detail-art { position:relative; flex:1; min-height:210px; }.meta-detail-art .sprite-body,.meta-detail-art .tamed-talisman { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }.jaryeong-meta-detail>p { margin:0; color:#87a99b; font-size:9px; }.jaryeong-meta-detail h3 { margin:2px 0; color:#f1d17f; font:700 28px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }.jaryeong-meta-detail>strong { color:#b6c5bd; font-size:10px; }.jaryeong-meta-detail dl { display:grid; gap:7px; margin:12px 0; }.jaryeong-meta-detail dl div { display:grid; grid-template-columns:42px 1fr; gap:7px; }.jaryeong-meta-detail dt { color:#d8b45f; font-size:8px; }.jaryeong-meta-detail dd { margin:0; color:#9cafA5; font-size:8px; line-height:1.5; }.meta-fragment-meter,.summon-meter { position:relative; height:28px; overflow:hidden; border:1px solid #71572c; border-radius:999px; background:#07120f; }.meta-fragment-meter span,.summon-meter span { position:absolute; inset:0 auto 0 0; width:var(--fragment-progress); background:linear-gradient(90deg,#205e8b,#55cfee); }.meta-fragment-meter b,.summon-meter b { position:relative; z-index:1; display:grid; place-items:center; height:100%; color:#eef8f5; font-size:9px; text-shadow:0 1px 3px #000; }
 
-.jaryeong-party-view { grid-template-rows:auto minmax(210px,1fr) minmax(120px,.55fr) auto; gap:10px; }.party-formation-copy { text-align:center; }.party-formation-copy small { color:#739287; font-size:7px; }.party-formation-copy h3 { margin:2px 0; color:#f1d486; font:700 25px "Gowun Batang",serif; }.party-formation-copy p { margin:0; color:#91a69c; font-size:8px; }
-.jaryeong-party-slots { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; }.jaryeong-party-slot { position:relative; display:grid; grid-template-rows:auto minmax(0,1fr) auto auto; min-height:220px; padding:10px; overflow:hidden; border:4px double #5c4827; border-radius:45% 45% 12px 12px/18% 18% 8px 8px; color:#dce5de; background:linear-gradient(180deg,rgba(39,64,54,.9),rgba(5,15,13,.96)); cursor:pointer; }.jaryeong-party-slot.selected { border-color:#d3a347; transform:translateY(-4px); box-shadow:0 12px 25px rgba(0,0,0,.4),0 0 18px rgba(230,184,92,.15); }.jaryeong-party-slot>small { color:#e8c365; font-size:8px; }.jaryeong-party-slot>div { position:relative; min-height:130px; }.jaryeong-party-slot .sprite-body,.jaryeong-party-slot .tamed-talisman { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }.jaryeong-party-slot>strong { color:#f0d797; font:700 17px "Gowun Batang",serif; }.jaryeong-party-slot>em { overflow:hidden; color:#8ea299; font-size:7px; font-style:normal; text-overflow:ellipsis; white-space:nowrap; }
+.jaryeong-party-view { grid-template-rows:auto minmax(210px,1fr) minmax(120px,.55fr) auto; gap:10px; }.party-formation-copy { text-align:center; }.party-formation-copy small { color:#739287; font-size:7px; }.party-formation-copy h3 { margin:2px 0; color:#f1d486; font:700 25px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }.party-formation-copy p { margin:0; color:#91a69c; font-size:8px; }
+.jaryeong-party-slots { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; }.jaryeong-party-slot { position:relative; display:grid; grid-template-rows:auto minmax(0,1fr) auto auto; min-height:220px; padding:10px; overflow:hidden; border:4px double #5c4827; border-radius:45% 45% 12px 12px/18% 18% 8px 8px; color:#dce5de; background:linear-gradient(180deg,rgba(39,64,54,.9),rgba(5,15,13,.96)); cursor:pointer; }.jaryeong-party-slot.selected { border-color:#d3a347; transform:translateY(-4px); box-shadow:0 12px 25px rgba(0,0,0,.4),0 0 18px rgba(230,184,92,.15); }.jaryeong-party-slot>small { color:#e8c365; font-size:8px; }.jaryeong-party-slot>div { position:relative; min-height:130px; }.jaryeong-party-slot .sprite-body,.jaryeong-party-slot .tamed-talisman { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }.jaryeong-party-slot>strong { color:#f0d797; font:700 17px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }.jaryeong-party-slot>em { overflow:hidden; color:#8ea299; font-size:7px; font-style:normal; text-overflow:ellipsis; white-space:nowrap; }
 .jaryeong-party-pool { min-height:0; display:flex; gap:7px; overflow:auto; padding:4px; }.party-pool-card { flex:0 0 165px; display:grid; grid-template-columns:56px 1fr; align-items:center; gap:6px; padding:6px; border:1px solid rgba(230,184,92,.24); border-radius:10px; color:#dce4df; background:rgba(6,18,15,.9); cursor:pointer; }.party-pool-card.equipped { border-color:#b58b3f; background:rgba(83,68,32,.24); }.party-pool-card>div { position:relative; width:56px; height:56px; }.party-pool-card .sprite-body,.party-pool-card .tamed-talisman { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }.party-pool-card span { display:grid; min-width:0; }.party-pool-card strong { color:#e7d2a0; font-size:10px; }.party-pool-card small { overflow:hidden; color:#81958b; font-size:6px; text-overflow:ellipsis; white-space:nowrap; }.party-save-row { display:flex; align-items:center; justify-content:flex-end; gap:14px; }.party-save-row>span { color:#91a79d; font-size:9px; }.party-save-row .primary-button { width:min(280px,100%); }
 
-.jaryeong-summon-view { grid-template-rows:minmax(0,1fr) 130px; gap:12px; }.jaryeong-summon-ritual { position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:0; overflow:hidden; border:3px double #6b5229; border-radius:20px; background:radial-gradient(circle at 50% 45%,rgba(66,153,177,.18),transparent 35%),linear-gradient(180deg,rgba(11,31,27,.86),rgba(3,12,11,.96)); }.summon-seal { position:relative; width:min(340px,42vh); aspect-ratio:1; border:1px solid rgba(89,205,225,.26); border-radius:50%; box-shadow:0 0 40px rgba(40,165,199,.14),inset 0 0 35px rgba(40,165,199,.1); }.summon-seal::before,.summon-seal::after,.summon-seal>i { content:""; position:absolute; inset:9%; border:1px solid rgba(230,184,92,.22); border-radius:50%; transform:rotate(18deg); }.summon-seal::after { inset:21%; transform:rotate(-22deg); }.summon-seal>i { inset:2%; border-style:dashed; animation:sealSpin 18s linear infinite; }.summon-seal>div { position:absolute; inset:12%; }.summon-seal .sprite-body,.summon-seal .tamed-talisman { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }.jaryeong-summon-ritual>p { margin:4px 0 0; color:#7ca69b; font-size:8px; }.jaryeong-summon-ritual h3 { margin:2px 0 8px; color:#f2d285; font:700 23px "Gowun Batang",serif; }.jaryeong-summon-ritual .summon-meter { width:min(350px,70%); }.jaryeong-summon-ritual>small { margin:6px 0; color:#89a096; font-size:7px; }.summon-actions { display:flex; gap:8px; align-items:center; }.summon-actions .primary-button { min-width:200px; }.jaryeong-summon-targets { display:flex; gap:8px; overflow:auto; padding:4px; }.summon-target { flex:0 0 190px; display:grid; grid-template-columns:78px 1fr; align-items:center; gap:8px; padding:7px; border:2px double #594526; border-radius:12px; color:#dbe6df; background:rgba(6,18,15,.93); cursor:pointer; }.summon-target.selected { border-color:#d2a347; }.summon-target>div { position:relative; width:78px; height:78px; }.summon-target .sprite-body,.summon-target .tamed-talisman { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }.summon-target span { display:grid; }.summon-target strong { color:#ead59f; font:700 13px "Gowun Batang",serif; }.summon-target small { color:#7f978c; font-size:8px; }
+.jaryeong-summon-view { grid-template-rows:minmax(0,1fr) 130px; gap:12px; }.jaryeong-summon-ritual { position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:0; overflow:hidden; border:3px double #6b5229; border-radius:20px; background:radial-gradient(circle at 50% 45%,rgba(66,153,177,.18),transparent 35%),linear-gradient(180deg,rgba(11,31,27,.86),rgba(3,12,11,.96)); }.summon-seal { position:relative; width:min(340px,42vh); aspect-ratio:1; border:1px solid rgba(89,205,225,.26); border-radius:50%; box-shadow:0 0 40px rgba(40,165,199,.14),inset 0 0 35px rgba(40,165,199,.1); }.summon-seal::before,.summon-seal::after,.summon-seal>i { content:""; position:absolute; inset:9%; border:1px solid rgba(230,184,92,.22); border-radius:50%; transform:rotate(18deg); }.summon-seal::after { inset:21%; transform:rotate(-22deg); }.summon-seal>i { inset:2%; border-style:dashed; animation:sealSpin 18s linear infinite; }.summon-seal>div { position:absolute; inset:12%; }.summon-seal .sprite-body,.summon-seal .tamed-talisman { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }.jaryeong-summon-ritual>p { margin:4px 0 0; color:#7ca69b; font-size:8px; }.jaryeong-summon-ritual h3 { margin:2px 0 8px; color:#f2d285; font:700 23px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }.jaryeong-summon-ritual .summon-meter { width:min(350px,70%); }.jaryeong-summon-ritual>small { margin:6px 0; color:#89a096; font-size:7px; }.summon-actions { display:flex; gap:8px; align-items:center; }.summon-actions .primary-button { min-width:200px; }.jaryeong-summon-targets { display:flex; gap:8px; overflow:auto; padding:4px; }.summon-target { flex:0 0 190px; display:grid; grid-template-columns:78px 1fr; align-items:center; gap:8px; padding:7px; border:2px double #594526; border-radius:12px; color:#dbe6df; background:rgba(6,18,15,.93); cursor:pointer; }.summon-target.selected { border-color:#d2a347; }.summon-target>div { position:relative; width:78px; height:78px; }.summon-target .sprite-body,.summon-target .tamed-talisman { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }.summon-target span { display:grid; }.summon-target strong { color:#ead59f; font:700 13px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }.summon-target small { color:#7f978c; font-size:8px; }
 
-.summon-result-modal { z-index:94; background:radial-gradient(circle,rgba(11,53,62,.65),rgba(1,7,8,.92)); }.summon-result-card { width:min(720px,calc(100vw - 24px)); min-height:min(700px,calc(100dvh - 24px)); display:flex; flex-direction:column; align-items:center; justify-content:center; overflow:hidden; background:radial-gradient(circle at 50% 45%,rgba(59,184,209,.23),transparent 34%),linear-gradient(180deg,#102923,#040e0d); border:4px double #9a7431; }.summon-result-art { position:relative; width:min(430px,60vw); height:min(430px,52vh); filter:drop-shadow(0 0 25px rgba(62,194,222,.38)); animation:summonRise .75s ease both; }.summon-result-art .sprite-body,.summon-result-art .tamed-talisman { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }.summon-result-card h2 { margin:0; color:#f2d485; font:700 32px "Gowun Batang",serif; }.summon-result-card>p:not(.eyebrow) { color:#a9c3b8; font-size:11px; }.summon-result-card .primary-button { width:min(300px,100%); }
+.summon-result-modal { z-index:94; background:radial-gradient(circle,rgba(11,53,62,.65),rgba(1,7,8,.92)); }.summon-result-card { width:min(720px,calc(100vw - 24px)); min-height:min(700px,calc(100dvh - 24px)); display:flex; flex-direction:column; align-items:center; justify-content:center; overflow:hidden; background:radial-gradient(circle at 50% 45%,rgba(59,184,209,.23),transparent 34%),linear-gradient(180deg,#102923,#040e0d); border:4px double #9a7431; }.summon-result-art { position:relative; width:min(430px,60vw); height:min(430px,52vh); filter:drop-shadow(0 0 25px rgba(62,194,222,.38)); animation:summonRise .75s ease both; }.summon-result-art .sprite-body,.summon-result-art .tamed-talisman { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }.summon-result-card h2 { margin:0; color:#f2d485; font:700 32px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }.summon-result-card>p:not(.eyebrow) { color:#a9c3b8; font-size:11px; }.summon-result-card .primary-button { width:min(300px,100%); }
 
-.result-card { width:min(780px,calc(100vw - 24px)); min-height:min(690px,calc(100dvh - 24px)); display:flex; flex-direction:column; justify-content:flex-end; padding:36px; border:4px double #775a29; background:linear-gradient(180deg,rgba(7,17,15,.2),rgba(5,13,12,.86) 60%),url("assets/backgrounds/victory-scroll.png") center/cover no-repeat; }.result-card[data-outcome="defeat"] { border-color:#71301f; background:linear-gradient(180deg,rgba(4,9,11,.18),rgba(4,8,10,.9) 58%),url("assets/backgrounds/defeat-broken-seal.png") center/cover no-repeat; }.result-card h2 { color:#f3d589; font:700 clamp(30px,5vw,46px) "Gowun Batang",serif; text-shadow:0 3px 7px #000; }.result-card>p { color:#c8d7cf; text-shadow:0 2px 5px #000; }.result-card .result-stats,.result-card .roguelike-result-build { width:min(560px,100%); margin-left:auto; margin-right:auto; background:rgba(4,13,11,.78); backdrop-filter:blur(5px); }.result-party-strip { width:min(590px,100%); display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin:12px auto; }.result-party-strip>span { position:relative; display:grid; grid-template-rows:72px auto; padding:4px; border:1px solid rgba(230,184,92,.36); border-radius:12px 12px 5px 5px; background:rgba(5,17,14,.82); }.result-party-strip .sprite-body,.result-party-strip .tamed-talisman { position:absolute; left:4px; right:4px; top:4px; width:calc(100% - 8px); height:68px; object-fit:contain; }.result-party-strip small { position:absolute; z-index:2; left:4px; top:3px; color:#f0c96e; font-size:6px; }.result-party-strip b { grid-row:2; color:#e7d7ad; font-size:7px; }
+.result-card { width:min(780px,calc(100vw - 24px)); min-height:min(690px,calc(100dvh - 24px)); display:flex; flex-direction:column; justify-content:flex-end; padding:36px; border:4px double #775a29; background:linear-gradient(180deg,rgba(7,17,15,.2),rgba(5,13,12,.86) 60%),url("assets/backgrounds/victory-scroll.png") center/cover no-repeat; }.result-card[data-outcome="defeat"] { border-color:#71301f; background:linear-gradient(180deg,rgba(4,9,11,.18),rgba(4,8,10,.9) 58%),url("assets/backgrounds/defeat-broken-seal.png") center/cover no-repeat; }.result-card h2 { color:#f3d589; font:700 clamp(30px,5vw,46px) "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; text-shadow:0 3px 7px #000; }.result-card>p { color:#c8d7cf; text-shadow:0 2px 5px #000; }.result-card .result-stats,.result-card .roguelike-result-build { width:min(560px,100%); margin-left:auto; margin-right:auto; background:rgba(4,13,11,.78); backdrop-filter:blur(5px); }.result-party-strip { width:min(590px,100%); display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin:12px auto; }.result-party-strip>span { position:relative; display:grid; grid-template-rows:72px auto; padding:4px; border:1px solid rgba(230,184,92,.36); border-radius:12px 12px 5px 5px; background:rgba(5,17,14,.82); }.result-party-strip .sprite-body,.result-party-strip .tamed-talisman { position:absolute; left:4px; right:4px; top:4px; width:calc(100% - 8px); height:68px; object-fit:contain; }.result-party-strip small { position:absolute; z-index:2; left:4px; top:3px; color:#f0c96e; font-size:6px; }.result-party-strip b { grid-row:2; color:#e7d7ad; font-size:7px; }
 @keyframes summonRise { from { opacity:0; transform:translateY(35px) scale(.76); filter:brightness(2) blur(4px); } to { opacity:1; transform:none; } }
 
 @media (max-width:760px) {
@@ -1001,7 +1001,7 @@ body.roguelike-mode .alchemy-overlay p,body.roguelike-mode .alchemy-overlay > st
   border-radius:5px;
   color:#17231f;
   background:linear-gradient(145deg,#f8dc83,#c58e30);
-  font:700 19px/1 "Gowun Batang",serif;
+  font:700 19px/1 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif;
   box-shadow:inset 0 1px rgba(255,255,255,.55);
 }
 .enemy-kind-label > span { min-width:0; display:grid; gap:1px; }
@@ -1042,7 +1042,7 @@ body.puzzle-mode .enemy-kind-label { display:inline-flex; }
 .battle-feedback.show { animation:battleFeedback 1.5s ease both; }
 .battle-feedback > b { grid-area:kicker; color:#70e7ba; font-size:8px; letter-spacing:.12em; white-space:nowrap; }
 .battle-feedback.enemy > b { color:#ff9b8c; }
-.battle-feedback > strong { grid-area:title; overflow:hidden; font:700 17px/1.15 "Gowun Batang",serif; text-overflow:ellipsis; white-space:nowrap; }
+.battle-feedback > strong { grid-area:title; overflow:hidden; font:700 17px/1.15 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; text-overflow:ellipsis; white-space:nowrap; }
 .battle-feedback > span { grid-area:detail; font-size:10px; font-weight:700; line-height:1.35; }
 
 .damage-float.from-player { color:#fff0a6; font-size:34px; text-shadow:0 2px 3px #000,0 0 18px #ff673c; }
@@ -1056,7 +1056,7 @@ body.puzzle-mode .enemy-kind-label { display:inline-flex; }
   top:2px;
   z-index:10;
   color:#ff8a74;
-  font:800 22px/1 "Noto Sans KR",sans-serif;
+  font:800 22px/1 "Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo","Noto Sans CJK KR",sans-serif;
   text-shadow:0 2px 3px #000,0 0 14px #ff3c2c;
   opacity:0;
   pointer-events:none;
@@ -1084,7 +1084,7 @@ body.puzzle-mode .enemy-kind-label { display:inline-flex; }
 .idiom-focus-card:hover,.idiom-focus-card:focus-visible { border-color:#ffe197; outline:none; }
 .idiom-focus-heading { min-width:0; display:flex; align-items:center; gap:6px; }
 .idiom-focus-heading em { flex:none; color:#94b5a7; font-size:7px; font-style:normal; letter-spacing:.08em; }
-.idiom-focus-heading strong { overflow:hidden; color:#fff1ce; font:700 13px/1 "Gowun Batang",serif; text-overflow:ellipsis; white-space:nowrap; }
+.idiom-focus-heading strong { overflow:hidden; color:#fff1ce; font:700 13px/1 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; text-overflow:ellipsis; white-space:nowrap; }
 .idiom-focus-heading > b { margin-left:auto; color:#d7bb76; font-size:8px; white-space:nowrap; }
 .idiom-focus-glyphs { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:4px; }
 .idiom-focus-glyphs > span {
@@ -1100,8 +1100,8 @@ body.puzzle-mode .enemy-kind-label { display:inline-flex; }
   background:rgba(0,0,0,.2);
 }
 .idiom-focus-glyphs > span.collected { color:#fff2c7; border:1px solid rgba(230,184,92,.64); background:rgba(230,184,92,.12); }
-.idiom-focus-glyphs b { font:700 24px/1 "Gowun Batang",serif; }
-.idiom-focus-glyphs small { width:100%; overflow:hidden; color:#9ab0a6; font:600 8px/1 "Noto Sans KR",sans-serif; text-align:center; text-overflow:ellipsis; white-space:nowrap; }
+.idiom-focus-glyphs b { font:700 24px/1 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
+.idiom-focus-glyphs small { width:100%; overflow:hidden; color:#9ab0a6; font:600 8px/1 "Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo","Noto Sans CJK KR",sans-serif; text-align:center; text-overflow:ellipsis; white-space:nowrap; }
 .idiom-focus-effect { display:flex; align-items:flex-start; gap:5px; color:#b7c9c1; font-size:8px; line-height:1.35; }
 .idiom-focus-effect > b { flex:none; padding:1px 4px; border-radius:3px; color:#1a211d; background:#d5b260; font-size:7px; }
 
@@ -1343,7 +1343,7 @@ body.puzzle-mode .enemy-kind-label { display:inline-flex; }
   }
   .roguelike-rotating-heading { display:flex; align-items:center; justify-content:space-between; gap:5px; }
   .roguelike-rotating-heading > div { min-width:0; display:flex; align-items:center; gap:6px; }
-  .roguelike-rotating-heading h2 { margin:0; font:700 15px "Gowun Batang",serif; letter-spacing:.05em; white-space:nowrap; }
+  .roguelike-rotating-heading h2 { margin:0; font:700 15px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; letter-spacing:.05em; white-space:nowrap; }
   .roguelike-rotating-heading small { color:#78cbae; font-size:7px; white-space:nowrap; }
   .roguelike-rotating-panel > p { margin:0 0 2px; color:#779087; font-size:7px; line-height:1.35; }
   .roguelike-rotating-cards {
@@ -1735,7 +1735,7 @@ body.roguelike-mode .tip-card { display:none; }
     box-shadow:0 8px 20px rgba(0,0,0,.42),inset 0 0 12px rgba(230,184,92,.06);
     cursor:pointer;
   }
-  body.roguelike-mode .hud-party-button span { font:700 21px/1 "Gowun Batang",serif; }
+  body.roguelike-mode .hud-party-button span { font:700 21px/1 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
   body.roguelike-mode .hud-party-button strong { font-size:9px; }
   body.roguelike-mode .jaryeong-panel.hud-expanded {
     bottom:88px;
@@ -1778,7 +1778,7 @@ body.roguelike-mode .tip-card { display:none; }
   body.roguelike-mode .hud-dock-button:hover,
   body.roguelike-mode .hud-dock-button:focus-visible,
   body.roguelike-mode .hud-dock-button.active { border-color:#f0ce78; outline:none; background:linear-gradient(145deg,rgba(31,63,47,.98),rgba(12,27,22,.96)); transform:translateY(-1px); }
-  body.roguelike-mode .hud-dock-button > span { font:700 22px/1 "Gowun Batang",serif; }
+  body.roguelike-mode .hud-dock-button > span { font:700 22px/1 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
   body.roguelike-mode .hud-dock-button > strong { font-size:9px; }
   body.roguelike-mode .hud-dock-button > small { position:absolute; top:5px; right:6px; min-width:15px; padding:1px 4px; border-radius:8px; color:#95dfc2; background:#102d24; font-size:7px; }
 
@@ -1801,12 +1801,12 @@ body.roguelike-mode .tip-card { display:none; }
   body.roguelike-mode .hud-secondary-drawer.open { display:grid; grid-template-rows:auto minmax(0,1fr); animation:hudDrawerIn .18s ease-out; }
   body.roguelike-mode .hud-secondary-drawer > header { display:flex; align-items:center; justify-content:space-between; gap:10px; padding-bottom:9px; border-bottom:1px solid rgba(230,184,92,.2); }
   body.roguelike-mode .hud-secondary-drawer header small { color:#679b87; font-size:7px; letter-spacing:.18em; }
-  body.roguelike-mode .hud-secondary-drawer h2 { margin:2px 0 0; color:#f3dfae; font:700 19px/1.1 "Gowun Batang",serif; }
+  body.roguelike-mode .hud-secondary-drawer h2 { margin:2px 0 0; color:#f3dfae; font:700 19px/1.1 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
   body.roguelike-mode .hud-secondary-drawer header button { width:32px; height:32px; border:1px solid rgba(230,184,92,.32); border-radius:50%; color:#ddc990; background:rgba(255,255,255,.03); cursor:pointer; }
   body.roguelike-mode .hud-drawer-content { min-height:0; overflow:auto; padding-top:9px; scrollbar-width:thin; scrollbar-color:#b99145 transparent; }
   body.roguelike-mode .hud-relic-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; }
   body.roguelike-mode .hud-relic-list article { min-width:0; display:grid; grid-template-columns:37px 1fr; gap:7px; align-items:center; padding:7px; border:1px solid rgba(230,184,92,.22); border-radius:8px; background:rgba(255,255,255,.025); }
-  body.roguelike-mode .hud-relic-list article > b { display:grid; place-items:center; width:37px; height:37px; border:1px solid rgba(230,184,92,.45); border-radius:50%; color:#f1d488; background:#142c24; font:700 19px "Gowun Batang",serif; }
+  body.roguelike-mode .hud-relic-list article > b { display:grid; place-items:center; width:37px; height:37px; border:1px solid rgba(230,184,92,.45); border-radius:50%; color:#f1d488; background:#142c24; font:700 19px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
   body.roguelike-mode .hud-relic-list article > b.relic-art { overflow:hidden; border-radius:8px; background:radial-gradient(circle,rgba(230,184,92,.13),rgba(4,18,15,.86)); }
   body.roguelike-mode .hud-relic-list article > b.relic-art img { width:100%; height:100%; object-fit:contain; }
   body.roguelike-mode .hud-relic-list span { min-width:0; display:grid; gap:3px; }
@@ -1815,7 +1815,7 @@ body.roguelike-mode .tip-card { display:none; }
   body.roguelike-mode .hud-log-list { display:grid; gap:5px; }
   body.roguelike-mode .hud-log-list .log-entry { margin:0; padding:7px; border:1px solid rgba(255,255,255,.07); border-radius:7px; background:rgba(255,255,255,.025); }
   body.roguelike-mode .hud-drawer-empty { display:flex; align-items:center; gap:10px; margin:0; padding:16px 8px; color:#9eb0a8; }
-  body.roguelike-mode .hud-drawer-empty > b { display:grid; place-items:center; width:44px; height:44px; border:1px solid rgba(230,184,92,.4); border-radius:50%; color:#e7c977; font:700 22px "Gowun Batang",serif; }
+  body.roguelike-mode .hud-drawer-empty > b { display:grid; place-items:center; width:44px; height:44px; border:1px solid rgba(230,184,92,.4); border-radius:50%; color:#e7c977; font:700 22px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
   body.roguelike-mode .hud-drawer-empty span { display:grid; gap:4px; font-size:10px; }
   body.roguelike-mode .hud-drawer-empty small { color:#71877e; font-size:8px; }
   body.roguelike-mode .game-footer { display:none; }
@@ -1917,7 +1917,7 @@ body.roguelike-mode .tip-card { display:none; }
 .idiom-display-setting { display:grid; gap:8px; margin:0 0 12px; padding:11px; border:1px solid var(--line); border-radius:9px; background:rgba(0,0,0,.12); }
 .idiom-display-options { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; }
 .idiom-display-option { min-height:54px; display:grid; place-items:center; gap:3px; padding:7px; border:1px solid rgba(151,178,164,.23); border-radius:8px; color:#aebdb5; background:rgba(255,255,255,.025); cursor:pointer; }
-.idiom-display-option b { color:#ead7a3; font:700 12px "Gowun Batang",serif; }
+.idiom-display-option b { color:#ead7a3; font:700 12px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
 .idiom-display-option small { color:#7f9389; font-size:7px; }
 .idiom-display-option.selected { border-color:var(--gold); background:rgba(230,184,92,.1); box-shadow:inset 0 0 14px rgba(230,184,92,.08); }
 .idiom-display-option:focus-visible { outline:3px solid #ffe08a; outline-offset:2px; }
@@ -1977,7 +1977,7 @@ body.roguelike-mode .jaryeong-panel.hud-expanded .jaryeong-slot-copy em strong {
 
 .combat-projectile-layer { position:fixed; inset:0; z-index:48; overflow:hidden; pointer-events:none; }
 .combat-projectile { position:fixed; left:var(--projectile-x); top:var(--projectile-y); width:24px; height:24px; display:grid; place-items:center; border:2px solid rgba(255,255,255,.75); border-radius:50%; color:#fff; background:radial-gradient(circle,#fff 0 10%,var(--projectile-color,#65dcae) 28%,rgba(0,0,0,0) 72%); box-shadow:0 0 10px var(--projectile-color,#65dcae),0 0 22px var(--projectile-color,#65dcae); transform:translate(-50%,-50%); animation:combatProjectile var(--projectile-duration,480ms) cubic-bezier(.2,.7,.2,1) forwards; }
-.combat-projectile.seal { width:34px; height:42px; border:1px solid #ffca6c; border-radius:4px; color:#4b0d0d; background:linear-gradient(180deg,#ffe69c,#e7ad48); box-shadow:0 0 14px #e4513e,0 0 30px rgba(228,81,62,.6); font:900 24px/1 "Gowun Batang",serif; }
+.combat-projectile.seal { width:34px; height:42px; border:1px solid #ffca6c; border-radius:4px; color:#4b0d0d; background:linear-gradient(180deg,#ffe69c,#e7ad48); box-shadow:0 0 14px #e4513e,0 0 30px rgba(228,81,62,.6); font:900 24px/1 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
 .combat-projectile.seal.vine { border-radius:50% 8px; color:#163c21; background:radial-gradient(circle,#d8f0a3,#5b9f51); box-shadow:0 0 16px #78d467,0 0 32px rgba(82,171,88,.65); }
 .combat-projectile.seal.magma-chain { border-radius:9px; color:#4a1008; background:radial-gradient(circle,#ffe47b,#e34922); box-shadow:0 0 17px #ff5b2d,0 0 34px rgba(228,63,30,.72); }
 .combat-projectile.seal.seaweed-net { border-radius:50% 12px; color:#073941; background:radial-gradient(circle,#b1f4d9,#238996); box-shadow:0 0 17px #4bd8c0,0 0 34px rgba(42,153,166,.7); }
@@ -1996,9 +1996,9 @@ body.roguelike-mode .jaryeong-panel.hud-expanded .jaryeong-slot-copy em strong {
 .selection-receipt { position:absolute; inset:14px; z-index:12; display:grid; place-items:center; align-content:center; gap:9px; padding:24px; border:2px double rgba(230,184,92,.72); border-radius:14px; color:#ecf5ef; background:radial-gradient(circle at 50% 35%,rgba(29,83,64,.98),rgba(3,15,13,.99) 72%); box-shadow:0 22px 70px rgba(0,0,0,.82),inset 0 0 36px rgba(230,184,92,.08); opacity:0; transform:scale(.94); transition:opacity .18s,transform .22s; text-align:center; }
 .selection-receipt.show { opacity:1; transform:none; }
 .selection-receipt>small { color:#7ee7bd; font-size:9px; font-weight:800; letter-spacing:.16em; }
-.selection-receipt>strong { color:#ffe19a; font:700 25px/1.25 "Gowun Batang",serif; }
+.selection-receipt>strong { color:#ffe19a; font:700 25px/1.25 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
 .selection-receipt-glyphs { display:flex; gap:6px; }
-.selection-receipt-glyphs b { display:grid; place-items:center; width:50px; height:58px; border:1px solid rgba(230,184,92,.52); border-radius:6px; color:#fff2c8; background:rgba(230,184,92,.08); font:700 30px "Gowun Batang",serif; }
+.selection-receipt-glyphs b { display:grid; place-items:center; width:50px; height:58px; border:1px solid rgba(230,184,92,.52); border-radius:6px; color:#fff2c8; background:rgba(230,184,92,.08); font:700 30px "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
 .selection-receipt p { max-width:520px; margin:0; color:#c0d2c9; font-size:11px; line-height:1.55; }
 .selection-receipt em { padding:6px 12px; border-radius:999px; color:#13251e; background:#e2c169; font-size:11px; font-style:normal; font-weight:900; }
 
@@ -2100,7 +2100,7 @@ body.roguelike-mode .first-battle-coach:not([hidden]) {
 .first-battle-coach-skill:not(:disabled):hover { border-color:#a1f1cf; background:rgba(87,214,176,.2); }
 .first-battle-coach-skill:disabled { color:#71877e; border-color:rgba(151,178,164,.24); background:rgba(255,255,255,.025); cursor:default; }
 .first-battle-coach-skill:focus-visible { outline:3px solid #ffe08a; outline-offset:2px; }
-.first-battle-coach-skill kbd { display:grid; place-items:center; width:16px; height:16px; padding:0; border:1px solid currentColor; border-radius:3px; color:inherit; background:rgba(3,15,13,.58); font:700 8px/1 "Noto Sans KR",sans-serif; }
+.first-battle-coach-skill kbd { display:grid; place-items:center; width:16px; height:16px; padding:0; border:1px solid currentColor; border-radius:3px; color:inherit; background:rgba(3,15,13,.58); font:700 8px/1 "Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo","Noto Sans CJK KR",sans-serif; }
 .first-battle-coach-skill > span { min-width:0; display:grid; gap:1px; }
 .first-battle-coach-skill b,.first-battle-coach-skill small { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .first-battle-coach-skill b { color:inherit; font-size:7px; }
@@ -2152,12 +2152,6 @@ body.roguelike-mode .queue-slot.first-battle-supply { color:#fff0b7; border-colo
 .enemy-defense-pill b { color:#d6edff; font-size:8px; }
 .enemy-defense-pill strong { color:#fff1cf; font-size:9px; }
 .enemy-shield-pill small { color:#9ac9e6; font-size:6px; font-weight:800; }
-.enemy-barrier-pill { border-color:rgba(230,184,92,.52); color:#f7df9d; background:linear-gradient(135deg,rgba(111,79,28,.38),rgba(14,29,27,.62)); }
-.enemy-barrier-pill[data-element="wood"] { border-color:rgba(105,213,144,.65); color:#c9f4d4; }
-.enemy-barrier-pill[data-element="fire"] { border-color:rgba(245,115,88,.68); color:#ffd0bf; }
-.enemy-barrier-pill[data-element="earth"] { border-color:rgba(233,192,105,.7); color:#ffebba; }
-.enemy-barrier-pill[data-element="metal"] { border-color:rgba(167,202,236,.72); color:#dbeeff; }
-.enemy-barrier-pill[data-element="water"] { border-color:rgba(103,182,246,.74); color:#cbeaff; }
 
 .jaryeong-skill-cutin[hidden] { display:none!important; }
 .jaryeong-skill-cutin { position:fixed; inset:0; z-index:74; display:grid; place-items:center; padding:22px; pointer-events:none; opacity:0; }
@@ -2173,7 +2167,7 @@ body.roguelike-mode .queue-slot.first-battle-supply { color:#fff0b7; border-colo
 .jaryeong-skill-cutin-art .tamed-talisman { position:absolute; left:var(--talisman-x,50%); top:var(--talisman-y,48%); width:var(--talisman-width,19%); height:auto; object-fit:contain; transform:translate(-50%,-50%) rotate(var(--talisman-rotate,0deg)); }
 .jaryeong-skill-cutin-copy { min-width:0; display:grid; align-content:center; gap:4px; }
 .jaryeong-skill-cutin-copy small { color:var(--cutin-color,#8ce9c1); font-size:9px; font-weight:900; letter-spacing:.13em; }
-.jaryeong-skill-cutin-copy strong { overflow:hidden; color:#fff0c7; font:700 22px/1.1 "Gowun Batang",serif; text-overflow:ellipsis; white-space:nowrap; }
+.jaryeong-skill-cutin-copy strong { overflow:hidden; color:#fff0c7; font:700 22px/1.1 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; text-overflow:ellipsis; white-space:nowrap; }
 .jaryeong-skill-cutin-copy b { color:#d9f2e2; font-size:14px; }
 .jaryeong-skill-cutin-copy p { margin:1px 0 0; color:#bad0c4; font-size:10px; line-height:1.45; }
 
@@ -2186,7 +2180,7 @@ body[data-idiom-display="focus"].puzzle-mode .idiom-focus { display:grid; grid-t
 .idiom-focus-picker-options { min-width:0; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:3px; }
 .idiom-focus-picker-option { min-width:0; min-height:34px; display:grid; grid-template-rows:auto 1fr auto; align-content:center; gap:1px; padding:3px 2px; border:1px solid rgba(151,178,164,.26); border-radius:5px; color:#a1b7ad; background:rgba(1,12,10,.48); cursor:pointer; text-align:center; }
 .idiom-focus-picker-option em { overflow:hidden; color:#80958b; font-size:5px; font-style:normal; text-overflow:ellipsis; white-space:nowrap; }
-.idiom-focus-picker-option strong { overflow:hidden; color:#dfe9e2; font:700 8px/1 "Gowun Batang",serif; text-overflow:ellipsis; white-space:nowrap; }
+.idiom-focus-picker-option strong { overflow:hidden; color:#dfe9e2; font:700 8px/1 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; text-overflow:ellipsis; white-space:nowrap; }
 .idiom-focus-picker-option b { color:#a6baae; font-size:6px; }
 .idiom-focus-picker-option.rotating { border-color:rgba(87,214,176,.33); }
 .idiom-focus-picker-option.selected { border-color:#e7c66f; color:#fff1c8; background:linear-gradient(145deg,rgba(230,184,92,.19),rgba(33,73,57,.28)); box-shadow:inset 0 0 10px rgba(230,184,92,.1); }
@@ -2396,7 +2390,7 @@ body .combat-notification-anchor .alchemy-overlay > strong { max-width:100%; mar
     box-shadow:0 8px 20px rgba(0,0,0,.48),inset 0 0 15px rgba(230,184,92,.08);
     transform:none;
   }
-  body.roguelike-mode .enemy-copy .enemy-kind-label > b { font:700 38px/.95 "Gowun Batang",serif; }
+  body.roguelike-mode .enemy-copy .enemy-kind-label > b { font:700 38px/.95 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
   body.roguelike-mode .enemy-copy .enemy-kind-label > span { min-width:0; display:grid; justify-items:center; line-height:1.05; }
   body.roguelike-mode .enemy-copy .enemy-kind-label strong { max-width:68px; overflow:hidden; color:#d8eadf; font-size:8px; text-overflow:ellipsis; white-space:nowrap; }
   body.roguelike-mode .enemy-copy .enemy-kind-label small { display:none; }
@@ -2710,12 +2704,11 @@ body .combat-notification-anchor .alchemy-overlay > strong { max-width:100%; mar
   pointer-events:none;
 }
 .enemy-affinity-tooltip[hidden] { display:none; }
-.enemy-affinity-tooltip > strong { color:#fff1b8; font-family:"Gowun Batang",serif; font-size:14px; letter-spacing:.04em; }
+.enemy-affinity-tooltip > strong { color:#fff1b8; font-family:"Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; font-size:14px; letter-spacing:.04em; }
 .enemy-affinity-tooltip p { display:grid; grid-template-columns:62px minmax(0,1fr); gap:8px; margin:0; font-size:12px; line-height:1.45; }
 .enemy-affinity-tooltip p[hidden] { display:none; }
 .enemy-affinity-tooltip p > b { color:var(--enemy-study-accent); font-size:11px; letter-spacing:.06em; }
 .enemy-affinity-tooltip p > span { color:#d3e3db; }
-.enemy-affinity-tooltip-barrier-row > span { color:#fff0bb!important; }
 
 @media (min-width:761px) {
   body.roguelike-mode .enemy-copy .enemy-kind-label-anchor {
@@ -2745,7 +2738,7 @@ body .combat-notification-anchor .alchemy-overlay > strong { max-width:100%; mar
   body.roguelike-mode .enemy-copy .enemy-kind-label > b {
     width:70px;
     height:65px;
-    font:700 52px/.9 "Gowun Batang",serif;
+    font:700 52px/.9 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif;
   }
   body.roguelike-mode .enemy-copy .enemy-kind-label strong { max-width:78px; font-size:8px; }
   body.roguelike-mode .enemy-copy .enemy-kind-label small { display:none; }
@@ -2794,6 +2787,161 @@ body .combat-notification-anchor .alchemy-overlay > strong { max-width:100%; mar
     width:min(340px,calc(100vw - 20px));
     transform:none;
   }
+}
+
+/* 2026-08-09 judge-readability pass: tutorial text must remain readable even
+   in the compact 720px-high layout.  The card scrolls instead of shrinking
+   instructional copy into caption-sized text. */
+#intro-modal .intro-card { width:min(820px,calc(100vw - 24px)); padding:clamp(20px,3vw,32px); }
+#intro-modal .intro-card .intro-copy { max-width:680px; margin-bottom:18px; font-size:clamp(14px,1.25vw,17px); line-height:1.72; }
+#intro-modal .drag-primer { grid-template-columns:minmax(250px,.95fr) minmax(310px,1.25fr); gap:18px; padding:15px; }
+#intro-modal .drag-primer-copy small { font-size:10px; }
+#intro-modal .drag-primer-copy strong { font-size:clamp(18px,1.55vw,22px); line-height:1.48; }
+#intro-modal .drag-primer-copy span { font-size:13px; line-height:1.65; }
+#intro-modal .story-training-route-hint { margin:0 auto 14px; font-size:12px; }
+#intro-modal .story-chapter-button { grid-template-columns:38px minmax(0,1fr); min-height:66px; padding:10px 11px; }
+#intro-modal .story-chapter-button > b { width:36px; height:36px; font-size:15px; }
+#intro-modal .story-chapter-button strong { font-size:14px; }
+#intro-modal .story-chapter-button small { font-size:10px; line-height:1.35; }
+#intro-modal .how-to div { min-height:64px; padding:11px 12px; }
+#intro-modal .how-to b { width:31px; height:31px; font-size:13px; }
+#intro-modal .how-to span { font-size:12px; line-height:1.5; }
+#intro-modal .how-to strong { font-size:14px; }
+#intro-modal .intro-card > small { font-size:11px; line-height:1.5; }
+#intro-modal .drag-primer-hold,
+#intro-modal .drag-primer-release { font-size:9px; }
+#intro-modal .drag-primer-combo { font-size:21px; }
+.story-path-caption,
+.story-path-result { font-size:11px; }
+.story-path-steps span::after { font-size:8px; }
+body.puzzle-mode .tile.story-guide-step::before,
+body.puzzle-mode .tile.story-guide-start::after,
+body.puzzle-mode .tile.story-guide-target::before { min-width:21px; height:21px; font-size:9px; }
+body.puzzle-mode .story-training-hud:not([hidden]) { grid-template-columns:47px minmax(0,1fr) auto; gap:11px; min-height:74px; margin-bottom:8px; padding:9px 13px; }
+.story-training-glyph { width:44px; height:44px; font-size:25px; }
+.story-training-copy { grid-template-columns:auto minmax(0,1fr); gap:3px 10px; }
+.story-training-copy small { font-size:11px; }
+.story-training-copy strong { overflow:visible; font-size:18px; line-height:1.28; text-overflow:clip; white-space:normal; }
+.story-training-copy em { overflow:visible; font-size:13px; line-height:1.45; text-overflow:clip; white-space:normal; }
+.story-training-hud > b { font-size:14px; }
+.story-result-card p:not(.eyebrow) { font-size:15px; line-height:1.65; }
+.story-lesson-recap span { padding:13px 8px; font-size:12px; }
+.story-lesson-recap b { font-size:23px; }
+
+/* The live route line is useful while learning, but in the full run it was
+   visually noisy.  Keep the held-tile banner and tile response, hide only the
+   polyline in 연성행로. */
+body.roguelike-mode .drag-live-svg { display:none!important; }
+
+/* Five-press production-safe debug unlock.  The title remains visually a seal,
+   not a web button; debug controls stay unreachable until JS applies the class. */
+.menu-logo-secret { appearance:none; display:block; width:auto; margin:0 auto; padding:0; border:0; color:inherit; background:none; font:inherit; text-align:center; cursor:pointer; touch-action:manipulation; }
+.menu-logo-secret:focus-visible { outline:2px solid rgba(240,210,115,.9); outline-offset:8px; border-radius:12px; }
+.menu-logo-secret.secret-tap { animation:secretSealTap .22s ease; }
+@keyframes secretSealTap { 50% { transform:scale(.985); filter:brightness(1.15); } }
+#debug-button.debug-unlocked { display:grid!important; }
+#debug-modal.debug-unlocked { display:grid!important; }
+#menu-debug-button.debug-unlocked { display:inline-flex!important; align-items:center; justify-content:center; color:#ffd993; border-color:rgba(230,184,92,.42); }
+.debug-card { max-height:calc(100dvh - 24px); overflow:auto; }
+.debug-status { grid-template-columns:repeat(4,minmax(0,1fr)); }
+.debug-action-button.debug-trial { color:#d8ecff; border-color:rgba(79,159,226,.5); background:linear-gradient(135deg,rgba(37,98,160,.22),rgba(67,173,151,.12)); }
+
+/* Enemy state silhouettes: a readable translucent sphere for ordinary and
+   element-biased barriers, plus an explicit burn badge. */
+.enemy-protection-aura { --aura-rgb:230,190,103; position:absolute; inset:-20px -35px -18px; z-index:6; border:3px solid rgba(var(--aura-rgb),.72); border-radius:50%; background:radial-gradient(circle at 36% 24%,rgba(255,255,255,.27),rgba(var(--aura-rgb),.12) 36%,rgba(var(--aura-rgb),.035) 67%,rgba(var(--aura-rgb),.18)); box-shadow:inset 0 0 24px rgba(var(--aura-rgb),.23),0 0 24px rgba(var(--aura-rgb),.42),0 0 0 6px rgba(var(--aura-rgb),.07); opacity:0; transform:scale(.9); pointer-events:none; transition:opacity .2s,transform .2s,border-color .2s; }
+.enemy-protection-aura::before { content:""; position:absolute; left:17%; top:11%; width:28%; height:15%; border-radius:50%; background:rgba(255,255,255,.38); filter:blur(2px); transform:rotate(-24deg); }
+.enemy-sprite.has-common-shield .enemy-protection-aura,
+.enemy-sprite.has-element-barrier .enemy-protection-aura { opacity:1; transform:scale(1); animation:enemyAuraBreathe 1.8s ease-in-out infinite; }
+.enemy-sprite.has-common-shield .enemy-protection-aura { --aura-rgb:230,190,103; }
+.enemy-sprite.has-element-barrier.barrier-wood .enemy-protection-aura { --aura-rgb:74,199,126; }
+.enemy-sprite.has-element-barrier.barrier-fire .enemy-protection-aura { --aura-rgb:246,91,71; }
+.enemy-sprite.has-element-barrier.barrier-earth .enemy-protection-aura { --aura-rgb:224,177,76; }
+.enemy-sprite.has-element-barrier.barrier-metal .enemy-protection-aura { --aura-rgb:184,219,235; }
+.enemy-sprite.has-element-barrier.barrier-water .enemy-protection-aura { --aura-rgb:71,155,241; }
+.enemy-burn-status { position:absolute; right:-42px; top:-17px; z-index:8; display:flex; align-items:center; gap:4px; min-width:48px; padding:5px 8px; border:1px solid rgba(255,154,92,.75); border-radius:999px; color:#fff0d1; background:linear-gradient(135deg,rgba(117,28,18,.96),rgba(42,15,12,.95)); box-shadow:0 5px 15px rgba(0,0,0,.4),0 0 15px rgba(255,89,45,.32); font-size:11px; pointer-events:none; }
+.enemy-burn-status[hidden] { display:none!important; }
+.enemy-burn-status b { display:grid; place-items:center; width:22px; height:22px; border-radius:50%; color:#32110d; background:linear-gradient(#ffe36d,#ff6b32); font:900 13px/1 "Gowun Batang","Batang",serif; animation:burnBadgeFlicker .7s ease-in-out infinite alternate; }
+.enemy-burn-status strong { font-size:12px; font-variant-numeric:tabular-nums; }
+@keyframes enemyAuraBreathe { 50% { transform:scale(1.035); box-shadow:inset 0 0 31px rgba(var(--aura-rgb),.3),0 0 34px rgba(var(--aura-rgb),.52),0 0 0 8px rgba(var(--aura-rgb),.055); } }
+@keyframes burnBadgeFlicker { to { transform:translateY(-2px) scale(1.06); filter:brightness(1.16); } }
+.enemy-element-barrier-pill { border-color:rgba(85,160,235,.5); background:linear-gradient(100deg,rgba(49,113,185,.2),rgba(25,66,97,.22)); }
+.enemy-element-barrier-pill b { color:#bde3ff; }
+.enemy-element-barrier-pill small { color:#b9d9ef; }
+
+/* Reader-facing game and world glossary. */
+.glossary-modal { z-index:92; }
+.glossary-card { width:min(980px,calc(100vw - 28px)); max-height:calc(100dvh - 28px); padding:26px 28px 30px; overflow:auto; text-align:left; scrollbar-width:thin; scrollbar-color:#d2a84f rgba(255,255,255,.05); }
+.glossary-heading { display:flex; justify-content:space-between; align-items:flex-start; gap:18px; margin-bottom:16px; }
+.glossary-heading h2 { margin:4px 0 5px; color:#f1dc9a; font:700 clamp(28px,4vw,43px)/1.16 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
+.glossary-heading p:not(.eyebrow) { margin:0; color:#a9bbb3; font-size:14px; line-height:1.55; }
+.glossary-heading .icon-button { flex:none; }
+.glossary-search { display:grid; grid-template-columns:auto minmax(0,1fr); align-items:center; gap:12px; padding:11px 13px; border:1px solid rgba(230,184,92,.28); border-radius:10px; background:rgba(255,255,255,.03); }
+.glossary-search span { color:#e5cb82; font-size:12px; font-weight:800; }
+.glossary-search input { min-height:39px; padding:8px 11px; border:1px solid rgba(135,161,149,.25); border-radius:8px; color:#edf4ef; background:rgba(2,12,10,.72); font-size:14px; }
+.glossary-filters { display:flex; flex-wrap:wrap; gap:7px; margin:12px 0 7px; }
+.glossary-filters button { min-height:36px; padding:7px 12px; border:1px solid rgba(135,161,149,.25); border-radius:999px; color:#aebfb7; background:rgba(255,255,255,.025); font-size:11px; font-weight:800; cursor:pointer; }
+.glossary-filters button:hover,
+.glossary-filters button.active { color:#17281f; border-color:#ebcf7c; background:#ebcf7c; }
+.glossary-result-count { margin:0 0 12px; color:#7f978d; font-size:11px; }
+.glossary-sections { display:grid; gap:15px; }
+.glossary-sections section { padding:15px; border:1px solid rgba(230,184,92,.18); border-radius:12px; background:linear-gradient(135deg,rgba(230,184,92,.045),rgba(71,139,115,.035)); }
+.glossary-sections section[hidden],
+.glossary-entry[hidden] { display:none!important; }
+.glossary-sections section > header { display:flex; align-items:center; gap:10px; margin-bottom:11px; }
+.glossary-sections section > header > span { display:grid; place-items:center; flex:none; width:42px; height:42px; border:1px solid rgba(230,184,92,.42); border-radius:7px 15px 7px 12px; color:#f0d37b; background:rgba(29,57,46,.8); font:700 22px/1 "Gowun Batang","Batang",serif; }
+.glossary-sections section > header small { color:#75a994; font-size:9px; font-weight:900; letter-spacing:.15em; }
+.glossary-sections section > header h3 { margin:1px 0 0; color:#eee2c5; font:700 20px/1.2 "Gowun Batang","Batang",serif; }
+.glossary-sections dl { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin:0; }
+.glossary-entry { padding:12px 13px; border:1px solid rgba(135,161,149,.18); border-radius:9px; background:rgba(3,13,11,.42); }
+.glossary-entry dt { margin-bottom:6px; color:#f0d486; font-size:15px; font-weight:900; }
+.glossary-entry dt small { margin-left:4px; padding:2px 5px; border:1px solid rgba(95,177,232,.5); border-radius:999px; color:#b9e0fb; font-size:8px; vertical-align:middle; }
+.glossary-entry dd { margin:0; color:#c4d1cb; font-size:13px; line-height:1.68; word-break:keep-all; }
+.glossary-entry dd b { color:#ffe197; }
+.glossary-experimental { border-color:rgba(91,170,226,.36); background:linear-gradient(135deg,rgba(44,109,164,.12),rgba(3,13,11,.42)); }
+.glossary-empty { margin:28px 0 8px; color:#aebfb7; font-size:14px; text-align:center; }
+
+@media (max-width:760px) {
+  #intro-modal .intro-card { padding:18px 14px; }
+  #intro-modal .intro-card h2 { font-size:29px; }
+  #intro-modal .intro-card .intro-copy { display:block; margin-bottom:13px; font-size:13px; line-height:1.65; }
+  #intro-modal .drag-primer { grid-template-columns:1fr; gap:10px; padding:11px; }
+  #intro-modal .drag-primer-copy span { display:block; font-size:12px; }
+  #intro-modal .drag-primer-copy strong { font-size:17px; }
+  #intro-modal .story-chapter-select { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  #intro-modal .story-chapter-button { grid-template-columns:31px minmax(0,1fr); min-height:57px; padding:8px; }
+  #intro-modal .story-chapter-button > b { width:30px; height:30px; font-size:13px; }
+  #intro-modal .story-chapter-button strong { font-size:12px; }
+  #intro-modal .story-chapter-button small { font-size:9px; }
+  #intro-modal .how-to { grid-template-columns:1fr; }
+  #intro-modal .how-to div { min-height:0; padding:9px 10px; }
+  #intro-modal .how-to span { font-size:12px; }
+  #intro-modal .how-to strong { font-size:13px; }
+  body.puzzle-mode .story-training-hud:not([hidden]) { grid-template-columns:39px minmax(0,1fr) auto; gap:8px; min-height:68px; padding:8px 9px; }
+  .story-training-glyph { width:37px; height:37px; font-size:21px; }
+  .story-training-copy small { font-size:9px; }
+  .story-training-copy strong { font-size:15px; }
+  .story-training-copy em { font-size:11px; }
+  .story-training-hud > b { font-size:11px; }
+  .story-lesson-recap span { font-size:10px; }
+  .debug-status { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .enemy-protection-aura { inset:-13px -21px -12px; border-width:2px; }
+  .enemy-burn-status { right:-28px; top:-13px; padding:4px 6px; }
+  .glossary-card { width:calc(100vw - 14px); max-height:calc(100dvh - 14px); padding:18px 13px 22px; }
+  .glossary-heading h2 { font-size:28px; }
+  .glossary-heading p:not(.eyebrow) { font-size:12px; }
+  .glossary-search { grid-template-columns:1fr; gap:6px; }
+  .glossary-filters { gap:5px; }
+  .glossary-filters button { min-height:34px; padding:6px 9px; font-size:10px; }
+  .glossary-sections section { padding:11px; }
+  .glossary-sections dl { grid-template-columns:1fr; }
+  .glossary-entry dt { font-size:14px; }
+  .glossary-entry dd { font-size:12px; line-height:1.65; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .enemy-protection-aura,
+  .enemy-burn-status b,
+  .menu-logo-secret.secret-tap { animation:none!important; }
 }
 
 /* --------------------------------------------------------------------------
@@ -3159,13 +3307,13 @@ body .combat-notification-anchor .alchemy-overlay > strong { max-width:100%; mar
 .jaryeong-skill-inspector-art .tamed-talisman { position:absolute; }
 .jaryeong-skill-inspector-copy { min-width:0; display:grid; gap:5px; }
 .jaryeong-skill-inspector-copy small { color:#91b6a4; font-size:8px; letter-spacing:.09em; }
-.jaryeong-skill-inspector-copy h2 { margin:0; color:#f0d68f; font:700 18px/1.1 "Gowun Batang",serif; outline:none; }
+.jaryeong-skill-inspector-copy h2 { margin:0; color:#f0d68f; font:700 18px/1.1 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; outline:none; }
 .jaryeong-skill-inspector-copy p { margin:0; line-height:1.48; }
 .jaryeong-skill-inspector-copy > p:first-of-type { color:#d2e2d9; font-size:10px; }
 .jaryeong-skill-inspector-status { color:#8ef0c7; font-size:9px; font-weight:800; }
 .jaryeong-skill-inspector-guide { color:#a7bdb2; font-size:8px; }
 .jaryeong-skill-inspector-close { position:absolute; z-index:2; display:grid; place-items:center; width:36px; height:36px; padding:0; border:1px solid rgba(230,184,92,.34); border-radius:50%; color:#dec784; background:rgba(4,15,13,.72); font-size:21px; cursor:pointer; }
-.jaryeong-skill-inspector-cast { min-height:48px; border:1px solid rgba(87,214,176,.52); border-radius:10px; color:#9fb5aa; background:rgba(255,255,255,.035); font:800 12px/1 "Gowun Batang",serif; cursor:not-allowed; }
+.jaryeong-skill-inspector-cast { min-height:48px; border:1px solid rgba(87,214,176,.52); border-radius:10px; color:#9fb5aa; background:rgba(255,255,255,.035); font:800 12px/1 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; cursor:not-allowed; }
 .jaryeong-skill-inspector-cast.is-ready { color:#092117; border-color:#8bf0c8; background:linear-gradient(180deg,#a6f5d4,#52c798); box-shadow:0 0 18px rgba(87,214,176,.38); cursor:pointer; }
 .jaryeong-skill-inspector-cast.is-ready:hover { filter:brightness(1.08); transform:translateY(-1px); }
 .jaryeong-skill-inspector-cast.is-blocked { opacity:.9; }
@@ -3452,3 +3600,485 @@ body.alchemy-scene-active > .alchemy-overlay .alchemy-glyphs span {
 body.alchemy-scene-active > .alchemy-overlay h2 { margin:22px 0 4px; font-size:clamp(25px,4vw,38px); }
 body.alchemy-scene-active > .alchemy-overlay p { margin:0; font-size:clamp(12px,1.7vw,17px); white-space:normal; }
 body.alchemy-scene-active > .alchemy-overlay > strong { max-width:min(720px,88vw); margin-top:14px; font-size:clamp(13px,1.8vw,18px); line-height:1.5; white-space:normal; text-overflow:clip; }
+
+/* Submission production build: Pang entry removed, keep remaining shrine actions balanced. */
+.menu-shrine-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+
+/* ========================================================================
+   Submission polish · 2026-08-09
+   Board-first onboarding and game-feel pass.  Kept as a late override so the
+   existing responsive combat HUD remains stable.
+   ======================================================================== */
+
+/* The submitted build should read as a finished game, not an internal demo. */
+.masthead > div:first-child > .eyebrow { letter-spacing:.18em; }
+
+/* Story intro: present the core gesture as a moving game mechanic, not prose. */
+#intro-modal .intro-card {
+  position:relative;
+  width:min(880px,100%);
+  overflow:hidden;
+  border:2px double rgba(230,184,92,.52);
+  border-radius:18px 18px 28px 28px;
+  background:
+    radial-gradient(circle at 82% 12%,rgba(87,214,176,.11),transparent 28%),
+    linear-gradient(155deg,rgba(7,23,19,.98),rgba(5,13,12,.97));
+  box-shadow:0 30px 90px rgba(0,0,0,.72),inset 0 0 45px rgba(230,184,92,.045);
+}
+#intro-modal .intro-card::before {
+  content:"序";
+  position:absolute;
+  right:-16px;
+  top:-44px;
+  color:rgba(230,184,92,.045);
+  font:700 190px/1 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif;
+  pointer-events:none;
+}
+#intro-modal .intro-card > * { position:relative; z-index:1; }
+
+.drag-primer {
+  display:grid;
+  grid-template-columns:minmax(250px,.92fr) minmax(330px,1.08fr);
+  align-items:center;
+  gap:14px;
+  margin:0 0 13px;
+  padding:11px;
+  border:1px solid rgba(87,214,176,.32);
+  border-left:3px solid #57d6b0;
+  border-radius:10px;
+  background:linear-gradient(110deg,rgba(23,74,58,.24),rgba(5,15,13,.58));
+  box-shadow:inset 0 0 22px rgba(87,214,176,.035);
+}
+.drag-primer-copy { display:grid; gap:5px; text-align:left; }
+.drag-primer-copy small { color:#75cdae; font-size:7px; font-weight:900; letter-spacing:.15em; }
+.drag-primer-copy strong { color:#f1e5c8; font:700 14px/1.45 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
+.drag-primer-copy strong em { color:#ffe08b; font-style:normal; }
+.drag-primer-copy span { color:#91a79c; font-size:8px; line-height:1.55; }
+.drag-primer-demo {
+  position:relative;
+  min-height:132px;
+  padding:6px;
+  overflow:hidden;
+  border:1px solid rgba(230,184,92,.25);
+  border-radius:9px;
+  background:rgba(2,9,8,.76);
+  box-shadow:inset 0 0 22px rgba(0,0,0,.7);
+}
+.drag-primer-grid { display:grid; grid-template-columns:repeat(5,1fr); grid-template-rows:repeat(3,1fr); gap:3px; height:118px; }
+.drag-primer-grid b {
+  display:grid;
+  place-items:center;
+  min-width:0;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:5px;
+  color:#f7efd9;
+  font:700 15px/1 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif;
+  text-shadow:0 1px 2px #000;
+  box-shadow:inset 0 -6px 10px rgba(0,0,0,.24);
+}
+.drag-primer-grid .wood{background:#286c4b}.drag-primer-grid .fire{background:#9d3b2f}.drag-primer-grid .earth{background:#8b6a2b}.drag-primer-grid .metal{background:#657986}.drag-primer-grid .water{background:#2c6096}
+.drag-primer-grid-start { animation:submissionPrimerStartGrid 3.3s ease-in-out infinite; }
+.drag-primer-grid-final { position:absolute; inset:6px; width:calc(100% - 12px); opacity:0; pointer-events:none; animation:submissionPrimerFinalGrid 3.3s ease-in-out infinite; }
+.drag-primer-grid-final .matched-demo { position:relative; z-index:1; animation:submissionPrimerMatched 3.3s ease-in-out infinite; }
+.drag-primer-path { position:absolute; inset:6px; width:calc(100% - 12px); height:118px; overflow:visible; pointer-events:none; }
+.drag-primer-path polyline { fill:none; stroke:#ffe28d; stroke-width:8; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:14 10; opacity:.72; animation:submissionPathDash 1.05s linear infinite; }
+.drag-primer-cursor {
+  position:absolute;
+  left:50%; top:50%;
+  width:28px; height:28px;
+  display:grid; place-items:center;
+  border:2px solid #fff4bf;
+  border-radius:50%;
+  background:rgba(10,31,25,.94);
+  box-shadow:0 0 0 5px rgba(255,224,123,.14),0 0 19px rgba(255,205,75,.65);
+  animation:submissionPrimerDrag 3.3s ease-in-out infinite;
+  pointer-events:none;
+}
+.drag-primer-cursor::after { content:""; width:8px; height:8px; border-radius:50%; background:#ffe083; box-shadow:0 0 8px #ffe083; }
+.drag-primer-hold { position:absolute; left:50%; top:50%; padding:2px 5px; border-radius:999px; color:#173126; background:#ffe19a; font-size:6px; font-weight:900; transform:translate(18px,-31px); animation:submissionHoldLabel 3.3s ease-in-out infinite; }
+.drag-primer-release { position:absolute; left:10%; top:14%; z-index:4; padding:3px 6px; border:1px solid rgba(157,240,205,.65); border-radius:999px; color:#caffeb; background:rgba(4,27,21,.92); font-size:6px; font-weight:900; opacity:0; transform:translate(-50%,-50%); animation:submissionPrimerRelease 3.3s ease-in-out infinite; }
+.drag-primer-combo { position:absolute; right:11px; bottom:9px; z-index:5; color:#fff0a9; font:900 18px/1 "Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo","Noto Sans CJK KR",sans-serif; text-shadow:0 2px #9d4127,0 0 12px #eabf5d; opacity:0; animation:submissionPrimerCombo 3.3s ease-in-out infinite; }
+
+/* Actual tutorial board: animated route preview like a strategy-guide GIF. */
+.story-path-demo { position:absolute; inset:0; z-index:9; overflow:visible; pointer-events:none; }
+.story-path-svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
+.story-path-svg polyline { fill:none; stroke:#ffe486; stroke-width:5; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:10 8; opacity:.78; filter:drop-shadow(0 0 5px rgba(255,216,104,.62)); animation:submissionPathDash 1s linear infinite; }
+.drag-live-svg { position:absolute; inset:0; z-index:8; width:100%; height:100%; overflow:visible; pointer-events:none; }
+.drag-live-svg polyline { fill:none; stroke:rgba(255,229,139,.88); stroke-width:4.5; stroke-linecap:round; stroke-linejoin:round; filter:drop-shadow(0 0 5px rgba(255,205,74,.75)); }
+.story-path-steps span { position:absolute; width:18px; height:18px; display:grid; place-items:center; border:1px solid #ffeca8; border-radius:50%; color:#1a2c24; background:#f3d36e; box-shadow:0 0 0 3px rgba(243,211,110,.14),0 0 12px rgba(243,211,110,.5); transform:translate(-50%,-50%); }
+.story-path-steps span::after { content:attr(data-step); font-size:6px; font-weight:900; white-space:nowrap; }
+.story-path-cursor { position:absolute; left:0; top:0; width:34px; height:34px; display:grid; place-items:center; border:2px solid #fff0a3; border-radius:50%; background:rgba(8,33,26,.96); box-shadow:0 0 0 6px rgba(255,224,118,.13),0 0 22px rgba(255,205,65,.72); will-change:transform,opacity; }
+.story-path-cursor i { width:10px; height:10px; border-radius:50%; background:#ffe37e; box-shadow:0 0 10px #ffe37e; }
+.story-path-caption,.story-path-result { position:absolute; z-index:2; padding:4px 7px; border-radius:999px; white-space:nowrap; }
+.story-path-caption { left:50%; top:7px; color:#f8e9b8; border:1px solid rgba(230,184,92,.42); background:rgba(3,18,15,.88); font-size:8px; font-weight:900; transform:translateX(-50%); }
+.story-path-result { right:9px; bottom:8px; color:#14281f; background:#f0cf73; font-size:8px; box-shadow:0 0 14px rgba(240,207,115,.32); animation:submissionResultPulse 1.3s ease-in-out infinite; }
+body.puzzle-mode .tile.story-guide-step { z-index:2; box-shadow:inset 0 0 0 2px rgba(255,224,118,.35),0 0 11px rgba(255,203,72,.22); }
+body.puzzle-mode .tile.story-guide-step::before { content:attr(data-guide-label); position:absolute; z-index:4; inset:3px 3px auto auto; display:grid; place-items:center; min-width:16px; height:16px; padding:0 3px; border:0; border-radius:999px; color:#17291f; background:#f2d374; font:900 6px/1 "Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo","Noto Sans CJK KR",sans-serif; }
+body.puzzle-mode .tile.story-guide-start::after { content:"잡기"; left:4px; top:4px; z-index:5; width:auto; color:#192c22; padding:2px 4px; border-radius:999px; background:#ffe28d; font:900 6px/1 "Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo","Noto Sans CJK KR",sans-serif; }
+body.puzzle-mode .tile.story-guide-target::before { content:"놓기"; background:#9df0cd; }
+.tile.drag-trail { filter:brightness(1.1); box-shadow:inset 0 0 0 3px rgba(255,226,128,.28),0 0 15px rgba(255,207,72,.28); }
+.tile.drag-trail:not(.dragging-source) { transform:scale(.98); }
+
+/* Tutorial should feel like a game screen: board first, reference panels second. */
+@media (min-width:761px) {
+  body.puzzle-mode .main-grid { grid-template-columns:minmax(230px,.72fr) minmax(570px,2.1fr)!important; gap:11px!important; }
+  body.puzzle-mode .chronicle-panel { display:none!important; }
+  body.puzzle-mode .puzzle-panel { border-color:rgba(230,184,92,.28); box-shadow:0 12px 34px rgba(0,0,0,.38),inset 0 0 28px rgba(87,214,176,.025); }
+  body.puzzle-mode .idiom-panel { opacity:.92; }
+  body.puzzle-mode .story-training-hud:not([hidden]) { border-left:3px solid #e6b85c; }
+
+  /* Progressive disclosure: the first three lessons teach the board before showing recipe dashboards. */
+  body.puzzle-mode[data-story-chapter-active="disaster-gate"] .main-grid,
+  body.puzzle-mode[data-story-chapter-active="five-lights"] .main-grid,
+  body.puzzle-mode[data-story-chapter-active="gathered-letters"] .main-grid {
+    grid-template-columns:minmax(620px,900px)!important;
+    justify-content:center;
+  }
+  body.puzzle-mode[data-story-chapter-active="disaster-gate"] .idiom-panel,
+  body.puzzle-mode[data-story-chapter-active="five-lights"] .idiom-panel,
+  body.puzzle-mode[data-story-chapter-active="gathered-letters"] .idiom-panel { display:none!important; }
+  body.puzzle-mode[data-story-chapter-active="disaster-gate"] .puzzle-panel,
+  body.puzzle-mode[data-story-chapter-active="five-lights"] .puzzle-panel,
+  body.puzzle-mode[data-story-chapter-active="gathered-letters"] .puzzle-panel { width:min(100%,900px); justify-self:center; }
+  body.puzzle-mode[data-story-chapter-active="disaster-gate"] .queue-area,
+  body.puzzle-mode[data-story-chapter-active="five-lights"] .queue-area { display:none; }
+}
+
+@media (max-width:760px) {
+  body.puzzle-mode[data-story-chapter-active="disaster-gate"] .idiom-panel,
+  body.puzzle-mode[data-story-chapter-active="five-lights"] .idiom-panel,
+  body.puzzle-mode[data-story-chapter-active="gathered-letters"] .idiom-panel { display:none!important; }
+  body.puzzle-mode[data-story-chapter-active="disaster-gate"] .queue-area,
+  body.puzzle-mode[data-story-chapter-active="five-lights"] .queue-area { display:none; }
+  .drag-primer { grid-template-columns:1fr; gap:8px; padding:8px; }
+  .drag-primer-copy span { display:none; }
+  .drag-primer-demo { min-height:94px; }
+  .drag-primer-grid { height:82px; }
+  .drag-primer-path { height:82px; }
+  .drag-primer-cursor { width:23px; height:23px; }
+  .drag-primer-combo { font-size:13px; }
+  .story-path-caption { top:4px; font-size:6px; }
+  .story-path-result { right:5px; bottom:4px; font-size:6px; }
+  .story-path-cursor { width:26px; height:26px; }
+  .story-path-steps span { width:14px; height:14px; }
+  .story-path-steps span::after { font-size:5px; }
+}
+
+@keyframes submissionPathDash { to { stroke-dashoffset:-36; } }
+@keyframes submissionPrimerDrag {
+  0%,8% { left:50%; top:50%; transform:translate(-50%,-50%) scale(.75); opacity:0; }
+  14% { left:50%; top:50%; transform:translate(-50%,-50%) scale(1); opacity:1; }
+  28% { left:50%; top:50%; transform:translate(-50%,-50%) scale(.9); opacity:1; }
+  44% { left:50%; top:17%; transform:translate(-50%,-50%) scale(.9); opacity:1; }
+  58% { left:30%; top:17%; transform:translate(-50%,-50%) scale(.9); opacity:1; }
+  72%,80% { left:10%; top:17%; transform:translate(-50%,-50%) scale(.94); opacity:1; }
+  89% { left:10%; top:17%; transform:translate(-50%,-50%) scale(.8); opacity:0; }
+  100% { left:50%; top:50%; transform:translate(-50%,-50%) scale(.75); opacity:0; }
+}
+@keyframes submissionHoldLabel { 0%,12%,86%,100%{opacity:0} 20%,76%{opacity:1} }
+@keyframes submissionPrimerStartGrid { 0%,67%{opacity:1;filter:none} 73%,91%{opacity:.12;filter:brightness(.58)} 96%,100%{opacity:1;filter:none} }
+@keyframes submissionPrimerFinalGrid { 0%,67%{opacity:0;transform:scale(.985)} 73%,89%{opacity:1;transform:scale(1)} 94%,100%{opacity:0;transform:scale(.985)} }
+@keyframes submissionPrimerMatched { 0%,69%{filter:none;transform:scale(1)} 74%,82%{filter:brightness(1.5) saturate(1.18);transform:scale(1.045);box-shadow:inset 0 0 0 2px rgba(255,239,157,.78),0 0 12px rgba(255,214,91,.72)} 88%,100%{filter:none;transform:scale(1)} }
+@keyframes submissionPrimerRelease { 0%,67%{opacity:0;transform:translate(-50%,-50%) scale(.88)} 72%,82%{opacity:1;transform:translate(-50%,-50%) scale(1)} 88%,100%{opacity:0;transform:translate(-50%,-50%) scale(.9)} }
+@keyframes submissionPrimerCombo { 0%,72%{opacity:0;transform:scale(.6) translateY(5px)} 80%,90%{opacity:1;transform:scale(1)} 100%{opacity:0;transform:translateY(-5px)} }
+@keyframes submissionResultPulse { 50% { transform:scale(1.04); box-shadow:0 0 18px rgba(240,207,115,.5); } }
+
+@media (prefers-reduced-motion:reduce) {
+  .drag-primer-path polyline,.story-path-svg polyline,.drag-primer-cursor,.drag-primer-hold,.drag-primer-release,.drag-primer-combo,.drag-primer-grid-start,.drag-primer-grid-final,.drag-primer-grid-final .matched-demo,.story-path-result { animation:none!important; }
+  .drag-primer-cursor { left:10%; top:17%; opacity:1; transform:translate(-50%,-50%); }
+  .drag-primer-combo { opacity:1; transform:none; }
+  .drag-primer-grid-start { opacity:.1; }
+  .drag-primer-grid-final { opacity:1; transform:none; }
+  .drag-primer-release { opacity:1; transform:translate(-50%,-50%); }
+}
+
+
+/* Submission polish: live drag state */
+.drag-state-banner { position:absolute; left:50%; bottom:9px; z-index:10; display:flex; align-items:center; gap:7px; padding:5px 9px; border:1px solid rgba(255,226,128,.55); border-radius:999px; color:#e9f4ee; background:rgba(3,19,16,.91); box-shadow:0 6px 18px rgba(0,0,0,.35),0 0 16px rgba(255,211,91,.12); transform:translateX(-50%); pointer-events:none; backdrop-filter:blur(5px); }
+.drag-state-banner[hidden] { display:none!important; }
+.drag-state-banner span { color:#e3bf68; font-size:7px; font-weight:900; letter-spacing:.08em; }
+.drag-state-banner strong { color:#fff0ad; font-size:9px; }
+.drag-state-banner em { color:#9fc9b8; font-size:7px; font-style:normal; }
+body.puzzle-mode .drag-state-banner { bottom:7px; }
+@media (max-width:760px) { .drag-state-banner { bottom:5px; gap:5px; padding:4px 7px; } .drag-state-banner span,.drag-state-banner em { font-size:6px; } .drag-state-banner strong { font-size:7px; } }
+
+
+/* Submission polish: first-play recommendation */
+#puzzle-mode-button { position:relative; }
+#puzzle-mode-button.first-play-recommended::after { content:"처음 추천"; position:absolute; right:8px; top:-7px; padding:3px 7px; border:1px solid rgba(255,237,167,.75); border-radius:999px; color:#173026; background:#f0d273; box-shadow:0 4px 12px rgba(0,0,0,.34),0 0 12px rgba(240,210,115,.25); font-size:7px; font-weight:900; letter-spacing:.03em; }
+.menu-foot > span b { color:#e6c776; font-weight:900; }
+.roguelike-intro-card > .intro-copy b { color:#f0d47f; font-weight:800; }
+
+
+/* Final audit: reduce first-entry dashboard density and make the five-element
+   relationship readable at a glance without adding another modal. */
+.story-chapter-select[hidden] { display:none!important; }
+.story-training-route-hint { margin:-4px auto 12px; color:#95aaa0; font-size:8px; font-weight:700; letter-spacing:.02em; line-height:1.5; }
+.affinity-cycle-note { display:grid; gap:4px; margin:0 0 14px; padding:9px 11px; border:1px solid rgba(230,184,92,.24); border-radius:10px; background:linear-gradient(100deg,rgba(230,184,92,.075),rgba(65,141,116,.045)); text-align:center; }
+.affinity-cycle-note small { color:#98896b; font-size:7px; font-weight:800; letter-spacing:.14em; }
+.affinity-cycle-note strong { color:#f1d98b; font:800 14px/1.2 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; letter-spacing:.08em; }
+.affinity-cycle-note span { color:#8fa39a; font-size:7px; line-height:1.45; }
+@media (max-width:470px) {
+  .story-training-route-hint { margin-bottom:8px; font-size:7px; }
+  .affinity-cycle-note { margin-bottom:9px; padding:7px 8px; }
+  .affinity-cycle-note strong { font-size:12px; }
+  .affinity-cycle-note span { font-size:6px; }
+}
+
+/* Submission master polish: the title seal already identifies the screen.
+   Hiding the generic plaque removes a web-navigation/button-like visual and keeps
+   the illustrated shrine, logo seal, spirits and game modes as the hierarchy. */
+.menu-plaque { display:none!important; }
+
+/* Submission master: production-only surface. Retired Pang/debug tools must stay
+   unreachable even when component display rules override the HTML hidden attribute. */
+#pang-mode-button,
+#pang-hud,
+#pang-idiom-strip,
+#pang-guide,
+#pang-skill-rail,
+#pang-intro-modal,
+#pang-result-modal,
+#debug-button,
+#debug-modal { display:none!important; }
+.menu-shrine-actions { grid-template-columns:repeat(2,minmax(0,1fr)); }
+
+/* Recursive submission polish: when only one fixed recipe is owned, the lower
+   half of the ritual panel can read as an empty web card.  A very faint seal
+   makes that negative space feel intentional without adding more dashboard UI. */
+@media (min-width:761px) {
+  body[data-idiom-display="all-large"].roguelike-mode .idiom-panel::after {
+    content:"鍊";
+    position:absolute;
+    left:50%;
+    top:60%;
+    z-index:0;
+    display:grid;
+    place-items:center;
+    width:clamp(120px,12vw,185px);
+    aspect-ratio:1;
+    border:1px solid rgba(230,184,92,.12);
+    border-radius:50%;
+    color:rgba(230,184,92,.055);
+    font:900 clamp(76px,8vw,126px)/1 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif;
+    text-shadow:0 0 26px rgba(230,184,92,.045);
+    box-shadow:inset 0 0 0 8px rgba(230,184,92,.018),0 0 48px rgba(230,184,92,.018);
+    transform:translate(-50%,-50%) rotate(-5deg);
+    pointer-events:none;
+  }
+  body[data-idiom-display="all-large"].roguelike-mode .idiom-panel > .section-heading,
+  body[data-idiom-display="all-large"].roguelike-mode .idiom-panel > .idiom-cards {
+    position:relative;
+    z-index:1;
+  }
+}
+
+/* Recursive submission polish: secondary controls were visually readable but
+   measured too shallow for comfortable thumb input on a 390px viewport. */
+@media (max-width:760px) {
+  .shrine-menu-content .menu-foot-actions {
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:6px;
+  }
+  .shrine-menu-content .menu-foot .text-button,
+  #puzzle-intro-menu {
+    min-height:32px;
+    padding:6px 10px;
+    border-radius:8px;
+    touch-action:manipulation;
+  }
+}
+
+/* Final cascade guard: late legacy tutorial rules must not shrink the route
+   labels below the readability floor introduced above. */
+#intro-modal .intro-card {
+  max-height:calc(100dvh - 28px);
+  overflow-x:hidden;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(230,184,92,.72) rgba(255,255,255,.035);
+}
+.story-path-caption,
+.story-path-result { font-size:11px; }
+body.puzzle-mode .tile.story-guide-step::before,
+body.puzzle-mode .tile.story-guide-start::after,
+body.puzzle-mode .tile.story-guide-target::before { min-width:21px; height:21px; font-size:9px; }
+@media (max-width:760px) {
+  .story-path-caption,
+  .story-path-result { font-size:10px; }
+  .story-training-copy em { font-size:12px; }
+  body.puzzle-mode .tile.story-guide-step::before,
+  body.puzzle-mode .tile.story-guide-start::after,
+  body.puzzle-mode .tile.story-guide-target::before { min-width:20px; height:20px; font-size:9px; }
+}
+
+/* 2026-08-09 combat-readability lab: make the actual attack clock the first
+   thing the eye catches. Safe preparation turns and imminent attacks use
+   different shape, color and wording rather than color alone. */
+.enemy-intent-card { grid-template-columns:minmax(0,1fr) auto; column-gap:8px; }
+.enemy-intent-card .intent-kicker { grid-column:1 / -1; }
+.enemy-intent-card > strong,
+.enemy-intent-card > span,
+.enemy-intent-card > p { grid-column:1; }
+.enemy-attack-countdown { grid-column:2; grid-row:2 / span 3; align-self:stretch; min-width:78px; display:grid; grid-template-columns:1fr auto; grid-template-rows:auto 1fr auto; align-items:center; justify-items:center; padding:5px 7px; border:1px solid rgba(255,119,91,.64); border-radius:8px; background:linear-gradient(145deg,rgba(133,33,23,.84),rgba(47,17,15,.78)); box-shadow:inset 0 0 16px rgba(255,92,60,.12),0 0 16px rgba(255,73,47,.08); font-variant-numeric:tabular-nums; }
+.enemy-attack-countdown > span { grid-column:1 / -1; color:#ffd3c8; font-size:8px; font-weight:900; letter-spacing:.08em; }
+.enemy-attack-countdown > strong { align-self:end; color:#fff3d9; font:900 30px/.9 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; text-shadow:0 0 12px rgba(255,113,74,.55); }
+.enemy-attack-countdown > b { align-self:end; color:#ffd2bc; font-size:10px; }
+.enemy-attack-countdown > small { grid-column:1 / -1; color:#ffc0ae; font-size:7px; font-weight:800; line-height:1.2; text-align:center; }
+.enemy-attack-countdown.is-safe { border-color:rgba(80,218,162,.58); background:linear-gradient(145deg,rgba(28,96,70,.78),rgba(13,45,35,.76)); box-shadow:inset 0 0 16px rgba(86,225,171,.1),0 0 14px rgba(61,196,145,.08); }
+.enemy-attack-countdown.is-safe > span,
+.enemy-attack-countdown.is-safe > b,
+.enemy-attack-countdown.is-safe > small { color:#a8f0d1; }
+.enemy-attack-countdown.is-safe > strong { color:#d9ffed; text-shadow:0 0 12px rgba(84,225,166,.42); }
+.enemy-intent-card.is-safe-turn { border-color:rgba(83,209,157,.42); border-left-color:#65d9aa; background:linear-gradient(135deg,rgba(29,94,69,.35),rgba(18,34,28,.6)); }
+.enemy-intent-card.is-imminent-turn { border-color:rgba(255,99,74,.72); border-left-color:#ff684f; box-shadow:0 0 22px rgba(237,68,43,.14),inset 0 0 18px rgba(237,68,43,.06); }
+.enemy-intent-card.is-imminent-turn .enemy-attack-countdown { animation:attackClockPulse 1.05s ease-in-out infinite; }
+
+/* Debug-only three-enemy formation. Every art frame is contained inside its
+   own wrapper so portrait proportions are preserved and nothing is clipped. */
+.debug-enemy-squad[hidden] { display:none!important; }
+.debug-enemy-squad { position:relative; z-index:8; width:min(100%,480px); height:100%; display:grid; grid-template-columns:repeat(3,minmax(82px,1fr)); align-items:end; gap:7px; overflow:visible; }
+body.debug-multi-mode #enemy-sprite { display:none!important; }
+body.debug-multi-mode .enemy-stage { overflow:visible; }
+.multi-enemy-unit { position:relative; min-width:0; height:134px; display:grid; grid-template-rows:minmax(0,84px) auto 5px auto; align-items:end; gap:2px; padding:3px 4px 4px; overflow:visible; border:1px solid rgba(171,190,178,.22); border-radius:11px 11px 7px 7px; color:#dfeadf; background:linear-gradient(180deg,rgba(18,48,39,.26),rgba(4,15,13,.62)); box-shadow:0 8px 18px rgba(0,0,0,.24); cursor:pointer; transition:transform .18s,border-color .18s,background .18s,filter .18s; }
+.multi-enemy-unit:hover:not(:disabled),.multi-enemy-unit:focus-visible { transform:translateY(-3px); border-color:rgba(230,184,92,.62); outline:none; }
+.multi-enemy-unit.selected { border:2px solid #f2c867; background:linear-gradient(180deg,rgba(74,66,30,.32),rgba(7,23,18,.72)); box-shadow:0 0 0 3px rgba(242,200,103,.11),0 10px 24px rgba(0,0,0,.34); }
+.multi-enemy-unit.defeated { opacity:.3; filter:grayscale(1); cursor:default; }
+.multi-enemy-art-wrap { position:relative; display:block; width:100%; height:84px; overflow:visible; }
+.multi-enemy-art-wrap > img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; object-position:center bottom; filter:drop-shadow(0 7px 5px rgba(0,0,0,.65)); }
+.multi-enemy-unit > strong { min-width:0; overflow:hidden; color:#f0dfb8; font:800 10px/1.15 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; text-overflow:ellipsis; white-space:nowrap; }
+.multi-enemy-unit > small { min-width:0; overflow:hidden; color:#9fb0a7; font-size:6px; font-weight:700; text-overflow:ellipsis; white-space:nowrap; }
+.multi-enemy-hp { display:block; width:100%; height:5px; overflow:hidden; border-radius:999px; background:#07100f; box-shadow:inset 0 1px 2px #000; }
+.multi-enemy-hp > i { display:block; height:100%; border-radius:inherit; background:linear-gradient(90deg,#a82f29,#ef6e55); box-shadow:0 0 7px rgba(239,110,85,.55); transition:width .35s ease; }
+.multi-enemy-countdown { position:absolute; top:-7px; left:50%; z-index:7; min-width:47px; padding:3px 5px; border:1px solid rgba(85,217,164,.56); border-radius:999px; color:#baf4d9; background:rgba(15,65,48,.94); box-shadow:0 4px 10px rgba(0,0,0,.38); font-size:8px; font-weight:900; line-height:1; transform:translateX(-50%); white-space:nowrap; }
+.multi-enemy-countdown.imminent { color:#ffe5d5; border-color:rgba(255,105,78,.78); background:rgba(116,30,22,.96); animation:attackClockPulse 1.05s ease-in-out infinite; }
+.multi-enemy-aura { --mini-aura:230,190,103; position:absolute; inset:7px 5px 2px; z-index:3; border:2px solid rgba(var(--mini-aura),.72); border-radius:50%; background:radial-gradient(circle at 34% 24%,rgba(255,255,255,.25),rgba(var(--mini-aura),.08) 42%,rgba(var(--mini-aura),.17)); box-shadow:inset 0 0 13px rgba(var(--mini-aura),.2),0 0 13px rgba(var(--mini-aura),.34); opacity:0; pointer-events:none; }
+.multi-enemy-aura.active { opacity:1; animation:enemyAuraBreathe 1.8s ease-in-out infinite; }
+.multi-enemy-aura.barrier-wood { --mini-aura:74,199,126; }.multi-enemy-aura.barrier-fire { --mini-aura:246,91,71; }.multi-enemy-aura.barrier-earth { --mini-aura:224,177,76; }.multi-enemy-aura.barrier-metal { --mini-aura:184,219,235; }.multi-enemy-aura.barrier-water { --mini-aura:71,155,241; }
+.multi-enemy-burn { position:absolute; right:0; top:6px; z-index:6; padding:3px 5px; border:1px solid rgba(255,145,83,.72); border-radius:999px; color:#fff1cf; background:rgba(105,29,18,.95); font-size:7px; }
+.multi-enemy-unit.attacking { animation:multiEnemyAttack .42s ease both; }
+.multi-enemy-unit.aoe-hit { animation:multiEnemyAoeHit .42s ease both; }
+.multi-enemy-damage { position:absolute; left:50%; top:40%; z-index:12; color:#fff1c5; font:900 17px/1 "Gowun Batang","Batang",serif; text-shadow:0 2px 4px #000,0 0 10px #ff6548; animation:multiEnemyDamageFloat .65s ease forwards; pointer-events:none; }
+
+/* Random talisman summon: sealed mystery first, collection odds second. */
+.summon-seal.mystery { border-color:rgba(225,190,103,.48); background:radial-gradient(circle,rgba(69,184,198,.16),rgba(7,29,27,.5) 48%,rgba(230,184,92,.07)); box-shadow:0 0 45px rgba(52,173,193,.18),inset 0 0 36px rgba(230,184,92,.1); }
+.summon-mystery { position:absolute!important; inset:18%!important; display:grid; place-items:center; overflow:visible; border:2px double rgba(236,205,126,.58); border-radius:9px 28px 9px 26px; color:#f2d481; background:linear-gradient(155deg,rgba(38,78,65,.94),rgba(6,24,22,.97)); box-shadow:0 12px 25px rgba(0,0,0,.45),inset 0 0 20px rgba(230,184,92,.08); transform:rotate(-3deg); }
+.summon-mystery::before,.summon-mystery::after { content:""; position:absolute; inset:9%; border:1px solid rgba(230,184,92,.22); border-radius:50%; }.summon-mystery::after { inset:20%; transform:rotate(45deg); }
+.summon-mystery > span { position:relative; z-index:2; font:900 clamp(66px,8vh,112px)/1 "Gowun Batang","Batang",serif; text-shadow:0 0 22px rgba(230,184,92,.38); }
+.summon-mystery > b { position:absolute; right:12%; top:9%; z-index:3; display:grid; place-items:center; width:31px; height:31px; border:1px solid rgba(114,213,226,.62); border-radius:50%; color:#d9fbff; background:rgba(13,67,72,.92); font-size:18px; box-shadow:0 0 16px rgba(78,204,222,.35); }
+.summon-rate-strip { width:min(470px,82%); display:grid; grid-template-columns:repeat(4,1fr); gap:5px; margin:1px 0 6px; }
+.summon-rate-strip > span { display:grid; grid-template-columns:1fr auto; gap:4px; padding:4px 6px; border:1px solid rgba(230,184,92,.19); border-radius:7px; color:#a7bbb0; background:rgba(4,18,16,.68); font-size:7px; }
+.summon-rate-strip > span strong { color:#f0d489; font-size:9px; }
+.summon-rate-strip .rarity-legendary { border-color:rgba(230,184,92,.52); background:linear-gradient(135deg,rgba(122,80,21,.28),rgba(34,26,16,.72)); }
+.summon-catalog-card { flex:0 0 176px; display:grid; grid-template-columns:68px minmax(0,1fr); align-items:center; gap:7px; padding:6px; border:1px solid rgba(151,169,158,.2); border-radius:11px; color:#dce6df; background:rgba(5,18,15,.9); }
+.summon-catalog-card > div { position:relative; width:68px; height:68px; }
+.summon-catalog-card .sprite-body,.summon-catalog-card .tamed-talisman { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
+.summon-catalog-card > span { display:grid; min-width:0; }.summon-catalog-card strong { overflow:hidden; color:#ead6a5; font:800 11px "Gowun Batang","Batang",serif; text-overflow:ellipsis; white-space:nowrap; }.summon-catalog-card small { color:#82988e; font-size:6px; line-height:1.35; }
+.summon-catalog-card.unknown .sprite-body,.summon-catalog-card.unknown .tamed-talisman { filter:grayscale(1) brightness(.2); opacity:.48; }
+.summon-catalog-card.rarity-legendary { border-color:rgba(230,184,92,.52); box-shadow:inset 0 0 15px rgba(230,184,92,.06); }
+
+/* The five-press seal deliberately restores only the hidden QA surface. */
+#debug-modal.debug-unlocked { display:grid!important; }
+#debug-button.debug-unlocked { display:grid!important; }
+
+/* Feedback v2: readable receipts, deliberate combat outcomes, and clean meta flows. */
+.menu-logo-secret:focus-visible { outline:none!important; box-shadow:none!important; }
+.menu-logo-secret:focus-visible h2 { text-shadow:0 0 9px rgba(255,220,132,.95),0 0 22px rgba(49,202,160,.55); }
+.debug-unlock-progress { margin:-5px 0 7px; color:#d8c180; font-size:11px; letter-spacing:.08em; text-align:center; }
+.debug-unlock-progress.unlocked { color:#75e8c3; font-weight:800; }
+.menu-debug-entry { width:min(620px,100%); min-height:60px; display:grid; grid-template-columns:42px 1fr auto; align-items:center; gap:10px; padding:9px 14px; border:1px solid rgba(226,176,74,.62); border-radius:13px; color:#f2d58b; background:linear-gradient(100deg,rgba(71,45,19,.94),rgba(7,34,28,.96)); text-align:left; cursor:pointer; box-shadow:inset 0 0 24px rgba(230,184,92,.08),0 8px 24px rgba(0,0,0,.28); }
+.menu-debug-entry[hidden] { display:none!important; }
+.menu-debug-entry>span { display:grid; place-items:center; width:38px; height:38px; border:1px solid rgba(242,213,139,.42); border-radius:50%; font-size:19px; }
+.menu-debug-entry>strong { font:700 16px "Gowun Batang","Batang",serif; }
+.menu-debug-entry>small { grid-column:2; margin-top:-12px; color:#9ab4a9; font-size:10px; }
+.menu-debug-entry>b { grid-column:3; grid-row:1/3; font-size:20px; }
+
+.battle-loot-overlay { position:fixed; z-index:2147483000; inset:0; display:grid; place-content:center; justify-items:center; padding:20px; isolation:isolate; color:#f7e7bb; text-align:center; background:radial-gradient(circle at 50% 46%,rgba(33,74,58,.86),rgba(2,9,8,.96) 47%,rgba(1,5,4,.985)); opacity:0; transform:scale(.97); pointer-events:none; transition:opacity .2s ease,transform .25s ease; }
+body > .battle-loot-overlay { z-index:2147483000; }
+.battle-loot-overlay[hidden] { display:none!important; }
+.battle-loot-overlay.show { opacity:1; transform:scale(1); }
+.battle-loot-overlay::before,.battle-loot-overlay::after { content:""; position:absolute; width:min(58vw,620px); aspect-ratio:1; border:1px solid rgba(230,184,92,.22); border-radius:50%; box-shadow:0 0 70px rgba(78,224,178,.14),inset 0 0 50px rgba(230,184,92,.08); }
+.battle-loot-overlay::after { width:min(43vw,460px); border-style:dashed; animation:sealSpin 18s linear infinite; }
+.battle-loot-overlay img { position:relative; z-index:2; width:min(32vw,280px); height:min(32vw,280px); object-fit:contain; filter:drop-shadow(0 18px 25px rgba(0,0,0,.55)) drop-shadow(0 0 24px rgba(230,184,92,.34)); animation:lootRise .65s cubic-bezier(.2,.9,.2,1) both; }
+.battle-loot-overlay[data-kind="escape"]::before { border-color:rgba(198,85,76,.28); box-shadow:0 0 70px rgba(160,32,32,.15); }
+.battle-loot-overlay small,.battle-loot-overlay strong,.battle-loot-overlay p { position:relative; z-index:3; }
+.battle-loot-overlay small { margin-top:5px; color:#6fe2bc; font-size:12px; font-weight:800; letter-spacing:.2em; }
+.battle-loot-overlay strong { margin-top:7px; color:#ffe28f; font:800 clamp(30px,4vw,54px) "Gowun Batang","Batang",serif; text-shadow:0 4px 18px #000; }
+.battle-loot-overlay p { max-width:620px; margin:12px 0 0; color:#d6e3da; font-size:15px; line-height:1.65; }
+@keyframes lootRise { from { opacity:0; transform:translateY(32px) scale(.72) rotate(-5deg); } to { opacity:1; transform:none; } }
+
+.element-proc-overlay { position:fixed; z-index:145; top:86px; left:50%; width:min(720px,calc(100vw - 32px)); display:flex; flex-wrap:wrap; justify-content:center; gap:8px; transform:translateX(-50%) translateY(-12px); opacity:0; pointer-events:none; transition:.22s ease; }
+.element-proc-overlay[hidden] { display:none!important; }
+.element-proc-overlay.show { opacity:1; transform:translateX(-50%) translateY(0); }
+.element-proc-card { --proc:#d2a347; display:grid; grid-template-columns:54px minmax(0,1fr); align-items:center; min-width:210px; max-width:330px; padding:9px 12px; border:1px solid color-mix(in srgb,var(--proc) 70%,#f6df9a); border-radius:12px; background:linear-gradient(120deg,color-mix(in srgb,var(--proc) 18%,#07130f),rgba(3,14,12,.96)); box-shadow:0 9px 30px rgba(0,0,0,.38),inset 0 0 18px color-mix(in srgb,var(--proc) 9%,transparent); }
+.element-proc-card.wood { --proc:#36b878; }.element-proc-card.fire { --proc:#e4523e; }.element-proc-card.earth { --proc:#c49742; }.element-proc-card.metal { --proc:#b8c8d2; }.element-proc-card.water { --proc:#3c92de; }
+.element-proc-card>b { display:grid; place-items:center; width:45px; height:45px; border:1px solid var(--proc); border-radius:9px; color:#fff2c5; font:800 27px serif; background:color-mix(in srgb,var(--proc) 28%,#07130f); }
+.element-proc-card span { display:grid; gap:2px; text-align:left; }.element-proc-card small { color:#9bb3a8; font-size:10px; }.element-proc-card strong { color:#f4e2b4; font-size:14px; }.element-proc-card em { color:var(--proc); font-size:10px; font-style:normal; }
+
+.roguelike-resume-panel { overflow:visible!important; align-items:stretch!important; min-height:104px; padding:13px 14px!important; border:1px solid rgba(226,176,74,.46)!important; border-radius:13px!important; background:linear-gradient(105deg,rgba(42,53,31,.94),rgba(7,30,26,.96))!important; box-shadow:inset 4px 0 #c79a42,0 10px 26px rgba(0,0,0,.25); }
+.roguelike-resume-panel>div { min-width:0; display:grid; align-content:center; gap:4px; }
+.roguelike-resume-panel small { color:#65c9a8!important; font-size:10px!important; letter-spacing:.14em; }
+.roguelike-resume-panel strong { overflow:visible!important; color:#f2d58e!important; font:800 18px/1.35 "Gowun Batang","Batang",serif!important; white-space:normal!important; text-overflow:clip!important; }
+.roguelike-resume-panel span { color:#c4d4cc!important; font-size:12px!important; line-height:1.5; white-space:normal!important; }
+.roguelike-resume-panel em { color:#708f83; font-size:9px; font-style:normal; overflow-wrap:anywhere; }
+.roguelike-resume-panel .primary-button { min-height:52px; min-width:230px; white-space:normal; line-height:1.25; }
+
+.jaryeong-summon-view { grid-template-rows:minmax(0,1fr)!important; }
+.jaryeong-summon-ritual { min-height:440px; }
+.jaryeong-party-pool { display:grid!important; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); align-content:start; gap:9px!important; min-height:0; overflow-y:auto!important; overflow-x:hidden!important; padding:8px!important; }
+.party-pool-card { width:auto!important; min-width:0!important; min-height:82px; }
+
+@media(max-width:700px) {
+  .element-proc-overlay { top:70px; width:calc(100vw - 16px); }
+  .element-proc-card { min-width:0; width:100%; grid-template-columns:48px minmax(0,1fr); }
+  .battle-loot-overlay img { width:min(62vw,250px); height:min(62vw,250px); }
+  .battle-loot-overlay strong { font-size:31px; }
+  .battle-loot-overlay p { font-size:13px; }
+  .roguelike-resume-panel { grid-template-columns:1fr!important; }
+  .roguelike-resume-panel .primary-button { width:100%; min-width:0; }
+  .jaryeong-party-pool { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+
+@keyframes attackClockPulse { 50% { transform:scale(1.035); box-shadow:0 0 22px rgba(255,86,59,.27),inset 0 0 18px rgba(255,92,60,.14); } }
+@keyframes multiEnemyAttack { 45% { transform:translateY(-9px) scale(1.05); filter:brightness(1.25); } }
+@keyframes multiEnemyAoeHit { 35% { transform:translateX(-6px); filter:brightness(1.55) saturate(1.4); } 70% { transform:translateX(4px); } }
+@keyframes multiEnemyDamageFloat { from { opacity:0; transform:translate(-50%,8px) scale(.75); } 30% { opacity:1; transform:translate(-50%,0) scale(1.12); } to { opacity:0; transform:translate(-50%,-30px) scale(.9); } }
+
+@media (min-width:761px) {
+  body.puzzle-mode .enemy-attack-countdown,body.roguelike-mode .enemy-attack-countdown { min-width:70px; padding:3px 5px; }
+  body.puzzle-mode .enemy-attack-countdown > strong,body.roguelike-mode .enemy-attack-countdown > strong { font-size:23px; }
+  body.puzzle-mode .enemy-attack-countdown > span,body.puzzle-mode .enemy-attack-countdown > small,body.roguelike-mode .enemy-attack-countdown > span,body.roguelike-mode .enemy-attack-countdown > small { font-size:6px; }
+  body.debug-multi-mode .enemy-stage { height:142px; }
+}
+
+@media (max-width:760px) {
+  .enemy-intent-card { column-gap:4px; }
+  .enemy-attack-countdown { min-width:62px; padding:3px 4px; }
+  .enemy-attack-countdown > strong { font-size:22px; }.enemy-attack-countdown > b { font-size:8px; }.enemy-attack-countdown > span,.enemy-attack-countdown > small { font-size:5px; }
+  body.debug-multi-mode.puzzle-mode { height:auto; min-height:100dvh; overflow:auto!important; }
+  body.debug-multi-mode.puzzle-mode .game-shell { height:auto; min-height:100dvh; overflow:visible; }
+  body.debug-multi-mode.puzzle-mode .battlefield { flex:0 0 286px; min-height:286px; grid-template-columns:1fr; grid-template-rows:94px 148px 34px; gap:3px; padding:5px 8px; overflow:hidden; }
+  body.debug-multi-mode.puzzle-mode .enemy-copy { grid-column:1; grid-row:1; align-self:start; }
+  body.debug-multi-mode.puzzle-mode .enemy-copy h2 { margin:1px 0; font-size:14px; }
+  body.debug-multi-mode.puzzle-mode .enemy-phase-label { display:none; }
+  body.debug-multi-mode.puzzle-mode .enemy-intent-card { width:100%; max-width:none; padding:3px 5px; }
+  body.debug-multi-mode.puzzle-mode .enemy-intent-card > p { display:none; }
+  body.debug-multi-mode.puzzle-mode .enemy-stage { grid-column:1; grid-row:2; width:100%; height:148px; align-self:center; }
+  body.debug-multi-mode.puzzle-mode .enemy-vitals { grid-column:1; grid-row:3; align-self:center; }
+  body.debug-multi-mode.puzzle-mode .main-grid { min-height:520px; }
+  .debug-enemy-squad { width:100%; grid-template-columns:repeat(3,minmax(0,1fr)); gap:5px; }
+  .multi-enemy-unit { height:138px; grid-template-rows:minmax(0,88px) auto 5px auto; }
+  .multi-enemy-art-wrap { height:88px; }
+  .multi-enemy-unit > strong { font-size:9px; }.multi-enemy-unit > small { font-size:5px; }
+  .jaryeong-summon-view { grid-template-rows:minmax(0,1fr) 98px; }
+  .summon-rate-strip { width:min(96%,420px); gap:2px; }.summon-rate-strip > span { padding:3px; font-size:5px; }.summon-rate-strip > span strong { font-size:7px; }
+  .summon-catalog-card { flex-basis:142px; grid-template-columns:54px minmax(0,1fr); }.summon-catalog-card > div { width:54px; height:54px; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .enemy-intent-card.is-imminent-turn .enemy-attack-countdown,.multi-enemy-countdown.imminent,.multi-enemy-aura.active,.multi-enemy-unit.attacking,.multi-enemy-unit.aoe-hit,.multi-enemy-damage { animation:none!important; }
+}

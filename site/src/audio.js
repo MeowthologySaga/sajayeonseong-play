@@ -1,5 +1,5 @@
 export class AudioDirector {
-  constructor(manifest, storageKey = "sajayeonseong-audio-v1") {
+  constructor(manifest, storageKey = "sajayeonseong-audio-v4") {
     this.manifest = manifest;
     this.storageKey = storageKey;
     this.unlocked = false;

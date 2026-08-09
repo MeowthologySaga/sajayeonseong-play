@@ -6,6 +6,39 @@ export const RUN_SAVE_VERSION = 1;
 export const RUN_SAVE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
 const COMBAT_NODE_TYPES = new Set(["battle", "elite", "boss"]);
+const VALID_BATTLE_ELEMENTS = new Set(["wood", "fire", "earth", "metal", "water"]);
+const LOCK_KEY_PATTERN = /^[0-4],[0-5]$/;
+
+function isValidBoardTile(tile) {
+  return Boolean(tile
+    && typeof tile === "object"
+    && !Array.isArray(tile)
+    && typeof tile.id === "string"
+    && tile.id.length > 0
+    && typeof tile.char === "string"
+    && tile.char.length > 0
+    && VALID_BATTLE_ELEMENTS.has(tile.element));
+}
+
+function isValidQueueEntry(entry) {
+  return Boolean(entry
+    && typeof entry === "object"
+    && !Array.isArray(entry)
+    && typeof entry.id === "string"
+    && entry.id.length > 0
+    && typeof entry.char === "string"
+    && entry.char.length > 0
+    && isFiniteNumber(entry.born));
+}
+
+function isValidLockEntry(entry) {
+  return Array.isArray(entry)
+    && entry.length === 2
+    && typeof entry[0] === "string"
+    && LOCK_KEY_PATTERN.test(entry[0])
+    && Number.isInteger(Number(entry[1]))
+    && Number(entry[1]) > 0;
+}
 
 function isFiniteNumber(value) {
   return Number.isFinite(Number(value));
@@ -24,6 +57,7 @@ export function describeRunSaveStage(payload) {
   if (battle.gameOver && Number(battle.playerHp) <= 0 && !battle.reviveUsed) {
     return { id: "revive", label: "부활 판정 대기" };
   }
+  if (run.pendingIdiomReplacementId) return { id: "idiom-replacement", label: "고정 성어 교체 선택" };
   if (run.pendingContractJaryeongId) return { id: "contract", label: "자령 계약 선택" };
   if (run.pendingReward) return { id: "reward", label: "전투 보상 선택" };
   if (!run.leaderJaryeongId) return { id: "leader", label: "리더 선택" };
@@ -62,8 +96,11 @@ export function validateRunSave(payload, now = Date.now()) {
   else {
     if (!isFiniteNumber(battle.playerHp) || !isFiniteNumber(battle.enemyHp) || !isFiniteNumber(battle.turn)) errors.push("전투 수치 오류");
     if (!Array.isArray(battle.queue) || battle.queue.length > RUN_LIMITS.maxQueueMax) errors.push("문자 큐 범위 오류");
+    else if (battle.queue.some((entry) => !isValidQueueEntry(entry))) errors.push("문자 큐 항목 오류");
     if (battle.board?.length && (battle.board.length !== 5 || battle.board.some((row) => !Array.isArray(row) || row.length !== 6))) errors.push("보드 크기 오류");
+    else if (battle.board?.length && battle.board.some((row) => row.some((tile) => !isValidBoardTile(tile)))) errors.push("보드 타일 데이터 오류");
     if (!Array.isArray(battle.lockedTiles) || !Array.isArray(battle.freshQueueIds) || !Array.isArray(battle.usedStageIdiomIds) || !Array.isArray(battle.usedRotatingIdiomIds)) errors.push("Set/Map 복원 데이터 오류");
+    else if (battle.lockedTiles.length > 30 || battle.lockedTiles.some((entry) => !isValidLockEntry(entry))) errors.push("봉인 타일 복원 데이터 오류");
     if (battle.combatObjective != null && !normalizeCombatObjectiveState(battle.combatObjective)) errors.push("전투 목표 상태 오류");
     if (battle.rareEncounter != null && (
       typeof battle.rareEncounter !== "object"

@@ -1,5 +1,5 @@
-export const IDIOM_SPEED_STORAGE_KEY = "sajayeonseong-idiom-speed";
-export const BATTLE_DISPLAY_STORAGE_KEY = "sajayeonseong-battle-display";
+export const IDIOM_SPEED_STORAGE_KEY = "sajayeonseong-idiom-speed-v4";
+export const BATTLE_DISPLAY_STORAGE_KEY = "sajayeonseong-battle-display-v4";
 
 export const IDIOM_CAST_TIMINGS = Object.freeze({
   fast: Object.freeze({

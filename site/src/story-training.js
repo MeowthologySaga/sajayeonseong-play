@@ -6,6 +6,7 @@ export const STORY_TRAINING_EVENT = Object.freeze({
   QUEUE: "queue",
   IDIOM: "idiom",
   GUARDED_HIT: "guarded-hit",
+  JARYEONG_SKILL: "jaryeong-skill",
   JOURNEY_OPENED: "journey-opened"
 });
 
@@ -26,8 +27,25 @@ export const STORY_TRAINING_GUARD_LESSONS = Object.freeze({
   })
 });
 
+// The sixth lesson uses the same five starter spirits and active-skill data as
+// the run.  It is intentionally authored here rather than inferred from a
+// player's collection, so a first-time learner always has a readable 5/5 cast.
+export const STORY_TRAINING_SKILL_LESSONS = Object.freeze({
+  "jaryeong-skill": Object.freeze({
+    chapterId: "jaryeong-skill",
+    partyJaryeongIds: Object.freeze(["wood-mok", "fire-hwa", "earth-to", "metal-gold", "water-sui"]),
+    leaderJaryeongId: "wood-mok",
+    casterId: "fire-hwa",
+    charge: 5
+  })
+});
+
 export function getStoryTrainingGuardLesson(chapterId) {
   return STORY_TRAINING_GUARD_LESSONS[chapterId] || null;
+}
+
+export function getStoryTrainingSkillLesson(chapterId) {
+  return STORY_TRAINING_SKILL_LESSONS[chapterId] || null;
 }
 
 export function evaluateStoryTrainingGuardHit({ chapterId, intentId, absorbed, hpDamage } = {}) {
@@ -55,7 +73,8 @@ export const STORY_TRAINING_CHAPTERS = Object.freeze([
   freezeChapter({ id: "gathered-letters", number: 3, title: "모인 글자", objective: { event: STORY_TRAINING_EVENT.QUEUE, target: 2, mode: "unique", targets: ["木", "林"] } }),
   freezeChapter({ id: "four-letter-power", number: 4, title: "네 글자의 힘", objective: { event: STORY_TRAINING_EVENT.IDIOM, target: 1, mode: "unique", targets: [STORY_TRAINING_IDIOM_TARGET_IDS["four-letter-power"]] } }),
   freezeChapter({ id: "read-the-intent", number: 5, title: "적의 예고", objective: { event: STORY_TRAINING_EVENT.GUARDED_HIT, target: 1, mode: "sum" } }),
-  freezeChapter({ id: "journey-begins", number: 6, title: "행로의 시작", objective: { event: STORY_TRAINING_EVENT.JOURNEY_OPENED, target: 1, mode: "sum" } })
+  freezeChapter({ id: "jaryeong-skill", number: 6, title: "자령의 불꽃", objective: { event: STORY_TRAINING_EVENT.JARYEONG_SKILL, target: 1, mode: "unique", targets: [STORY_TRAINING_SKILL_LESSONS["jaryeong-skill"].casterId] } }),
+  freezeChapter({ id: "journey-begins", number: 7, title: "행로의 시작", objective: { event: STORY_TRAINING_EVENT.JOURNEY_OPENED, target: 1, mode: "sum" } })
 ]);
 
 const CHAPTER_BY_ID = new Map(STORY_TRAINING_CHAPTERS.map((chapter) => [chapter.id, chapter]));

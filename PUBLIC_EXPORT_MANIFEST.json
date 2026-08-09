@@ -1,8 +1,8 @@
 {
   "format": "sajayeonseong-clean-pages-export-v1",
-  "generatedAt": "2026-08-09T10:21:58.632Z",
-  "sourceBuildManifestSha256": "4936d8c512cbb6b07ad31b8413f0b2767e66b7b4c2ebcfc91827be1ee3cd0524",
+  "generatedAt": "2026-08-09T14:11:26.037Z",
+  "sourceBuildManifestSha256": "9483525e3b17bb6139d1486607721d764e3d246a7b9af6c91e9d8ee5a4101e77",
   "siteFileCount": 276,
-  "siteBytes": 72022572,
+  "siteBytes": 72093911,
   "historyPolicy": "Create a new repository and a clean first commit. Do not merge or mirror the development repository history."
 }

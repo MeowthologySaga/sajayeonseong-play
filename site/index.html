@@ -7,7 +7,7 @@
     <meta name="description" content="타일 하나를 누른 채 경로를 설계해 오행 콤보를 만들고, 모은 한자로 사자성어를 발동하는 HTML5 퍼즐·전투 게임" />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23091312'/%3E%3Crect x='8' y='8' width='48' height='48' rx='10' fill='%23e6b85c'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-size='34' font-family='serif' fill='%23111918'%3E%E5%9B%9B%3C/text%3E%3C/svg%3E" />
     <title>사자연성 — 색을 잇고 뜻을 깨우다</title>
-  <link rel="stylesheet" href="styles.css?v=20260809-combat-layout-v2" />
+  <link rel="stylesheet" href="styles.css?v=20260809-tutorial-spotlight-v2" />
   <link rel="stylesheet" href="styles-route-reward.css?v=20260809-reward-frame-v3" />
   </head>
   <body>
@@ -147,7 +147,7 @@
               <b id="combat-mission-progress">0 / 0</b>
             </section>
           </div>
-          <section id="story-training-hud" class="story-training-hud" aria-label="서사 수련 목표" aria-live="polite" hidden>
+          <section id="story-training-hud" class="story-training-hud" aria-label="튜토리얼 목표" aria-live="polite" hidden>
             <span class="story-training-glyph" aria-hidden="true">序</span>
             <span class="story-training-copy"><small id="story-training-kicker">제1장 · 재앙의 문</small><strong id="story-training-title">첫 빛을 이으세요</strong><em id="story-training-guide">표시된 목 타일을 위 칸으로 옮긴 뒤 손을 떼세요.</em></span>
             <b id="story-training-progress">0 / 1</b>
@@ -265,6 +265,15 @@
         </div>
       </section>
 
+      <div id="story-spotlight" class="story-spotlight" aria-hidden="true" hidden>
+        <div id="story-spotlight-hole" class="story-spotlight-hole"></div>
+        <div id="story-spotlight-label" class="story-spotlight-label">
+          <small>튜토리얼 안내</small>
+          <strong id="story-spotlight-title">여기를 확인하세요</strong>
+          <span id="story-spotlight-copy">빛나는 영역에서 다음 행동을 이어가세요.</span>
+        </div>
+      </div>
+
       <footer class="game-footer">
         <p><span class="mouse-mark">↔</span> 타일을 누른 채 이웃 칸을 지나가세요. 손을 떼면 한꺼번에 연성됩니다.</p>
         <button id="reset-button" class="text-button">처음부터</button>
@@ -272,6 +281,7 @@
     </main>
 
     <div id="main-menu" class="main-menu open" role="dialog" aria-modal="true" aria-labelledby="menu-title">
+      <div class="menu-ambient-layer" aria-hidden="true"></div>
       <div class="menu-content shrine-menu-content">
         <div class="menu-plaque">메인 메뉴</div>
         <button id="debug-unlock-trigger" class="menu-logo-seal menu-logo-secret" type="button" aria-label="사자연성 제목 인장">
@@ -281,8 +291,8 @@
         </button>
         <p id="debug-unlock-progress" class="debug-unlock-progress" role="status" aria-live="polite" hidden>시험실 봉인 0/5</p>
         <div id="menu-spirit-parade" class="menu-spirit-parade" aria-hidden="true"></div>
-        <div class="menu-shrine-actions" aria-label="수련과 수집 메뉴">
-          <button id="puzzle-mode-button" class="menu-shrine-button"><span>序</span><strong>서사 수련</strong><small id="story-menu-status">1장 · 재앙의 문</small></button>
+        <div class="menu-shrine-actions" aria-label="튜토리얼과 자령 메뉴">
+          <button id="puzzle-mode-button" class="menu-shrine-button"><span>序</span><strong>튜토리얼</strong><small id="story-menu-status">1장 · 재앙의 문</small></button>
           <button id="pang-mode-button" class="menu-shrine-button" hidden disabled aria-hidden="true" tabindex="-1"><span>碰</span><strong>연쇄 수련</strong><small>60초 기록 도전</small></button>
           <button id="jaryeong-meta-button" class="menu-shrine-button"><span>靈</span><strong>자령전</strong><small>도감 · 편성 · 소환</small></button>
         </div>
@@ -290,7 +300,7 @@
           <span class="mode-glyph">行</span><span><small>MAIN RUN · 약 20분</small><strong id="menu-journey-label">연성행로 출발</strong><em>준비한 5자령과 함께 3막의 길을 엽니다</em></span><b>→</b>
         </button>
         <button id="menu-debug-entry" class="menu-debug-entry" type="button" hidden disabled aria-hidden="true" tabindex="-1"><span>⚒</span><strong>디버그 시험실</strong><small>전투·수집·저장 상태를 빠르게 시험합니다</small><b>→</b></button>
-        <div class="menu-foot"><span id="menu-guide-copy" class="menu-hint-chip"><b>조작</b> 타일을 누른 채 이동 → 놓아 연성</span><div class="menu-foot-actions"><button id="glossary-button" class="text-button"><b>遊</b><span>용어 도감</span></button><button id="codex-button" class="text-button"><b>冊</b><span>한자·성어 도감</span></button><button id="menu-settings-button" class="text-button"><b>⚙</b><span>설정</span></button><button id="menu-debug-button" class="text-button debug-menu-button" type="button" hidden disabled aria-hidden="true" tabindex="-1"><b>⚒</b><span>디버그 시험실</span></button></div></div>
+        <div class="menu-foot"><span id="menu-guide-copy" class="menu-hint-chip"><b>조작</b> 타일을 누른 채 이동 → 놓아 연성</span><span class="menu-fullscreen-hint"><kbd>F11</kbd><span>을 눌러 전체 화면으로 플레이해 보세요</span></span><div class="menu-foot-actions"><button id="glossary-button" class="text-button"><b>遊</b><span>용어 도감</span></button><button id="codex-button" class="text-button"><b>冊</b><span>한자·성어 도감</span></button><button id="menu-settings-button" class="text-button"><b>⚙</b><span>설정</span></button><button id="menu-debug-button" class="text-button debug-menu-button" type="button" hidden disabled aria-hidden="true" tabindex="-1"><b>⚒</b><span>디버그 시험실</span></button></div></div>
       </div>
     </div>
 
@@ -328,8 +338,8 @@
         <div class="combat-layout-setting">
           <div class="setting-copy"><strong>문자 큐 배치</strong><small>전투판 아래 또는 순환 연성식 위의 남는 공간을 사용합니다. 모바일은 안전한 하단 배치로 표시됩니다.</small></div>
           <div class="combat-layout-options" role="radiogroup" aria-label="문자 큐 배치 방식">
-            <button type="button" class="combat-layout-option" role="radio" data-combat-layout="bottom" aria-checked="false" tabindex="-1"><b>하단형</b><small>기본 · 보드 아래 전투 도크</small></button>
-            <button type="button" class="combat-layout-option" role="radio" data-combat-layout="upper" aria-checked="false" tabindex="-1"><b>위쪽형</b><small>순환 연성식 위 2줄</small></button>
+            <button type="button" class="combat-layout-option" role="radio" data-combat-layout="bottom" aria-checked="false" tabindex="-1"><b>하단형</b><small>보드 아래 전투 도크</small></button>
+            <button type="button" class="combat-layout-option" role="radio" data-combat-layout="upper" aria-checked="false" tabindex="-1"><b>위쪽형</b><small>기본 · 순환 연성식 위 2줄</small></button>
           </div>
         </div>
         <div class="battle-display-setting">
@@ -537,14 +547,14 @@
             <strong class="drag-primer-combo">2 COMBO</strong>
           </div>
         </section>
-        <p id="story-training-route-hint" class="story-training-route-hint">핵심 수련 6장 · 한 장씩 바로 이어집니다</p>
-        <div id="story-chapter-select" class="story-chapter-select" role="group" aria-label="서사 수련 장 선택"></div>
+        <p id="story-training-route-hint" class="story-training-route-hint">핵심 튜토리얼 7장 · 한 장씩 바로 이어집니다</p>
+        <div id="story-chapter-select" class="story-chapter-select" role="group" aria-label="튜토리얼 장 선택"></div>
         <div id="story-intro-steps" class="how-to" aria-label="이번 장의 핵심 단계">
-          <div><b>1</b><span><strong>잡기</strong>타일 하나를 누르세요</span></div>
-          <div><b>2</b><span><strong>경로 그리기</strong>손을 떼지 않고 여러 칸을 지나세요</span></div>
-          <div><b>3</b><span><strong>연성하기</strong>손을 떼면 매치와 글자를 판정합니다</span></div>
+          <div><b>握</b><span><strong>잡기</strong>타일 하나를 누르세요</span></div>
+          <div><b>路</b><span><strong>경로 그리기</strong>손을 떼지 않고 여러 칸을 지나세요</span></div>
+          <div><b>成</b><span><strong>연성하기</strong>손을 떼면 매치와 글자를 판정합니다</span></div>
         </div>
-        <button id="story-help-return" class="primary-button" type="button" hidden>현재 수련으로 돌아가기 <span>↩</span></button>
+        <button id="story-help-return" class="primary-button" type="button" hidden>현재 튜토리얼로 돌아가기 <span>↩</span></button>
         <button id="start-button" class="primary-button">제1장 시작 <span>→</span></button>
         <button id="puzzle-intro-menu" class="text-button">다른 모드 선택</button>
         <small>목·화·토·금·수의 문양만 보고 시작해도 충분합니다.</small>
@@ -572,7 +582,7 @@
         <h2 id="roguelike-intro-title">고르고, 버티고,<br /><span>끝까지 잇세요.</span></h2>
         <p class="intro-copy">문자권을 고르고 미리 편성한 5자령과 함께 출발하세요. 타일 하나를 <b>누른 채 여러 칸을 지나고 원하는 곳에서 놓아</b> 여러 매치를 만든 뒤, 모인 한자로 성어를 발동합니다. 75개 성어와 유물의 조합으로 세 장의 갈림길을 돌파합니다.</p>
         <section id="story-graduation-banner" class="story-graduation-banner" role="status" aria-live="polite" aria-atomic="true" hidden>
-          <p>第陸章 完 · 수련 졸업</p>
+          <p>第柒章 完 · 튜토리얼 완료</p>
           <strong>연성행로 준비가 열렸습니다</strong>
           <span>배운 규칙은 여기서 자령·성어·유물 빌드로 이어집니다.</span>
         </section>
@@ -775,7 +785,7 @@
 
     <div id="story-result-modal" class="modal story-result-modal" role="dialog" aria-modal="true" aria-labelledby="story-result-title">
       <div class="modal-card result-card story-result-card">
-        <p id="story-result-kicker" class="eyebrow">第壹章 完 · 첫 수련 완료</p>
+        <p id="story-result-kicker" class="eyebrow">第壹章 完 · 튜토리얼 완료</p>
         <span class="story-result-seal" aria-hidden="true">成</span>
         <h2 id="story-result-title">첫 빛을 이었습니다</h2>
         <p id="story-result-copy">타일을 잡고, 이웃 칸을 지나, 손을 떼면 같은 빛이 연성됩니다.</p>
@@ -825,6 +835,6 @@
 
     <script src="data/sajayeonseong-hanja-v2.js?v=20260807-data-2"></script>
     <script src="data/hanja-hun-eum.js?v=20260807-hun-1"></script>
-    <script type="module" src="game.js?v=20260809-combat-layout-v2"></script>
+    <script type="module" src="game.js?v=20260809-tutorial-spotlight-v2"></script>
   </body>
 </html>

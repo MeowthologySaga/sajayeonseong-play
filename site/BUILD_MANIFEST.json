@@ -13,7 +13,7 @@
     "events": 12
   },
   "qa": {
-    "automatedTests": 190,
+    "automatedTests": 208,
     "simulatedSeeds": 10000,
     "targetRunMinutes": [
       18,
@@ -25,7 +25,7 @@
     "https://fonts.gstatic.com (font files; system font fallback remains playable)"
   ],
   "fileCount": 275,
-  "totalBytes": 71972634,
+  "totalBytes": 72043972,
   "files": [
     {
       "path": "assets/audio/bgm/act1-mistwood-loop.mp3",
@@ -1249,158 +1249,158 @@
     },
     {
       "path": "docs/submission/ASSET_AND_LICENSE_MANIFEST.md",
-      "bytes": 3855,
-      "sha256": "d13b6c4d062934bf2fe217b99c6ff5829cc283062eae128c262a632ec84ef29c"
+      "bytes": 3914,
+      "sha256": "098eb96c6ea88112f9264355d45ee5c5f164b4a7448eb328ddedbf792e81bdb3"
     },
     {
       "path": "docs/submission/SUBMISSION_QA_REPORT.md",
-      "bytes": 6066,
-      "sha256": "c585a871edc70a7814b32fbb970f0f6698a221ae28bb55829173e35dca1c7e70"
+      "bytes": 6137,
+      "sha256": "3e8d9b170d9a1a5828a90f693fe26683856ee5d98717e0230aaab00fb7e5f700"
     },
     {
       "path": "game.js",
-      "bytes": 492450,
-      "sha256": "133a95b085578000f090578372c004e264013df5ab75c9529da7f6231107b827"
+      "bytes": 529599,
+      "sha256": "32ff7087e3a4856b538b1bf4696937f26f2f64974aae478a82fef7da617efc14"
     },
     {
       "path": "index.html",
-      "bytes": 82733,
-      "sha256": "4ea1098cc412e6315f71ec27e92007f6dd4aaf4bf1b3bd22a241540de185e343"
+      "bytes": 84284,
+      "sha256": "a20ea4c72431365bb85fac02533056f0d7953873fcc3b7aec27c80359594e4c5"
     },
     {
       "path": "README.md",
-      "bytes": 5831,
-      "sha256": "c61c31c7157a267884e470aeb462eeb2bdfc38a94efb363d194f0159814cfabe"
+      "bytes": 5924,
+      "sha256": "649392ee428f6b82d2d19c0069d5fdfa7da7ab695f8a15ce24da09f008257e3a"
     },
     {
       "path": "src/assets.js",
-      "bytes": 3643,
-      "sha256": "e00f7119c529113bf8af9bc48338a787425dfd3c8eecfaa2f0bb26f7bda3de0c"
+      "bytes": 3732,
+      "sha256": "1ff0a039dc551819c98da90c9aa33d03aaef94daa2252f43080a18d1f0766602"
     },
     {
       "path": "src/audio.js",
-      "bytes": 16090,
-      "sha256": "25f94c3017f72ab9a9c50ee81745a3ca96eed3b9ab9b66d0732f5c9feec740f8"
+      "bytes": 16444,
+      "sha256": "80efc06ac8614de44531b018d2b43c8c1340936f50ef9ad3f56794fb9865f3a5"
     },
     {
       "path": "src/background-rotation.js",
-      "bytes": 4047,
-      "sha256": "049e1c4d1e97360fb99dd5a35b06f3f37eac1ab8ff2d7fbe5dac75bc94910597"
+      "bytes": 4173,
+      "sha256": "84424addd4797fb4dd3f2f56ba32e6518421379847b7cdc7f62dea467a4f9d5e"
     },
     {
       "path": "src/boss-patterns.js",
-      "bytes": 10305,
-      "sha256": "7349114f7adacb895730a70554695485fcbe0b191bff0f83d6f46b40a9184dc1"
+      "bytes": 10553,
+      "sha256": "dcb50df1fcef547048390742f8225de1c5ca2acc5b2f32bdbeaf0938130827d0"
     },
     {
       "path": "src/combat-layout-settings.js",
-      "bytes": 266,
-      "sha256": "c5452d4547b70e6c01515f8f1d642bc91c6595b188656ecef1e386067fe7f9fe"
+      "bytes": 483,
+      "sha256": "bd1893f0816e21f63c64822fb741875483f06399da95b0c6065403bdbc30a58f"
     },
     {
       "path": "src/combat-objectives.js",
-      "bytes": 13368,
-      "sha256": "ddbd2e84f9e3630c67bb5bbb1b27ebfcc9ddf751021ef0faa15cb0811b3206cb"
+      "bytes": 13717,
+      "sha256": "2d09895c46e9e955c14cf7f1a795819db6034c40ceb40131243f5a4ff99268c4"
     },
     {
       "path": "src/content.js",
-      "bytes": 21729,
-      "sha256": "f6fa6aac5ed23e02931528078e77891ea5ba284bf8f54f1c155cb8be52b20436"
+      "bytes": 21984,
+      "sha256": "79a8322aba8b100a72b40318307a4635a9daf457b258e4325ce0e492a5535d88"
     },
     {
       "path": "src/drag-path.js",
-      "bytes": 820,
-      "sha256": "4b6f5e95e514f491dc9656268d0438b3f4522f007b93b317d22064a87175e50d"
+      "bytes": 843,
+      "sha256": "f5697de9d24e23319dd0520741327254be3bea4d4608b191bb234229a6126c26"
     },
     {
       "path": "src/element-procs.js",
-      "bytes": 2832,
-      "sha256": "fdd3db95ca66db55112dba15ae1cba603354466f6baf8a1ff10c36d895eaa68c"
+      "bytes": 2888,
+      "sha256": "95dea9a89efd6f865ac682695becd650c503843736a4f6111de53011d3206c66"
     },
     {
       "path": "src/first-battle-onboarding.js",
-      "bytes": 11195,
-      "sha256": "3c0cf610462dad38ae39cf44f3a7c25a872e4bc13213d817defd36a2137d5ef2"
+      "bytes": 11490,
+      "sha256": "59aed69d44df88d4dafaf39325fc70955c9ecb671738b2652c9abe81786b169f"
     },
     {
       "path": "src/idiom-focus.js",
-      "bytes": 2246,
-      "sha256": "213889755b2b5ba8e9630539ff6a67f558e21046207afbdd4c2c06914a7bc8d5"
+      "bytes": 2302,
+      "sha256": "af3709e95ef58f5eb2abc55eb499a64f53d407c5dfdd5aab8c436a7f32cc67f4"
     },
     {
       "path": "src/jaryeong-build-balance.js",
-      "bytes": 1911,
-      "sha256": "b11283a2fb66644cdf8cdebfc2ced3eada5cf5bf4bff3aedaa159a2269161ffb"
+      "bytes": 1956,
+      "sha256": "0e44a5b828aa0ee794b99c6258a34ca6a5c0ae8180ee45417286d9bcd9310985"
     },
     {
       "path": "src/jaryeong-meta.js",
-      "bytes": 23470,
-      "sha256": "95c64cd9aee9a4c1d7e755cf7ac12702ea3c621f03c192e97f3175d400ab2ac9"
+      "bytes": 24086,
+      "sha256": "c6bd371dacb0db78787cfc8f70b14d85c9df8870b42157702e04fa1fcb8b7ebf"
     },
     {
       "path": "src/match-groups.js",
-      "bytes": 2448,
-      "sha256": "aef2b334007d2dfc6483b0577a551e0846235a0ae63f01e27d371303582098e2"
+      "bytes": 2523,
+      "sha256": "0e97ddbcede836cdf714be4ec2de7224a234ae316bb4075b88d770ab8a194228"
     },
     {
       "path": "src/presentation-settings.js",
-      "bytes": 1888,
-      "sha256": "2b038f142e6216d1fcaf405e2fbced51578a6c0c21e94b4e975e474c86728efd"
+      "bytes": 1932,
+      "sha256": "bfbca46b130793d4c032686c90769516effb35b88ad6ed5e6457ea4215168f12"
     },
     {
       "path": "src/rare-encounters.js",
-      "bytes": 9693,
-      "sha256": "b139055b207196ebb812ff8da8351e7dac51c8a4f1819f9dd3d42bb86f1b969a"
+      "bytes": 10022,
+      "sha256": "d8d5f9ae42f51a165d6b392fe53846a526398294b06fcd5cbbff5bf85e448412"
     },
     {
       "path": "src/relics.js",
-      "bytes": 3335,
-      "sha256": "ac25fe58b73689980b95040588023c2f3bf3cbf04e13c7887ce194f6f983da12"
+      "bytes": 3412,
+      "sha256": "f587f8a7beb9a2eb5b91c0d0d091a303196a2458d046b73ffbfc52484e911e02"
     },
     {
       "path": "src/revive.js",
-      "bytes": 1769,
-      "sha256": "367418ac1efbf337153f678fa89b0de8d25d1a2bcd4dbe878b8ebdf6ed75dcad"
+      "bytes": 1828,
+      "sha256": "0a83f951e21a69cf20204014a84b8998035eb111a955e53aeb61bc57b84b8e37"
     },
     {
       "path": "src/reward-synergy.js",
-      "bytes": 12408,
-      "sha256": "f8dddf22fd8ffb1a02c10ed25c372076083d2e2f388d98691bbdc0f542f25e2c"
+      "bytes": 12706,
+      "sha256": "15fc96b13ae9bc3511f6fae5eb6992acbf43b743af8bfad0fba922c3b79032a0"
     },
     {
       "path": "src/run-engine.js",
-      "bytes": 16801,
-      "sha256": "a522d8e0fdeccdea5a1f6e9c1290057272e6b5773f06eabdff019e79c3ab4555"
+      "bytes": 17184,
+      "sha256": "9248205f85f8b7b9a2a65a00e1ee6a6fc6287961513710304e99eb85ceda8709"
     },
     {
       "path": "src/save.js",
-      "bytes": 7580,
-      "sha256": "9877f5446cf1e2d534cfbf8b85cc146d7c05ac4b06daa3e3e0586f5fa96cb235"
+      "bytes": 7725,
+      "sha256": "58be934c03fc91148a5f10190bd5568171e275f507b65bc2d7e92e911cb6e7bc"
     },
     {
       "path": "src/story-training.js",
-      "bytes": 6807,
-      "sha256": "1ad4b3cca7ae64c452c1b209bd26922ae2f4dd09431f816b74211f1e53dcf860"
+      "bytes": 7910,
+      "sha256": "ee26d45c563178acce4c48e0d0f34cec7170e60e1daa70f6c29ad8a42999002f"
     },
     {
       "path": "src/talisman-anchors.js",
-      "bytes": 12220,
-      "sha256": "fad94c12165819ce576fe1c6b4cb66b947cf639d0136c4c322151363865ec76c"
+      "bytes": 13005,
+      "sha256": "d53db15ca265542379d2cc7c69ce71c363311ce84ed6b15b5b7f2746221c5102"
     },
     {
       "path": "styles-route-reward.css",
-      "bytes": 22642,
-      "sha256": "d35ba5fe0538f8f876203602fe510c2769269ce99623ed7d630d9e709def61ef"
+      "bytes": 23221,
+      "sha256": "765b7d34299a866c5150541335be5797f7c93a3873f0a5abd92a783b38ef5ba3"
     },
     {
       "path": "styles.css",
-      "bytes": 364213,
-      "sha256": "22f1a41e05ea069f16d2eb6f88b22fba840809cf62ae112ad24b4fcc6370d08a"
+      "bytes": 389957,
+      "sha256": "5b19b6ee16e9a850f9dd8250537b1374cfd1293de3bdc1bd9b8b39d061a64580"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
-      "bytes": 3906,
-      "sha256": "36eb3bd0289483c80ba4bd667d79068eeb1e525949a17337a60aa907d82093c6"
+      "bytes": 3971,
+      "sha256": "becbd6f94d3847145bb8e363e7305d3d35c559cb63c7a2373b2c6230908c9cef"
     }
   ]
 }

@@ -11,7 +11,7 @@ import { decodeRunSave, describeRunSaveStage, encodeRunSave, RUN_SAVE_KEY } from
 import { buildReviveCharacterPool, passesReviveTrace, scoreReviveTrace } from "./src/revive.js?v=20260807-revive-3";
 import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELIC_EFFECT_TYPES } from "./src/relics.js?v=20260807-relics-1";
 import { createRewardBuildSnapshot, evaluateRewardSynergy } from "./src/reward-synergy.js?v=20260808-reward-synergy-2";
-import { COMBAT_LAYOUT_STORAGE_KEY, normalizeCombatLayoutMode } from "./src/combat-layout-settings.js?v=20260809-combat-layout-1";
+import { COMBAT_LAYOUT_STORAGE_KEY, normalizeCombatLayoutMode } from "./src/combat-layout-settings.js?v=20260809-combat-layout-3";
 import { awardTalismanPieces, createDefaultJaryeongMetaState, exchangeTalismanPiecesForSummonTicket, getJaryeongRarity, getPreparedJaryeongParty, JARYEONG_SUMMON_RARITY_WEIGHTS, resetTargetFragmentPity, sanitizeJaryeongMetaState, setEquippedJaryeongParty, summonRandomJaryeong, TALISMAN_PIECES_PER_SUMMON_TICKET } from "./src/jaryeong-meta.js?v=20260809-random-summon-1";
 import { selectBackgroundForScene } from "./src/background-rotation.js?v=20260807-background-rotation-1";
 import { applyCombatObjectiveEvent, COMBAT_OBJECTIVE_EVENT, COMBAT_OBJECTIVE_TYPE, isCombatObjectiveComplete, normalizeCombatObjectiveState, resolveCombatObjectiveReward, selectCombatObjective } from "./src/combat-objectives.js?v=20260808-turn-resilience-1";
@@ -19,7 +19,7 @@ import { advanceRareEncounterTurn, calculateIdiomWeaknessBonus, createRareEncoun
 import { advanceFirstBattleOnboarding, createFirstBattleOnboarding, FIRST_BATTLE_ONBOARDING_EVENT, getCurrentFirstBattleHint, getFirstBattleCoachProgress, issueFirstBattleOnboardingGrants } from "./src/first-battle-onboarding.js?v=20260808-first-battle-3";
 import { getBossTurnPlan, resolveBossBoardEffect } from "./src/boss-patterns.js?v=20260809-submission-polish-3";
 import { calculateElementMatchAttack, capJaryeongSkillDamage, MAX_JARYEONG_DAMAGE_RATIO } from "./src/jaryeong-build-balance.js?v=20260808-build-balance-1";
-import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TARGET_IDS, STORY_TRAINING_STORAGE_KEY, applyStoryTrainingEvent, completeStoryTrainingChapter, createDefaultStoryProgress, createStoryTrainingSession, evaluateStoryTrainingGuardHit, getNextStoryTrainingChapterId, getStoryTrainingChapter, getStoryTrainingGuardLesson, isStoryTrainingChapterUnlocked, sanitizeStoryProgress } from "./src/story-training.js?v=20260809-master-2";
+import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TARGET_IDS, STORY_TRAINING_STORAGE_KEY, applyStoryTrainingEvent, completeStoryTrainingChapter, createDefaultStoryProgress, createStoryTrainingSession, evaluateStoryTrainingGuardHit, getNextStoryTrainingChapterId, getStoryTrainingChapter, getStoryTrainingGuardLesson, getStoryTrainingSkillLesson, isStoryTrainingChapterUnlocked, sanitizeStoryProgress } from "./src/story-training.js?v=20260809-story-skill-2";
 
 (function () {
   "use strict";
@@ -963,7 +963,7 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     mode: null, pangRunning: false, pangScore: 0, pangBestCombo: 0,
     pangMoves: 0, pangTimeLeft: PANG_SECONDS, pangTimerId: null,
     pangLastTick: 0, pangOrigin: null, pangTarget: null, pangMoved: false,
-    pangEndPending: false, dragPreview: null, readingMode: "large", idiomSpeed: "slow", battleDisplayMode: "slow", idiomDisplayMode: "all-large", combatLayoutMode: "bottom", swapAnimationUntil: 0, audioContext: null,
+    pangEndPending: false, dragPreview: null, readingMode: "large", idiomSpeed: "slow", battleDisplayMode: "slow", idiomDisplayMode: "all-large", combatLayoutMode: "upper", swapAnimationUntil: 0, audioContext: null,
     enemyPlan: createEnemyPlan(), stageIdiomIds: [], usedStageIdiomIds: new Set(), rotatingIdiomIds: [], usedRotatingIdiomIds: new Set(), readyIdiomIds: new Set(), run: null,
     nextIdiomRecipeTurn: 0, idiomRecipeInterval: 0, recipeSupplyUntilTurn: 0, idiomDetailId: null, focusedIdiomId: null, jaryeongInspectorId: null,
     nextMoveBonus: 0, enemyMovePenalty: 0, currentChargeBonus: 0, nextChargeBonus: 0, nextPlayerDamageBonus: 0, nextWeaknessDamageBonus: 0,
@@ -973,7 +973,7 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     deferredDamage: 0, deferredDamageTicks: 0, boundEnemyIntentTurns: 0,
     idiomGrowthStacks: 0, turnsSinceIdiom: 0, lastActivatedIdiomId: null,
     lastTurnElementDamage: {}, lastMatchGroupSizes: [], lastWideMatchElements: [], lastPlayerHealing: 0, turnTotals: { damage: 0, heal: 0, shield: 0, burn: 0, delay: 0, elementDamage: {} },
-    lockedTiles: new Map(), activeSealVisual: "seal", combatObjective: null, rareEncounter: null, firstBattleOnboarding: null, storySession: null, storyGuardEarthProcUsed: false, storyDragSnapshot: null,
+    lockedTiles: new Map(), activeSealVisual: "seal", combatObjective: null, rareEncounter: null, firstBattleOnboarding: null, storySession: null, storySkillTrial: null, storyGuardEarthProcUsed: false, storyDragSnapshot: null,
     debugEnemyOverride: null, debugEnemyGroup: null,
     sessionRng: createSeededRng(`session-${Date.now()}`)
   };
@@ -1035,11 +1035,11 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
 
   let storyProgress = loadStoryProgress();
   let selectedStoryChapterId = "disaster-gate";
-  const IMPLEMENTED_STORY_CHAPTER_IDS = new Set(["disaster-gate", "five-lights", "gathered-letters", "four-letter-power", "read-the-intent", "journey-begins"]);
+  const IMPLEMENTED_STORY_CHAPTER_IDS = new Set(["disaster-gate", "five-lights", "gathered-letters", "four-letter-power", "read-the-intent", "jaryeong-skill", "journey-begins"]);
   const DEFAULT_STORY_INTRO_STEPS = Object.freeze([
-    Object.freeze({ title: "누르고 유지", copy: "타일 하나를 잡은 채 손을 떼지 마세요" }),
-    Object.freeze({ title: "경로 그리기", copy: "지나가는 칸마다 타일이 계속 자리를 바꿉니다" }),
-    Object.freeze({ title: "놓아서 연성", copy: "원하는 자리에서 놓으면 여러 매치를 한 번에 판정합니다" })
+    Object.freeze({ marker: "握", title: "누르고 유지", copy: "타일 하나를 잡은 채 손을 떼지 마세요" }),
+    Object.freeze({ marker: "路", title: "경로 그리기", copy: "지나가는 칸마다 타일이 계속 자리를 바꿉니다" }),
+    Object.freeze({ marker: "成", title: "놓아서 연성", copy: "원하는 자리에서 놓으면 여러 매치를 한 번에 판정합니다" })
   ]);
   const STORY_PRESENTATION = Object.freeze({
     "disaster-gate": Object.freeze({
@@ -1112,14 +1112,33 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
       resultCopy: "적의 예고 ‘등걸 내려치기 · 7 피해’를 읽고 토 매치로 만든 보호막이 7을 모두 막음. 체력 피해가 0이 된 것을 확인한 뒤 수련을 마칩니다.",
       recap: [["1", "적 의도 읽기"], ["2", "토 3매치"], ["3", "7 전부 방어"]]
     }),
-    "journey-begins": Object.freeze({
-      introKicker: "第陸章 · 행로의 시작",
-      introTitle: "여섯 수련을 지나,<br /><span>연성행로</span>를 준비하세요.",
-      introCopy: "빛 세 개를 이어 글자를 모으고, 네 글자로 성어를 발동하고, 적의 예고에는 맞는 대응을 고릅니다. 이제 배운 규칙을 실제 행로의 빌드로 이어갈 차례입니다.",
+    "jaryeong-skill": Object.freeze({
+      introKicker: "第陸章 · 다섯 자령의 합류",
+      introTitle: "모은 기운을,<br /><span>자령 기술</span>로 터뜨리세요.",
+      introCopy: "연성행로에서는 다섯 자령을 함께 편성합니다. 지금은 화령의 기운이 5/5로 차 있습니다. 실제 전투와 같은 화면 아래 5인 트레이에서 붉게 빛나는 화령 카드를 고른 뒤, 큰 ‘불씨 폭발 발동’ 버튼을 누르세요.",
       introSteps: Object.freeze([
-        Object.freeze({ title: "빛 연결", copy: "같은 빛 3개를 이어 매치를 만듭니다" }),
-        Object.freeze({ title: "글자·성어", copy: "문자 큐로 네 글자 성어를 준비합니다" }),
-        Object.freeze({ title: "예고 대응", copy: "적 의도를 읽고 맞는 효과를 고릅니다" })
+        Object.freeze({ marker: "衆", title: "다섯 자령", copy: "전장에 함께 서는 5명의 편성을 확인합니다" }),
+        Object.freeze({ marker: "氣", title: "기운 5/5", copy: "같은 오행 매치와 한자 수집으로 충전합니다" }),
+        Object.freeze({ marker: "技", title: "기술 발동", copy: "화령의 불씨 폭발을 직접 사용합니다" })
+      ]),
+      activeTitle: "화령의 불씨 폭발을 발동하세요",
+      activeGuide: "화면 아래 5인 트레이의 2번 화령 카드를 선택하세요. 팝업에서 효과·충전법을 읽고 큰 ‘불씨 폭발 발동’ 버튼을 누릅니다.",
+      completeTitle: "화령이 불씨를 터뜨렸습니다",
+      completeGuide: "자령 기술은 기운을 모두 소비하고 확정 효과를 냅니다. 다음 행로에서는 필요한 순간에 꺼내세요.",
+      progressLabel: (session) => `${session.progress} / ${session.target} 자령 기술`,
+      startLog: "화령의 기운이 5/5로 준비되었습니다. 화면 아래 2번 화령 카드 → 큰 ‘불씨 폭발 발동’ 버튼 순서로 누르세요.",
+      resultTitle: "자령 기술을 직접 발동했습니다",
+      resultCopy: "자령 기술은 기운 5를 모두 써서 확정 효과를 냅니다. 화령의 불씨 폭발은 적에게 피해를 주고 화상을 남깁니다. 연성행로에서는 매치와 한자 수집으로 각 자령을 충전한 뒤, 필요한 타이밍에 직접 사용하세요.",
+      recap: [["5자령", "함께 출전"], ["기운 5/5", "발동 준비"], ["기술", "확정 효과"]]
+    }),
+    "journey-begins": Object.freeze({
+      introKicker: "第柒章 · 행로의 시작",
+      introTitle: "일곱 수련을 지나,<br /><span>연성행로</span>를 준비하세요.",
+      introCopy: "빛 세 개를 이어 글자를 모으고, 네 글자로 성어를 발동하고, 적의 예고에는 맞는 대응을 고르고, 자령 기술로 전황을 바꿉니다. 이제 배운 규칙을 실제 행로의 빌드로 이어갈 차례입니다.",
+      introSteps: Object.freeze([
+        Object.freeze({ marker: "光", title: "빛 연결", copy: "같은 빛 3개를 이어 매치를 만듭니다" }),
+        Object.freeze({ marker: "字", title: "글자·성어", copy: "문자 큐로 네 글자 성어를 준비합니다" }),
+        Object.freeze({ marker: "戰", title: "예고·자령", copy: "적 의도를 읽고 자령 기술로 대응합니다" })
       ]),
       startButtonLabel: "수련을 마치고 행로 준비 보기",
       activeTitle: "연성행로 준비를 엽니다",
@@ -1127,10 +1146,10 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
       completeTitle: "수련을 졸업했습니다",
       completeGuide: "연성행로 준비 화면이 열렸습니다. 출발 전 리더와 성어를 고르세요.",
       progressLabel: (session) => `${session.progress} / ${session.target} 행로 준비`,
-      startLog: "수련에서 배운 빛·문자·성어·예고 대응을 실제 연성행로 준비에서 이어갑니다.",
+      startLog: "수련에서 배운 빛·문자·성어·예고·자령 기술을 실제 연성행로 준비에서 이어갑니다.",
       resultTitle: "수련을 졸업했습니다",
-      resultCopy: "빛 3매치, 문자 큐, 사자성어, 적 의도 대응을 실제 연성행로의 선택과 빌드로 이어갈 준비가 되었습니다.",
-      recap: [["빛 연결", "3매치"], ["글자·성어", "문자 큐"], ["예고 대응", "방어 선택"]]
+      resultCopy: "빛 3매치, 문자 큐, 사자성어, 적 의도 대응, 자령 기술을 실제 연성행로의 선택과 빌드로 이어갈 준비가 되었습니다.",
+      recap: [["빛 연결", "3매치"], ["글자·성어", "문자 큐"], ["자령 기술", "전황 대응"]]
     })
   });
 
@@ -1853,7 +1872,7 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
   }
 
   function getJaryeongLevel(id) {
-    return state.run?.jaryeongLevels?.[id] || 1;
+    return getActiveJaryeongCombatContext()?.jaryeongLevels?.[id] || 1;
   }
 
   function isDebugMultiBattle() {
@@ -2086,7 +2105,9 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     card.hidden = !objective;
     hud.classList.toggle("has-combat-mission", Boolean(objective));
     if (!objective) return;
-    const rare = state.rareEncounter?.status === "active" ? state.rareEncounter : null;
+    const rare = state.mode === "roguelike" && state.run?.currentEncounterId && state.rareEncounter?.status === "active"
+      ? state.rareEncounter
+      : null;
     card.classList.toggle("is-complete", objective.status === "completed" || objective.rewardGranted);
     card.classList.toggle("is-rare", Boolean(rare));
     $("#combat-mission-glyph").textContent = rare ? "稀" : objective.status === "completed" ? "成" : "目";
@@ -2216,6 +2237,37 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
   function getActiveStoryGuardLesson() {
     if (state.mode !== "puzzle" || state.storySession?.status !== "active") return null;
     return getStoryTrainingGuardLesson(state.storySession.chapterId);
+  }
+
+  function getActiveStorySkillLesson() {
+    if (state.mode !== "puzzle" || state.storySession?.status !== "active") return null;
+    return getStoryTrainingSkillLesson(state.storySession.chapterId);
+  }
+
+  function getActiveStorySkillTrial() {
+    const lesson = getActiveStorySkillLesson();
+    const trial = state.storySkillTrial;
+    if (!lesson || !trial || trial.chapterId !== lesson.chapterId) return null;
+    return trial;
+  }
+
+  function getActiveJaryeongCombatContext() {
+    if (state.mode === "roguelike" && state.run) return state.run;
+    return getActiveStorySkillTrial();
+  }
+
+  function isStorySkillLessonActive() {
+    return Boolean(getActiveStorySkillTrial());
+  }
+
+  function getStoryActionPacing() {
+    if (state.mode !== "puzzle" || state.storySession?.status !== "active") return null;
+    // Tutorial actions deliberately do not follow the player's fast-display
+    // setting: the telegraph must remain on screen long enough to be read.
+    if (prefersReducedMotion()) {
+      return { telegraph: 1000, windup: 150, impact: 130, result: 760, guardComplete: 460 };
+    }
+    return { telegraph: 2400, windup: 340, impact: 220, result: 1750, guardComplete: 900 };
   }
 
   function createStoryGuardIntent(lesson) {
@@ -2531,7 +2583,8 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     void cutin.offsetWidth;
     cutin.classList.add("show");
     const reducedMotion = prefersReducedMotion();
-    await wait(reducedMotion ? 100 : state.idiomSpeed === "slow" ? 1050 : 860);
+    const storySkillLesson = isStorySkillLessonActive();
+    await wait(reducedMotion ? 100 : storySkillLesson ? 1300 : state.idiomSpeed === "slow" ? 1050 : 860);
     cutin.classList.remove("show");
     if (!reducedMotion) await wait(130);
     cutin.hidden = true;
@@ -2559,11 +2612,11 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
   }
 
   function getPartyJaryeongs() {
-    return (state.run?.partyJaryeongIds || []).map(getJaryeong).filter(Boolean);
+    return (getActiveJaryeongCombatContext()?.partyJaryeongIds || []).map(getJaryeong).filter(Boolean);
   }
 
   function getLeaderJaryeong() {
-    return getJaryeong(state.run?.leaderJaryeongId);
+    return getJaryeong(getActiveJaryeongCombatContext()?.leaderJaryeongId);
   }
 
   function renderEnemyAffinity() {
@@ -2661,15 +2714,83 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
   }
 
   let jaryeongInspectorReturnFocus = null;
+  let jaryeongInspectorPlacementFrame = null;
+  const JARYEONG_INSPECTOR_EDGE_GAP = 12;
+  const JARYEONG_INSPECTOR_TRIGGER_GAP = 10;
+
+  function getJaryeongInspectorTrigger(id) {
+    return [...document.querySelectorAll("[data-jaryeong-inspector]")]
+      .find((button) => button.dataset.jaryeongInspector === id) || null;
+  }
+
+  function clearJaryeongSkillInspectorPlacement(inspector = $("#jaryeong-skill-inspector")) {
+    if (!inspector) return;
+    inspector.removeAttribute("data-anchored");
+    inspector.removeAttribute("data-anchor-position");
+    inspector.style.removeProperty("--jaryeong-inspector-left");
+    inspector.style.removeProperty("--jaryeong-inspector-top");
+    inspector.style.removeProperty("--jaryeong-inspector-caret-left");
+  }
+
+  function positionJaryeongSkillInspector() {
+    const inspector = $("#jaryeong-skill-inspector");
+    const id = state.jaryeongInspectorId;
+    if (!inspector || inspector.hidden || !id || window.innerWidth <= 760) {
+      clearJaryeongSkillInspectorPlacement(inspector);
+      return;
+    }
+    const trigger = getJaryeongInspectorTrigger(id);
+    if (!trigger) {
+      clearJaryeongSkillInspectorPlacement(inspector);
+      return;
+    }
+    const triggerRect = trigger.getBoundingClientRect();
+    const inspectorRect = inspector.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const maxWidth = Math.max(0, viewportWidth - JARYEONG_INSPECTOR_EDGE_GAP * 2);
+    const maxHeight = Math.max(0, viewportHeight - JARYEONG_INSPECTOR_EDGE_GAP * 2);
+    const width = Math.min(inspectorRect.width || inspector.offsetWidth, maxWidth);
+    const height = Math.min(inspectorRect.height || inspector.offsetHeight, maxHeight);
+    if (!width || !height) return;
+
+    const centerX = triggerRect.left + triggerRect.width / 2;
+    const preferredAbove = triggerRect.top - height - JARYEONG_INSPECTOR_TRIGGER_GAP;
+    const below = triggerRect.bottom + JARYEONG_INSPECTOR_TRIGGER_GAP;
+    const canFitAbove = preferredAbove >= JARYEONG_INSPECTOR_EDGE_GAP;
+    const canFitBelow = below + height <= viewportHeight - JARYEONG_INSPECTOR_EDGE_GAP;
+    const anchorPosition = canFitAbove || !canFitBelow ? "above" : "below";
+    const unclampedTop = anchorPosition === "above" ? preferredAbove : below;
+    const maxLeft = Math.max(JARYEONG_INSPECTOR_EDGE_GAP, viewportWidth - JARYEONG_INSPECTOR_EDGE_GAP - width);
+    const maxTop = Math.max(JARYEONG_INSPECTOR_EDGE_GAP, viewportHeight - JARYEONG_INSPECTOR_EDGE_GAP - height);
+    const left = Math.min(maxLeft, Math.max(JARYEONG_INSPECTOR_EDGE_GAP, centerX - width / 2));
+    const top = Math.min(maxTop, Math.max(JARYEONG_INSPECTOR_EDGE_GAP, unclampedTop));
+    const caretLeft = Math.min(width - 18, Math.max(18, centerX - left));
+
+    inspector.style.setProperty("--jaryeong-inspector-left", `${Math.round(left)}px`);
+    inspector.style.setProperty("--jaryeong-inspector-top", `${Math.round(top)}px`);
+    inspector.style.setProperty("--jaryeong-inspector-caret-left", `${Math.round(caretLeft)}px`);
+    inspector.dataset.anchored = "true";
+    inspector.dataset.anchorPosition = anchorPosition;
+  }
+
+  function scheduleJaryeongSkillInspectorPlacement() {
+    if (jaryeongInspectorPlacementFrame !== null) cancelAnimationFrame(jaryeongInspectorPlacementFrame);
+    jaryeongInspectorPlacementFrame = requestAnimationFrame(() => {
+      jaryeongInspectorPlacementFrame = null;
+      positionJaryeongSkillInspector();
+    });
+  }
 
   function getJaryeongSkillAvailability(jaryeong) {
+    const combatContext = getActiveJaryeongCombatContext();
     const skill = JARYEONG_SKILL_LIBRARY[jaryeong?.skillId] || {
       cost: 5,
       name: jaryeong?.skillName || "기술",
       description: jaryeong?.skillDesc || "기술 효과"
     };
     const cost = Math.max(1, Number(skill.cost) || 5);
-    const charge = Math.max(0, Math.min(cost, Number(state.run?.skillCharges?.[jaryeong?.id]) || 0));
+    const charge = Math.max(0, Math.min(cost, Number(combatContext?.skillCharges?.[jaryeong?.id]) || 0));
     const full = charge >= cost;
     const processing = Boolean(state.resolving || state.jaryeongSkillAnimating);
     const moving = Boolean(state.dragging);
@@ -2713,7 +2834,8 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     if (!inspector) return;
     const id = state.jaryeongInspectorId;
     const jaryeong = getJaryeong(id);
-    const inParty = Boolean(jaryeong && state.mode === "roguelike" && state.run?.partyJaryeongIds?.includes(id));
+    const combatContext = getActiveJaryeongCombatContext();
+    const inParty = Boolean(jaryeong && combatContext?.partyJaryeongIds?.includes(id));
     document.querySelectorAll("[data-jaryeong-inspector]").forEach((button) => {
       button.setAttribute("aria-expanded", String(inParty && button.dataset.jaryeongInspector === id));
     });
@@ -2721,13 +2843,14 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
       state.jaryeongInspectorId = null;
       inspector.hidden = true;
       inspector.removeAttribute("data-element");
+      clearJaryeongSkillInspectorPlacement(inspector);
       return;
     }
     const availability = getJaryeongSkillAvailability(jaryeong);
     const element = ELEMENT_RULES[jaryeong.element] || {};
-    const partyIndex = state.run.partyJaryeongIds.indexOf(jaryeong.id);
-    const level = state.run.jaryeongLevels?.[jaryeong.id] || 1;
-    const awakening = state.run.jaryeongAwakenings?.[jaryeong.id] || 0;
+    const partyIndex = combatContext.partyJaryeongIds.indexOf(jaryeong.id);
+    const level = combatContext.jaryeongLevels?.[jaryeong.id] || 1;
+    const awakening = combatContext.jaryeongAwakenings?.[jaryeong.id] || 0;
     const guide = jaryeongSkillChargeGuide(jaryeong);
     inspector.hidden = false;
     inspector.dataset.element = jaryeong.element || "wood";
@@ -2745,18 +2868,28 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     cast.setAttribute("aria-label", `${partyIndex + 1}번. ${jaryeong.name}의 ${availability.skill.name}. ${availability.skill.description}. ${availability.statusText}. ${guide}${availability.canCast ? ". 지금 발동" : ". 아직 발동할 수 없습니다."}`);
     cast.classList.toggle("is-ready", availability.canCast);
     cast.classList.toggle("is-blocked", !availability.canCast);
+    scheduleJaryeongSkillInspectorPlacement();
+    scheduleStoryTrainingSpotlight();
   }
 
   function openJaryeongSkillInspector(id, trigger = null) {
     const jaryeong = getJaryeong(id);
-    if (!jaryeong || !state.run?.partyJaryeongIds?.includes(id)) return false;
+    const combatContext = getActiveJaryeongCombatContext();
+    if (!jaryeong || !combatContext?.partyJaryeongIds?.includes(id)) return false;
     jaryeongInspectorReturnFocus = trigger || document.activeElement;
     state.jaryeongInspectorId = id;
+    const storyLesson = getActiveStorySkillLesson();
+    if (storyLesson?.casterId === id
+      && isStoryTrainingSpotlightPhase("jaryeong-skill", STORY_SPOTLIGHT_PHASE.CARD)) {
+      setStoryTrainingSpotlightPhase("jaryeong-skill", STORY_SPOTLIGHT_PHASE.CAST);
+    }
     const panel = $("#jaryeong-panel");
     const partyButton = $("#hud-party-button");
     panel?.classList.remove("hud-expanded");
     partyButton?.setAttribute("aria-expanded", "false");
     renderJaryeongSkillInspector();
+    renderStoryTrainingSkillCta();
+    scheduleStoryTrainingSpotlight();
     audioDirector.playSfx("ui-confirm");
     $("#jaryeong-skill-inspector-cast")?.focus({ preventScroll: true });
     return true;
@@ -2770,8 +2903,14 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     if (inspector) {
       inspector.hidden = true;
       inspector.removeAttribute("data-element");
+      clearJaryeongSkillInspectorPlacement(inspector);
     }
     document.querySelectorAll("[data-jaryeong-inspector]").forEach((button) => button.setAttribute("aria-expanded", "false"));
+    if (isStoryTrainingSpotlightPhase("jaryeong-skill", STORY_SPOTLIGHT_PHASE.CAST)) {
+      setStoryTrainingSpotlightPhase("jaryeong-skill", STORY_SPOTLIGHT_PHASE.CARD);
+    }
+    renderStoryTrainingSkillCta();
+    scheduleStoryTrainingSpotlight();
     if (wasOpen && playSound) audioDirector.playSfx("ui-cancel");
     if (wasOpen && restoreFocus) {
       const returnTarget = jaryeongInspectorReturnFocus;
@@ -2792,6 +2931,9 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
       renderJaryeongSkillInspector();
       return false;
     }
+    if (isStoryTrainingSpotlightPhase("jaryeong-skill", STORY_SPOTLIGHT_PHASE.CAST)) {
+      setStoryTrainingSpotlightPhase("jaryeong-skill", STORY_SPOTLIGHT_PHASE.CASTING);
+    }
     closeJaryeongSkillInspector({ restoreFocus: false });
     await useJaryeongSkill(id);
     focusJaryeongInspectorTrigger(id);
@@ -2802,18 +2944,21 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     const panel = $("#jaryeong-panel");
     const wrap = $("#jaryeong-party");
     if (!panel || !wrap) return;
-    const active = state.mode === "roguelike";
+    const storySkillLesson = isStorySkillLessonActive();
+    const combatContext = getActiveJaryeongCombatContext();
+    const active = Boolean(combatContext) && (state.mode === "roguelike" || storySkillLesson);
     panel.classList.toggle("is-active", active);
+    panel.classList.toggle("story-skill-trial", storySkillLesson);
     if (!active) {
       state.jaryeongInspectorId = null;
       wrap.replaceChildren();
       renderJaryeongSkillInspector();
       const stage = $("#jaryeong-squad-stage");
-      if (stage) { stage.replaceChildren(); stage.classList.remove("active"); }
+      if (storySkillLesson) renderJaryeongStage();
+      else if (stage) { stage.replaceChildren(); stage.classList.remove("active"); }
       return;
     }
-    const run = state.run;
-    const partyIds = run?.partyJaryeongIds || [];
+    const partyIds = combatContext?.partyJaryeongIds || [];
     const fragment = document.createDocumentFragment();
     for (let index = 0; index < 5; index++) {
       const jaryeong = getJaryeong(partyIds[index]);
@@ -2824,8 +2969,8 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
         fragment.appendChild(slot);
         continue;
       }
-      const level = run.jaryeongLevels?.[jaryeong.id] || 1;
-      const awakening = run.jaryeongAwakenings?.[jaryeong.id] || 0;
+      const level = combatContext.jaryeongLevels?.[jaryeong.id] || 1;
+      const awakening = combatContext.jaryeongAwakenings?.[jaryeong.id] || 0;
       const availability = getJaryeongSkillAvailability(jaryeong);
       const guide = jaryeongSkillChargeGuide(jaryeong);
       slot.classList.add(`skill-${availability.status}`);
@@ -2835,7 +2980,9 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     }
     wrap.replaceChildren(fragment);
     const label = $("#jaryeong-party-label");
-    if (label) label.textContent = `${partyIds.length}/5 편성 · 리더 ${getLeaderJaryeong()?.hanja || "-"}`;
+    if (label) label.textContent = storySkillLesson
+      ? `${partyIds.length}/5 실전 편성 · 화령 5/5`
+      : `${partyIds.length}/5 편성 · 리더 ${getLeaderJaryeong()?.hanja || "-"}`;
     renderJaryeongSkillInspector();
     renderJaryeongStage();
   }
@@ -2920,7 +3067,7 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
   function renderJaryeongStage() {
     const wrap = $("#jaryeong-squad-stage");
     if (!wrap) return;
-    const party = state.mode === "roguelike" ? getPartyJaryeongs() : [];
+    const party = (state.mode === "roguelike" || isStorySkillLessonActive()) ? getPartyJaryeongs() : [];
     wrap.classList.toggle("active", party.length > 0);
     wrap.innerHTML = party.map((jaryeong, index) => `<div class="squad-jaryeong ${jaryeong.element}" style="--slot:${index}" data-squad-jaryeong="${jaryeong.id}">${tamedSpriteMarkup(jaryeong, { alt: `${jaryeong.name} · ${jaryeong.reading}` })}</div>`).join("");
   }
@@ -3163,8 +3310,8 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
   }
 
   function loadCombatLayoutMode() {
-    let saved = "bottom";
-    try { saved = localStorage.getItem(COMBAT_LAYOUT_STORAGE_KEY) || "bottom"; } catch {}
+    let saved = "upper";
+    try { saved = localStorage.getItem(COMBAT_LAYOUT_STORAGE_KEY) || "upper"; } catch {}
     setCombatLayoutMode(saved, false);
   }
 
@@ -3864,6 +4011,25 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     return lesson;
   }
 
+  function prepareStorySkillLesson(chapterId) {
+    const lesson = getStoryTrainingSkillLesson(chapterId);
+    if (!lesson) {
+      state.storySkillTrial = null;
+      return null;
+    }
+    const partyJaryeongIds = [...lesson.partyJaryeongIds];
+    state.storySkillTrial = {
+      chapterId: lesson.chapterId,
+      partyJaryeongIds,
+      leaderJaryeongId: lesson.leaderJaryeongId,
+      casterId: lesson.casterId,
+      skillCharges: Object.fromEntries(partyJaryeongIds.map((id) => [id, id === lesson.casterId ? lesson.charge : 0])),
+      jaryeongLevels: Object.fromEntries(partyJaryeongIds.map((id) => [id, 1])),
+      jaryeongAwakenings: Object.fromEntries(partyJaryeongIds.map((id) => [id, 0]))
+    };
+    return state.storySkillTrial;
+  }
+
   function setTileElement(tile, elementId) {
     const element = ELEMENTS.find((entry) => entry.id === elementId) || ELEMENTS[0];
     return { ...tile, element: element.id, symbol: element.symbol };
@@ -3919,7 +4085,8 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
       healingFieldTurns: 0, healingFieldAmount: 0, phoenixRebirthReady: 0, damageSplitHits: 0, damageSplitRatio: 0,
       deferredDamage: 0, deferredDamageTicks: 0, boundEnemyIntentTurns: 0,
       lastTurnElementDamage: {}, lastMatchGroupSizes: [], lastWideMatchElements: [], lastPlayerHealing: 0, turnTotals: { damage: 0, heal: 0, shield: 0, burn: 0, delay: 0, elementDamage: {} },
-      lockedTiles: new Map(), activeSealVisual: "seal", storyGuardEarthProcUsed: false
+      lockedTiles: new Map(), activeSealVisual: "seal", combatObjective: null, rareEncounter: null,
+      firstBattleOnboarding: null, storySkillTrial: null, storyGuardEarthProcUsed: false
     });
     resetEnemyPlan();
     clearDragPreview();
@@ -4301,12 +4468,12 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     const nextId = getNextStoryTrainingChapterId(storyProgress);
     const next = nextId && IMPLEMENTED_STORY_CHAPTER_IDS.has(nextId) ? getStoryTrainingChapter(nextId) : null;
     status.textContent = completed >= IMPLEMENTED_STORY_CHAPTER_IDS.size
-      ? `${completed}장 완료 · 이야기 기록`
+      ? `${completed}장 완료 · 튜토리얼 기록`
       : next
         ? completed === 0
           ? "처음 추천 · 조작부터 배우기"
           : `다음 · 제${next.number}장 ${next.title}`
-        : `${completed}장 완료 · 계속 수련`;
+        : `${completed}장 완료 · 계속 튜토리얼`;
   }
 
   function getDefaultStoryChapterId() {
@@ -4324,7 +4491,7 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     const routeHint = $("#story-training-route-hint");
     if (routeHint) routeHint.textContent = firstEntry
       ? "처음에는 장 선택 없이 핵심 조작부터 · 완료하면 다음 장으로 바로 이어집니다"
-      : `수련 진행 ${completedCount} / ${STORY_TRAINING_CHAPTERS.length} · 원하는 장은 다시 선택할 수 있습니다`;
+      : `튜토리얼 진행 ${completedCount} / ${STORY_TRAINING_CHAPTERS.length} · 원하는 장은 다시 선택할 수 있습니다`;
     select.innerHTML = STORY_TRAINING_CHAPTERS.map((chapter) => {
       const implemented = IMPLEMENTED_STORY_CHAPTER_IDS.has(chapter.id);
       const unlocked = implemented && isStoryTrainingChapterUnlocked(storyProgress, chapter.id);
@@ -4342,13 +4509,14 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     const fragment = document.createDocumentFragment();
     items.forEach((step, index) => {
       const fallback = DEFAULT_STORY_INTRO_STEPS[index];
+      const marker = typeof step?.marker === "string" && step.marker.trim() ? step.marker.trim() : fallback.marker;
       const title = typeof step?.title === "string" ? step.title : fallback.title;
       const copy = typeof step?.copy === "string" ? step.copy : fallback.copy;
       const item = document.createElement("div");
       const number = document.createElement("b");
       const text = document.createElement("span");
       const heading = document.createElement("strong");
-      number.textContent = String(index + 1);
+      number.textContent = marker;
       heading.textContent = title;
       text.append(heading, document.createTextNode(copy));
       item.append(number, text);
@@ -4383,12 +4551,291 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     return true;
   }
 
+  function ensureStoryTrainingSkillCta() {
+    const hud = $("#story-training-hud");
+    if (!hud) return null;
+    let cta = $("#story-training-skill-cta");
+    if (cta) return cta;
+    cta = document.createElement("button");
+    cta.id = "story-training-skill-cta";
+    cta.className = "story-training-skill-cta";
+    cta.type = "button";
+    cta.hidden = true;
+    cta.setAttribute("aria-controls", "jaryeong-skill-inspector");
+    cta.addEventListener("click", () => {
+      const lesson = getActiveStorySkillLesson();
+      if (!lesson || !getActiveStorySkillTrial()) return;
+      const trigger = getJaryeongInspectorTrigger(lesson.casterId);
+      openJaryeongSkillInspector(lesson.casterId, trigger || cta);
+    });
+    hud.appendChild(cta);
+    return cta;
+  }
+
+  function renderStoryTrainingSkillCta() {
+    const cta = ensureStoryTrainingSkillCta();
+    if (!cta) return;
+    const lesson = getActiveStorySkillLesson();
+    const trial = getActiveStorySkillTrial();
+    const caster = getJaryeong(lesson?.casterId);
+    const availability = caster && trial ? getJaryeongSkillAvailability(caster) : null;
+    cta.hidden = !lesson || !trial || !caster;
+    if (cta.hidden) return;
+    const partyIndex = trial.partyJaryeongIds.indexOf(caster.id) + 1;
+    cta.disabled = !availability?.canCast;
+    cta.dataset.element = caster.element;
+    const inspectorOpen = state.jaryeongInspectorId === caster.id && !$("#jaryeong-skill-inspector")?.hidden;
+    const casterCue = `<span class="story-training-caster-cue" aria-hidden="true">${tamedSpriteMarkup(caster, { frameKey: inspectorOpen ? "attack" : "idle", alt: "" })}<kbd>${inspectorOpen ? "發" : "選"}</kbd></span>`;
+    cta.innerHTML = inspectorOpen
+      ? `${casterCue}<span><b>${escapeHtml(caster.name)} · ‘${escapeHtml(availability.skill.name)} 발동’</b><small>효과를 읽고 팝업의 큰 발동 버튼을 누르세요</small></span><em>발동하기 →</em>`
+      : `${casterCue}<span><b>붉게 빛나는 ${escapeHtml(caster.name)} 카드를 선택</b><small>기운 ${availability.charge}/${availability.cost} · 실제 전투와 같은 5인 트레이입니다</small></span><em>카드 찾기 →</em>`;
+    cta.setAttribute("aria-label", inspectorOpen
+      ? `${caster.name}의 ${availability.skill.name} 효과를 읽고 팝업의 큰 발동 버튼을 누르세요.`
+      : `화면 아래 ${partyIndex}번 ${caster.name} 카드를 선택하세요. 기운 ${availability.charge}/${availability.cost}.`);
+  }
+
+  const STORY_SPOTLIGHT_PHASE = Object.freeze({
+    MOVE: "move",
+    INTENT: "intent",
+    QUEUE: "queue",
+    CARD: "card",
+    CAST: "cast",
+    DRAGGING: "dragging",
+    CASTING: "casting",
+    COMPLETE: "complete"
+  });
+
+  let storySpotlightFrame = null;
+  let storySpotlightState = { chapterId: "", phase: STORY_SPOTLIGHT_PHASE.COMPLETE, pendingEvent: null };
+
+  function initialStoryTrainingSpotlightPhase(chapterId) {
+    if (chapterId === "read-the-intent") return STORY_SPOTLIGHT_PHASE.INTENT;
+    if (chapterId === "gathered-letters") return STORY_SPOTLIGHT_PHASE.MOVE;
+    if (chapterId === "jaryeong-skill") return STORY_SPOTLIGHT_PHASE.CARD;
+    return STORY_SPOTLIGHT_PHASE.COMPLETE;
+  }
+
+  function syncStoryTrainingSpotlightInteractivity() {
+    const intent = $("#enemy-intent");
+    const queueArea = document.querySelector(".puzzle-panel > .queue-area");
+    const intentActive = storySpotlightState.chapterId === "read-the-intent"
+      && storySpotlightState.phase === STORY_SPOTLIGHT_PHASE.INTENT;
+    const queueActive = storySpotlightState.chapterId === "gathered-letters"
+      && storySpotlightState.phase === STORY_SPOTLIGHT_PHASE.QUEUE;
+    [
+      [intent, intentActive, "적의 다음 행동을 확인하고 계속"],
+      [queueArea, queueActive, "모은 글자를 확인하고 수련 완료"]
+    ].forEach(([node, active, label]) => {
+      if (!node) return;
+      if (active) {
+        node.setAttribute("role", "button");
+        node.setAttribute("tabindex", "0");
+        node.setAttribute("aria-label", label);
+      } else {
+        node.removeAttribute("role");
+        node.removeAttribute("tabindex");
+        node.removeAttribute("aria-label");
+      }
+    });
+  }
+
+  function setStoryTrainingSpotlightPhase(chapterId, phase, { pendingEvent = null, focus = false } = {}) {
+    storySpotlightState = { chapterId, phase, pendingEvent };
+    syncStoryTrainingSpotlightInteractivity();
+    scheduleStoryTrainingSpotlight();
+    if (!focus) return;
+    requestAnimationFrame(() => {
+      const target = phase === STORY_SPOTLIGHT_PHASE.INTENT
+        ? $("#enemy-intent")
+        : phase === STORY_SPOTLIGHT_PHASE.QUEUE
+          ? document.querySelector(".puzzle-panel > .queue-area")
+          : phase === STORY_SPOTLIGHT_PHASE.MOVE
+            ? $("#board .story-guide-start")
+            : null;
+      target?.focus({ preventScroll: true });
+    });
+  }
+
+  function armStoryTrainingSpotlight(chapterId) {
+    setStoryTrainingSpotlightPhase(chapterId, initialStoryTrainingSpotlightPhase(chapterId));
+  }
+
+  function clearStoryTrainingSpotlightState() {
+    storySpotlightState = { chapterId: "", phase: STORY_SPOTLIGHT_PHASE.COMPLETE, pendingEvent: null };
+    syncStoryTrainingSpotlightInteractivity();
+    hideStoryTrainingSpotlight();
+  }
+
+  function isStoryTrainingSpotlightPhase(chapterId, phase) {
+    return storySpotlightState.chapterId === chapterId && storySpotlightState.phase === phase;
+  }
+
+  function beginStoryTrainingSpotlightDrag(chapterId) {
+    if (!isStoryTrainingSpotlightPhase(chapterId, STORY_SPOTLIGHT_PHASE.MOVE)) return;
+    setStoryTrainingSpotlightPhase(chapterId, STORY_SPOTLIGHT_PHASE.DRAGGING);
+  }
+
+  function restoreStoryTrainingSpotlightMoveAfterCancelledDrag() {
+    const chapterId = state.storySession?.chapterId;
+    if ((chapterId === "gathered-letters" || chapterId === "read-the-intent")
+      && isStoryTrainingSpotlightPhase(chapterId, STORY_SPOTLIGHT_PHASE.DRAGGING)) {
+      setStoryTrainingSpotlightPhase(chapterId, STORY_SPOTLIGHT_PHASE.MOVE, { focus: true });
+    }
+  }
+
+  function activateStoryTrainingIntentSpotlight(event) {
+    if (!isStoryTrainingSpotlightPhase("read-the-intent", STORY_SPOTLIGHT_PHASE.INTENT)) return false;
+    if (event?.type === "keydown" && event.key !== "Enter" && event.key !== " ") return false;
+    event?.preventDefault?.();
+    setStoryTrainingSpotlightPhase("read-the-intent", STORY_SPOTLIGHT_PHASE.MOVE, { focus: true });
+    return true;
+  }
+
+  function activateStoryTrainingQueueSpotlight(event) {
+    if (!isStoryTrainingSpotlightPhase("gathered-letters", STORY_SPOTLIGHT_PHASE.QUEUE)) return false;
+    if (event?.type === "keydown" && event.key !== "Enter" && event.key !== " ") return false;
+    event?.preventDefault?.();
+    const pendingEvent = storySpotlightState.pendingEvent;
+    setStoryTrainingSpotlightPhase("gathered-letters", STORY_SPOTLIGHT_PHASE.COMPLETE);
+    if (pendingEvent) finishStoryTrainingEvent(pendingEvent);
+    return true;
+  }
+
+  function hideStoryTrainingSpotlight() {
+    const spotlight = $("#story-spotlight");
+    if (!spotlight) return;
+    spotlight.hidden = true;
+    delete spotlight.dataset.target;
+  }
+
+  function getStoryTrainingSpotlightStep() {
+    if (state.mode !== "puzzle" || state.storySession?.status !== "active") return null;
+    if (state.jaryeongSkillAnimating) return null;
+    if (document.querySelector(".modal.open")) return null;
+    const chapterId = state.storySession.chapterId;
+    if (chapterId === "gathered-letters") {
+      if (storySpotlightState.phase === STORY_SPOTLIGHT_PHASE.MOVE) {
+        return {
+          target: $("#board .story-guide-start"),
+          id: "gathered-letter-move",
+          title: "빛나는 타일을 누른 채 옮기세요",
+          copy: "표시된 길을 따라 위 타일까지 이동하면 한자가 문자 큐에 쌓입니다."
+        };
+      }
+      if (storySpotlightState.phase === STORY_SPOTLIGHT_PHASE.QUEUE) {
+        return {
+          target: document.querySelector(".puzzle-panel > .queue-area"),
+          id: "letter-queue",
+          title: "모인 글자를 확인하세요",
+          copy: "방금 얻은 한자가 문자 큐에 들어왔습니다. 이 영역을 눌러 확인하세요."
+        };
+      }
+      return null;
+    }
+    if (chapterId === "read-the-intent") {
+      if (storySpotlightState.phase === STORY_SPOTLIGHT_PHASE.INTENT) {
+        return {
+          target: $("#enemy-intent"),
+          id: "enemy-intent",
+          title: "적 행동 예고를 먼저 읽으세요",
+          copy: "다음 공격의 피해와 권장 대응을 읽은 뒤 이 예고를 눌러 확인하세요."
+        };
+      }
+      if (storySpotlightState.phase === STORY_SPOTLIGHT_PHASE.MOVE) {
+        return {
+          target: $("#board .story-guide-start"),
+          id: "intent-response-move",
+          title: "이제 땅 타일을 옮기세요",
+          copy: "빛나는 시작 타일을 누른 채 표시된 위 타일까지 이동해 보호막을 만드세요."
+        };
+      }
+      return null;
+    }
+    if (chapterId === "jaryeong-skill") {
+      const lesson = getActiveStorySkillLesson();
+      if (storySpotlightState.phase === STORY_SPOTLIGHT_PHASE.CAST) {
+        return {
+          target: $("#jaryeong-skill-inspector-cast"),
+          id: "jaryeong-cast",
+          title: "기술 발동 · 큰 버튼을 누르세요",
+          copy: "효과와 충전법을 읽은 뒤 ‘불씨 폭발 발동’을 누릅니다."
+        };
+      }
+      if (storySpotlightState.phase === STORY_SPOTLIGHT_PHASE.CARD) {
+        return {
+          target: lesson ? getJaryeongInspectorTrigger(lesson.casterId) : null,
+          id: "jaryeong-card",
+          title: "화령 선택 · 붉게 빛나는 카드를 누르세요",
+          copy: "붉게 빛나는 2번 화령은 기운 5/5로 발동 준비가 끝났습니다."
+        };
+      }
+      return null;
+    }
+    return null;
+  }
+
+  function updateStoryTrainingSpotlight() {
+    const spotlight = $("#story-spotlight");
+    const hole = $("#story-spotlight-hole");
+    const label = $("#story-spotlight-label");
+    const step = getStoryTrainingSpotlightStep();
+    if (!spotlight || !hole || !label || !step?.target || step.target.hidden) {
+      hideStoryTrainingSpotlight();
+      return;
+    }
+    const rect = step.target.getBoundingClientRect();
+    if (rect.width < 2 || rect.height < 2) {
+      hideStoryTrainingSpotlight();
+      return;
+    }
+    const gap = window.innerWidth <= 760 ? 6 : 9;
+    const left = Math.max(6, rect.left - gap);
+    const top = Math.max(6, rect.top - gap);
+    const right = Math.min(window.innerWidth - 6, rect.right + gap);
+    const bottom = Math.min(window.innerHeight - 6, rect.bottom + gap);
+    hole.style.left = `${Math.round(left)}px`;
+    hole.style.top = `${Math.round(top)}px`;
+    hole.style.width = `${Math.round(Math.max(1, right - left))}px`;
+    hole.style.height = `${Math.round(Math.max(1, bottom - top))}px`;
+    $("#story-spotlight-title").textContent = step.title;
+    $("#story-spotlight-copy").textContent = step.copy;
+    spotlight.dataset.target = step.id;
+    spotlight.hidden = false;
+
+    const labelRect = label.getBoundingClientRect();
+    const labelGap = 12;
+    const belowTop = bottom + labelGap;
+    const labelTop = belowTop + labelRect.height <= window.innerHeight - 8
+      ? belowTop
+      : Math.max(8, top - labelRect.height - labelGap);
+    const labelLeft = Math.min(
+      Math.max(8, left),
+      Math.max(8, window.innerWidth - labelRect.width - 8)
+    );
+    label.style.left = `${Math.round(labelLeft)}px`;
+    label.style.top = `${Math.round(labelTop)}px`;
+  }
+
+  function scheduleStoryTrainingSpotlight() {
+    if (storySpotlightFrame !== null) cancelAnimationFrame(storySpotlightFrame);
+    storySpotlightFrame = requestAnimationFrame(() => {
+      storySpotlightFrame = null;
+      updateStoryTrainingSpotlight();
+    });
+  }
+
   function renderStoryTrainingHud() {
     const hud = $("#story-training-hud");
     if (!hud) return;
     const session = state.mode === "puzzle" ? state.storySession : null;
     hud.hidden = !session;
-    if (!session) return;
+    hud.classList.toggle("has-skill", Boolean(getActiveStorySkillLesson()));
+    if (!session) {
+      const cta = $("#story-training-skill-cta");
+      if (cta) cta.hidden = true;
+      clearStoryTrainingSpotlightState();
+      return;
+    }
     const chapter = getStoryTrainingChapter(session.chapterId);
     const presentation = STORY_PRESENTATION[session.chapterId] || STORY_PRESENTATION["disaster-gate"];
     $("#story-training-kicker").textContent = `제${chapter?.number || 1}장 · ${chapter?.title || "재앙의 문"}`;
@@ -4396,12 +4843,15 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     $("#story-training-guide").textContent = session.status === "complete" ? presentation.completeGuide : presentation.activeGuide;
     $("#story-training-progress").textContent = presentation.progressLabel(session);
     hud.classList.toggle("is-complete", session.status === "complete");
+    renderStoryTrainingSkillCta();
+    scheduleStoryTrainingSpotlight();
   }
 
   function syncStoryPresentationState() {
     const chapterId = state.mode === "puzzle" && state.storySession?.status === "active" ? state.storySession.chapterId : "";
     if (chapterId) document.body.dataset.storyChapterActive = chapterId;
     else delete document.body.dataset.storyChapterActive;
+    document.body.classList.toggle("story-skill-mode", chapterId === "jaryeong-skill");
   }
 
   function updateAll() {
@@ -4472,6 +4922,18 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     const secondaryPointer = event.button === 2 || (event.button > 0 && event.buttons && event.buttons !== 1);
     if (state.dragging || state.resolving || state.jaryeongSkillAnimating || state.gameOver || secondaryPointer) return;
     if (state.mode === "pang" && !state.pangRunning) return;
+    if (isStorySkillLessonActive()) {
+      event.preventDefault();
+      showBattleFeedback("prepare", "이번 장은 자령 기술", "화면 아래 붉게 빛나는 2번 화령 카드를 선택한 뒤, 팝업의 큰 발동 버튼을 누르세요.");
+      (getJaryeongInspectorTrigger("fire-hwa") || $("#story-training-skill-cta"))?.focus({ preventScroll: true });
+      return;
+    }
+    if (isStoryTrainingSpotlightPhase("read-the-intent", STORY_SPOTLIGHT_PHASE.INTENT)) {
+      event.preventDefault();
+      showBattleFeedback("prepare", "먼저 적의 예고를 읽으세요", "적 행동 예고를 누르면 대응할 땅 타일을 안내합니다.");
+      $("#enemy-intent")?.focus({ preventScroll: true });
+      return;
+    }
     const tile = event.target.closest(".tile");
     if (!tile) return;
     if (isTileLocked(+tile.dataset.row, +tile.dataset.col)) return;
@@ -4480,6 +4942,7 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
       rejectStoryPathGesture("빛나는 ‘잡기’ 타일부터 시작해야 합니다. 다른 타일은 이 수련에서 움직이지 않습니다.");
       return;
     }
+    beginStoryTrainingSpotlightDrag(state.storySession?.chapterId);
     event.preventDefault();
     state.dragging = true;
     hideStoryPathDemo();
@@ -4761,11 +5224,13 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
       // This prevents first-time players from being punished while learning
       // the hold-and-drag control and matches the expected P&D interaction.
       state.swapAnimationUntil = 0;
+      restoreStoryTrainingSpotlightMoveAfterCancelledDrag();
       renderStoryPathDemo();
       return;
     }
     if (!storyPathValid) {
       state.swapAnimationUntil = 0;
+      restoreStoryTrainingSpotlightMoveAfterCancelledDrag();
       rejectStoryPathGesture("끝까지 이동하기 전에 놓았습니다. 보드를 되돌렸으니 표시된 ‘놓기’ 칸까지 이어가세요.");
       renderStoryPathDemo();
       return;
@@ -4825,7 +5290,7 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
 
   let battleFeedbackTimer = null;
 
-  function showBattleFeedback(kind, title, detail) {
+  function showBattleFeedback(kind, title, detail, durationOverride = null) {
     const feedback = $("#battle-feedback");
     if (!feedback) return;
     window.clearTimeout(battleFeedbackTimer);
@@ -4833,7 +5298,8 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     $("#battle-feedback-title").textContent = title;
     $("#battle-feedback-detail").textContent = detail;
     feedback.classList.remove("player", "enemy", "show");
-    const duration = getBattleFeedbackDuration(state.battleDisplayMode, kind === "drop" ? "player" : kind);
+    const fallbackDuration = getBattleFeedbackDuration(state.battleDisplayMode, kind === "drop" ? "player" : kind);
+    const duration = Number.isFinite(Number(durationOverride)) ? Math.max(0, Number(durationOverride)) : fallbackDuration;
     feedback.style.setProperty("--feedback-duration", `${duration}ms`);
     void feedback.offsetWidth;
     feedback.classList.add(kind === "enemy" || kind === "prepare" ? "enemy" : "player", "show");
@@ -5221,9 +5687,10 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
   }
 
   function chargeJaryeong(id, amount = 1) {
-    if (!state.run) return;
-    state.run.skillCharges = state.run.skillCharges || {};
-    state.run.skillCharges[id] = clamp((state.run.skillCharges[id] || 0) + amount, 0, 5);
+    const combatContext = getActiveJaryeongCombatContext();
+    if (!combatContext) return;
+    combatContext.skillCharges = combatContext.skillCharges || {};
+    combatContext.skillCharges[id] = clamp((combatContext.skillCharges[id] || 0) + amount, 0, 5);
   }
 
   function chargePartyByElement(element, count) {
@@ -5426,13 +5893,16 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
   }
 
   async function useJaryeongSkill(id) {
-    if (state.mode !== "roguelike" || !state.run || state.resolving || state.jaryeongSkillAnimating || state.dragging || state.gameOver) return;
+    const combatContext = getActiveJaryeongCombatContext();
+    const isRoguelikeSkill = state.mode === "roguelike" && combatContext === state.run;
+    const isStorySkill = isStorySkillLessonActive() && combatContext === state.storySkillTrial;
+    if ((!isRoguelikeSkill && !isStorySkill) || !combatContext || state.resolving || state.jaryeongSkillAnimating || state.dragging || state.gameOver) return;
     const jaryeong = getJaryeong(id);
-    if (!jaryeong || !state.run.partyJaryeongIds.includes(id) || (state.run.skillCharges?.[id] || 0) < 5) return;
+    if (!jaryeong || !combatContext.partyJaryeongIds.includes(id) || (combatContext.skillCharges?.[id] || 0) < 5) return;
     const skill = JARYEONG_SKILL_LIBRARY[jaryeong.skillId] || { name: jaryeong.skillName, description: jaryeong.skillDesc };
     const level = getJaryeongLevel(id);
     // 이전 저장의 Lv.5 각성 판정은 유지하면서, 영구 메타 각성도 전투 효과에 반영한다.
-    const awakened = (state.run.jaryeongAwakenings?.[id] || 0) > 0 || level >= 5;
+    const awakened = (combatContext.jaryeongAwakenings?.[id] || 0) > 0 || level >= 5;
     // The ephemeral animation guard prevents duplicate pointer/keyboard casts.
     // Keep the persisted charge intact through the visual beat so a reload or
     // menu exit cannot consume energy before the skill effect is committed.
@@ -5440,12 +5910,12 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     updateAll();
     try {
       await showJaryeongSkillCutin(jaryeong, skill);
-      if (state.mode !== "roguelike" || !state.run || state.gameOver) return;
+      if (getActiveJaryeongCombatContext() !== combatContext || state.gameOver) return;
       const offensiveSkill = /피해|공격|폭쇄|반동/.test(`${skill.name || ""} ${skill.description || ""}`)
         || ["earth-mountain", "metal-chain", "metal-sword", "water-sea"].includes(jaryeong.id);
       if (offensiveSkill) await animateSquadElement(jaryeong.element, jaryeong.id);
-      if (state.mode !== "roguelike" || !state.run || state.gameOver) return;
-      state.run.skillCharges[id] = 0;
+      if (getActiveJaryeongCombatContext() !== combatContext || state.gameOver) return;
+      combatContext.skillCharges[id] = 0;
       switch (jaryeong.element) {
       case "wood":
         if (jaryeong.id === "wood-bamboo") {
@@ -5542,7 +6012,8 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
       showBattleFeedback("player", `${jaryeong.hanja}령 · ${skill.name}`, skill.description);
       addLog(`<strong>${jaryeong.hanja}령 · ${skill.name}</strong> · ${skill.description}`, "alchemy");
       updateAll();
-      if (state.enemyHp <= 0) {
+      if (isStorySkill && finishStoryTrainingSkillCast(id)) return;
+      if (state.enemyHp <= 0 && isRoguelikeSkill) {
         state.resolving = true;
         try {
           await nextWave();
@@ -5558,6 +6029,10 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
   }
 
   function advanceRareAfterPlayerTurn() {
+    // Rare encounters belong exclusively to a live roguelike node. Clearing
+    // the run to enter the tutorial must never let a saved escape countdown
+    // advance inside a story lesson.
+    if (state.mode !== "roguelike" || !state.run?.currentEncounterId) return false;
     if (!state.rareEncounter || state.rareEncounter.status !== "active") return false;
     state.rareEncounter.enemyHp = Math.max(0, state.enemyHp);
     state.rareEncounter.talismanShield = Math.max(0, state.enemyShield || 0);
@@ -5566,6 +6041,14 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
   }
 
   async function finishEscapedRareEncounter() {
+    // Defense in depth: even a stale/asynchronous caller cannot raise the flee
+    // ceremony over a tutorial or another non-run mode.
+    if (state.mode !== "roguelike" || !state.run?.currentEncounterId) {
+      state.rareEncounter = null;
+      return;
+    }
+    const escapedRun = state.run;
+    const escapedEncounterId = escapedRun.currentEncounterId;
     const escapedEnemy = currentEnemy();
     recordCombatObjectiveEvent({ type: COMBAT_OBJECTIVE_EVENT.BATTLE_LOST });
     if (state.run) {
@@ -5583,6 +6066,14 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
       title: `${escapedEnemy?.name || "희귀 자령"} 도주`,
       detail: "보상 없이 사라졌습니다 · 연성행로는 계속됩니다"
     });
+    // The ceremony is intentionally readable and therefore asynchronous. If
+    // the player left or resumed another run while it was visible, the old
+    // completion must not advance the newly active node.
+    if (
+      state.mode !== "roguelike"
+      || state.run !== escapedRun
+      || state.run.currentEncounterId !== escapedEncounterId
+    ) return;
     state.resolving = false;
     state.rareEncounter = null;
     state.combatObjective = null;
@@ -6447,21 +6938,22 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
           : 0
       : 0;
     const damagesPlayer = rawDamage > 0 || secondaryDamage > 0;
+    const storyActionPacing = getStoryActionPacing();
     showBattleFeedback(
       damagesPlayer ? "enemy" : "prepare",
       damagesPlayer ? `${intent.name} 준비` : `${intent.name} · 공격하지 않음`,
-      damagesPlayer ? (intent.effectText || "적이 행동을 준비합니다.") : `이번 턴 체력 피해 없음 · 다음 연성 뒤 공격에 대비하세요 · ${intent.effectText || "기운을 모읍니다."}`
+      damagesPlayer ? (intent.effectText || "적이 행동을 준비합니다.") : `이번 턴 체력 피해 없음 · 다음 연성 뒤 공격에 대비하세요 · ${intent.effectText || "기운을 모읍니다."}`,
+      storyActionPacing ? storyActionPacing.telegraph + storyActionPacing.windup + storyActionPacing.impact + 220 : null
     );
-    const storyActionDisplay = state.mode === "puzzle" && state.storySession?.status === "active";
-    const telegraphHold = storyActionDisplay
-      ? (state.battleDisplayMode === "slow" ? 2100 : 1100)
+    const telegraphHold = storyActionPacing
+      ? storyActionPacing.telegraph
       : damagesPlayer ? (state.idiomSpeed === "slow" ? 680 : 340) : (state.battleDisplayMode === "fast" ? 100 : 220);
     await wait(telegraphHold);
     setEnemyArtFrame(damagesPlayer ? (enemy.asset?.telegraph ? "telegraph" : "windup") : "idleAlt", 0);
-    await wait(damagesPlayer ? 210 : 90);
+    await wait(storyActionPacing ? storyActionPacing.windup : damagesPlayer ? 210 : 90);
     if (damagesPlayer) {
       setEnemyArtFrame("attack", 360);
-      await wait(120);
+      await wait(storyActionPacing ? storyActionPacing.impact : 120);
     }
     let damage = rawDamage;
     let reflect = null;
@@ -6511,7 +7003,7 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     enemyOutcome.push(hpDamage > 0 ? `체력 ${hpDamage} 감소` : "체력 피해 없음");
     const secondaryEffect = !silenced ? intent.effectText?.split(" · ").slice(1).join(" · ") : "부가효과 봉인";
     if (secondaryEffect) enemyOutcome.push(secondaryEffect);
-    showBattleFeedback(damagesPlayer ? "enemy" : "prepare", intent.name, enemyOutcome.join(" · "));
+    showBattleFeedback(damagesPlayer ? "enemy" : "prepare", intent.name, enemyOutcome.join(" · "), storyActionPacing ? storyActionPacing.result : null);
     if (reflect) {
       const reflectedDamage = Math.round(rawDamage * (reflect.ratio || 1));
       applyDamage(reflectedDamage, "반사 −", { ignoreVulnerability: true, ignoreShield: true, element: reflect.element });
@@ -6520,7 +7012,7 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     addLog(`${enemy.name}의 ${intent.name} · ${absorbed ? `보호막 ${absorbed} 흡수 · ` : ""}<strong>${hpDamage > 0 || secondaryDamage > 0 ? `${hpDamage + secondaryDamage} 피해` : "체력 피해 없음"}</strong>${effectSuffix}`, "enemy");
     advanceEnemyPlan();
     updateVitals();
-    await wait(storyActionDisplay ? (state.battleDisplayMode === "slow" ? 1350 : 720) : 220);
+    await wait(storyActionPacing ? storyActionPacing.result : 220);
     const storyGuardEvent = storyGuardLesson
       ? evaluateStoryTrainingGuardHit({
         chapterId: state.storySession?.chapterId,
@@ -6530,7 +7022,7 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
       })
       : null;
     if (storyGuardEvent?.count) {
-      await wait(state.idiomSpeed === "slow" ? 700 : 360);
+      await wait(storyActionPacing ? storyActionPacing.guardComplete : state.idiomSpeed === "slow" ? 700 : 360);
     }
     if (finishStoryTrainingGuardHit(intent, absorbed, hpDamage, storyGuardEvent)) {
       return true;
@@ -7251,7 +7743,7 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
 
   function setupRareEncounter(node, enemy) {
     const run = state.run;
-    if (!run || !node || !enemy) return null;
+    if (state.mode !== "roguelike" || !run?.currentEncounterId || !node || !enemy) return null;
     // Keep the very first combat as the readable onboarding fight. The next
     // normal battle remains the first rare candidate and receives the 35%
     // early-window correction.
@@ -8543,6 +9035,7 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
       }
     }
     previousOpenDialogs = openedSet;
+    scheduleStoryTrainingSpotlight();
   }
 
   function handleDialogKeyboard(event) {
@@ -8591,10 +9084,11 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     closeCombatHudPanels();
     closeGameOverlays();
     $("#main-menu").classList.remove("open");
-    document.body.classList.remove("menu-mode", "pang-mode", "roguelike-mode");
+    document.body.classList.remove("menu-mode", "pang-mode", "roguelike-mode", "story-skill-mode");
     document.body.classList.add("puzzle-mode");
     state.mode = "puzzle";
     state.storySession = null;
+    state.storySkillTrial = null;
     $("#mode-kicker").textContent = "STORY TUTORIAL";
     resetGame();
     selectedStoryChapterId = getDefaultStoryChapterId();
@@ -8609,6 +9103,7 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     const chapter = getStoryTrainingChapter(chapterId);
     const presentation = STORY_PRESENTATION[chapterId];
     state.storySession = createStoryTrainingSession(chapterId);
+    armStoryTrainingSpotlight(chapterId);
     if (chapter.objective.event === STORY_TRAINING_EVENT.JOURNEY_OPENED) {
       openStoryJourneyPreparation();
       return;
@@ -8616,13 +9111,20 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     resetGame();
     prepareStoryIdiomLesson(chapterId);
     prepareStoryBoard(chapterId);
+    prepareStorySkillLesson(chapterId);
     const storyGuide = activeStoryPathGuide();
     if (storyGuide?.path?.length) state.keyboardFocus = { r: storyGuide.path[0][0], c: storyGuide.path[0][1] };
     $("#intro-modal").classList.remove("open", "help-context");
     $("#story-help-return").hidden = true;
     addLog(`<strong>제${chapter.number}장 · ${chapter.title}</strong> · ${presentation.startLog}`, "start");
     updateAll();
-    $("#board .story-guide-start")?.focus({ preventScroll: true });
+    const lesson = getActiveStorySkillLesson();
+    const firstTarget = chapterId === "read-the-intent"
+      ? $("#enemy-intent")
+      : lesson
+      ? getJaryeongInspectorTrigger(lesson.casterId)
+      : $("#board .story-guide-start");
+    firstTarget?.focus({ preventScroll: true });
   }
 
   function openStoryJourneyPreparation() {
@@ -8648,16 +9150,19 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     const presentation = STORY_PRESENTATION[chapterId];
     state.storySession = applyStoryTrainingEvent(state.storySession, event);
     if (state.storySession.status !== "complete") return false;
+    if (storySpotlightState.chapterId === chapterId) {
+      setStoryTrainingSpotlightPhase(chapterId, STORY_SPOTLIGHT_PHASE.COMPLETE);
+    }
     storyProgress = completeStoryTrainingChapter(storyProgress, state.storySession);
     saveStoryProgress();
     syncStoryMenuStatus();
     state.gameOver = true;
     state.resolving = false;
     addLog(`<strong>제${chapter.number}장 완료</strong> · ${presentation.resultCopy}`, "alchemy");
-    showBattleFeedback("player", `제${chapter.number}장 완료`, completionFeedback || `${presentation.resultTitle} · 적의 반격 없이 수련을 마칩니다`);
+    showBattleFeedback("player", `제${chapter.number}장 완료`, completionFeedback || `${presentation.resultTitle} · 적의 반격 없이 튜토리얼을 마칩니다`);
     updateAll();
     audioDirector.playSfx("reward");
-    $("#story-result-kicker").textContent = `第${["壹", "貳", "參", "肆", "伍", "陸"][chapter.number - 1] || chapter.number}章 完 · 수련 완료`;
+    $("#story-result-kicker").textContent = `第${["壹", "貳", "參", "肆", "伍", "陸", "柒"][chapter.number - 1] || chapter.number}章 完 · 튜토리얼 완료`;
     $("#story-result-title").textContent = presentation.resultTitle;
     $("#story-result-copy").textContent = presentation.resultCopy;
     $("#story-lesson-recap").innerHTML = presentation.recap.map(([number, label]) => `<span><b>${number}</b>${label}</span>`).join("");
@@ -8692,6 +9197,11 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
         : chapter.objective.event === STORY_TRAINING_EVENT.IDIOM
           ? { type: STORY_TRAINING_EVENT.IDIOM, values: activatedIdioms.map((idiom) => idiom.id) }
           : { type: STORY_TRAINING_EVENT.MATCH, count: comboCount > 0 ? 1 : 0 };
+    if (chapter.id === "gathered-letters"
+      && applyStoryTrainingEvent(state.storySession, event).status === "complete") {
+      setStoryTrainingSpotlightPhase(chapter.id, STORY_SPOTLIGHT_PHASE.QUEUE, { pendingEvent: event, focus: true });
+      return true;
+    }
     return finishStoryTrainingEvent(event);
   }
 
@@ -8709,6 +9219,16 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
       return false;
     }
     return finishStoryTrainingEvent(guardEvent, `보호막이 ${lesson.damage}을 모두 막음 · 체력 피해 없음`);
+  }
+
+  function finishStoryTrainingSkillCast(jaryeongId) {
+    const lesson = getActiveStorySkillLesson();
+    if (!lesson || lesson.casterId !== jaryeongId) return false;
+    const caster = getJaryeong(jaryeongId);
+    return finishStoryTrainingEvent(
+      { type: STORY_TRAINING_EVENT.JARYEONG_SKILL, value: jaryeongId },
+      `${caster?.name || "자령"}의 ${caster?.skillName || "기술"} 발동 · 기운 5/5를 모두 사용`
+    );
   }
 
   function replayStoryChapter() {
@@ -8768,7 +9288,7 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     closeCombatHudPanels();
     closeGameOverlays();
     $("#main-menu").classList.remove("open");
-    document.body.classList.remove("menu-mode", "puzzle-mode", "pang-mode");
+    document.body.classList.remove("menu-mode", "puzzle-mode", "pang-mode", "story-skill-mode");
     document.body.classList.add("roguelike-mode");
     state.mode = "roguelike";
     state.run = null;
@@ -8794,7 +9314,7 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     state.dragging = false; state.dragMoved = false; state.resolving = false; state.jaryeongSkillAnimating = false; state.pangRunning = false; state.gameOver = true;
     const cutin = $("#jaryeong-skill-cutin");
     if (cutin) { cutin.classList.remove("show"); cutin.hidden = true; }
-    state.selected = null; state.mode = null; state.run = null; state.storySession = null;
+    state.selected = null; state.mode = null; state.run = null; state.storySession = null; state.storySkillTrial = null;
     state.debugEnemyOverride = null;
     state.debugEnemyGroup = null;
     state.enemyElementBarrier = null;
@@ -8804,7 +9324,8 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     clearDragPreview();
     $("#cursor-timer").classList.remove("active", "danger");
     closeGameOverlays();
-    document.body.classList.remove("puzzle-mode", "pang-mode", "roguelike-mode", "debug-trial-mode", "debug-multi-mode");
+    document.body.classList.remove("puzzle-mode", "pang-mode", "roguelike-mode", "story-skill-mode", "debug-trial-mode", "debug-multi-mode");
+    clearStoryTrainingSpotlightState();
     document.body.classList.add("menu-mode");
     $("#main-menu").classList.add("open");
     renderPreparedParty();
@@ -8829,6 +9350,8 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
 
   function bindEvents() {
     const board = $("#board");
+    const storyIntent = $("#enemy-intent");
+    const storyQueue = document.querySelector(".puzzle-panel > .queue-area");
     document.addEventListener("pointerdown", () => {
       audioDirector.unlock();
       void audioDirector.playBgm(state.mode === "roguelike" && state.run ? `act-${state.run.act || 1}` : "menu", { immediate: true });
@@ -8845,6 +9368,10 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     board.addEventListener("pointercancel", (event) => { if (state.mode === "pang") endDrag(event); });
     board.addEventListener("lostpointercapture", finishDragAfterPointerLoss);
     board.addEventListener("keydown", handleBoardKeyboard);
+    storyIntent?.addEventListener("click", activateStoryTrainingIntentSpotlight);
+    storyIntent?.addEventListener("keydown", activateStoryTrainingIntentSpotlight);
+    storyQueue?.addEventListener("click", activateStoryTrainingQueueSpotlight);
+    storyQueue?.addEventListener("keydown", activateStoryTrainingQueueSpotlight);
     document.addEventListener("pointermove", (event) => { if (state.mode === "puzzle" || state.mode === "roguelike") dragMove(event); });
     document.addEventListener("pointerup", (event) => { if (state.mode === "puzzle" || state.mode === "roguelike") endDrag(event); });
     document.addEventListener("pointercancel", (event) => { if (state.mode === "puzzle" || state.mode === "roguelike") endDrag(event); });
@@ -9086,6 +9613,9 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     });
     $("#jaryeong-skill-inspector-close")?.addEventListener("click", () => closeJaryeongSkillInspector());
     $("#jaryeong-skill-inspector-cast")?.addEventListener("click", () => { void castJaryeongInspectorSkill(); });
+    window.addEventListener("resize", scheduleJaryeongSkillInspectorPlacement, { passive: true });
+    window.addEventListener("resize", scheduleStoryTrainingSpotlight, { passive: true });
+    window.addEventListener("scroll", scheduleStoryTrainingSpotlight, { passive: true });
     $("#first-battle-coach-skill")?.addEventListener("click", (event) => {
       const skill = event.currentTarget;
       if (skill.disabled || !skill.dataset.jaryeongSkill) return;
@@ -9098,13 +9628,21 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
         return;
       }
       if (event.repeat || event.ctrlKey || event.altKey || event.metaKey) return;
-      if (state.mode !== "roguelike" || !state.run?.currentEncounterId || state.resolving || state.jaryeongSkillAnimating || state.gameOver) return;
+      const combatContext = getActiveJaryeongCombatContext();
+      const canUseRunShortcut = state.mode === "roguelike" && Boolean(state.run?.currentEncounterId);
+      const canUseStoryShortcut = isStorySkillLessonActive();
+      if ((!canUseRunShortcut && !canUseStoryShortcut) || !combatContext || state.resolving || state.jaryeongSkillAnimating || state.gameOver) return;
       if (document.querySelector(".modal.open")) return;
       if (event.target?.matches?.("input, textarea, select, [contenteditable='true']")) return;
       const index = Number(event.key) - 1;
-      const id = state.run.partyJaryeongIds?.[index];
-      if (!id || (state.run.skillCharges?.[id] || 0) < 5) return;
+      const id = combatContext.partyJaryeongIds?.[index];
+      if (!id || (combatContext.skillCharges?.[id] || 0) < 5) return;
       event.preventDefault();
+      if (canUseStoryShortcut) {
+        const trigger = getJaryeongInspectorTrigger(id);
+        openJaryeongSkillInspector(id, trigger);
+        return;
+      }
       if (state.jaryeongInspectorId) closeJaryeongSkillInspector({ restoreFocus: false, playSound: false });
       void useJaryeongSkill(id);
     });

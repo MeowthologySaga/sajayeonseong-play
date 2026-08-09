@@ -298,6 +298,17 @@ body.puzzle-mode .story-training-hud:not([hidden]) { display:grid; grid-template
 .story-training-copy em { grid-column:1/3; overflow:hidden; color:#b9c9c1; font-size:8px; font-style:normal; text-overflow:ellipsis; white-space:nowrap; }
 .story-training-hud > b { color:#f5d77e; font-size:10px; white-space:nowrap; }
 .story-training-hud.is-complete { border-color:rgba(87,214,176,.62); background:linear-gradient(105deg,rgba(40,108,82,.42),rgba(13,48,37,.4)); }
+.story-training-hud.has-skill { min-height:74px; }
+.story-training-skill-cta { grid-column:2 / -1; display:grid; grid-template-columns:24px minmax(0,1fr) auto; align-items:center; gap:7px; min-height:31px; padding:4px 7px; border:1px solid rgba(255,149,85,.72); border-radius:7px; color:#fff0c0; background:linear-gradient(100deg,rgba(130,48,25,.82),rgba(63,25,18,.74)); box-shadow:inset 0 0 14px rgba(255,126,68,.12),0 0 14px rgba(255,126,68,.08); text-align:left; cursor:pointer; }
+.story-training-skill-cta:hover:not(:disabled) { border-color:#ffd28b; filter:brightness(1.12); }
+.story-training-skill-cta:disabled { opacity:.6; cursor:default; }
+.story-training-skill-cta kbd { display:grid; place-items:center; width:22px; height:22px; border:1px solid rgba(255,225,157,.78); border-radius:5px; color:#fff1b1; background:rgba(22,8,5,.68); font:800 11px/1 "Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo","Noto Sans CJK KR",sans-serif; }
+.story-training-skill-cta span { display:grid; min-width:0; gap:1px; }
+.story-training-skill-cta b,.story-training-skill-cta small { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.story-training-skill-cta b { color:inherit; font-size:9px; }
+.story-training-skill-cta small { color:#efc6a2; font-size:7px; }
+.story-training-skill-cta em { color:#ffe397; font-size:7px; font-style:normal; white-space:nowrap; }
+@media (max-width:760px) { .story-training-hud.has-skill { min-height:62px; }.story-training-skill-cta { grid-template-columns:19px minmax(0,1fr) auto; gap:4px; min-height:24px; padding:3px 4px; }.story-training-skill-cta kbd { width:17px; height:17px; font-size:8px; }.story-training-skill-cta b { font-size:7px; }.story-training-skill-cta small,.story-training-skill-cta em { font-size:5px; } }
 body.puzzle-mode .tile.story-guide-start { z-index:3; border-color:#fff0a6; box-shadow:0 0 0 3px rgba(255,225,126,.62),0 0 24px rgba(255,204,78,.74); animation:storyGuidePulse 1.15s ease-in-out infinite; }
 body.puzzle-mode .tile.story-guide-target { z-index:2; border-color:#7de8bc; box-shadow:inset 0 0 0 3px rgba(98,224,177,.48),0 0 17px rgba(98,224,177,.42); }
 body.puzzle-mode .tile.story-guide-target::before { content:"목표"; position:absolute; z-index:4; inset:3px 3px auto auto; padding:2px 4px; border:0; border-radius:999px; color:#10241c; background:#9df0cd; font:800 7px/1 "Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo","Noto Sans CJK KR",sans-serif; white-space:nowrap; transform:none; }
@@ -4707,4 +4718,464 @@ body.roguelike-mode .fixed-set .idiom-card:nth-child(n+2) .idiom-slot.collected 
 
 @media (min-width:1241px) and (max-height:820px) {
   body.roguelike-mode[data-combat-layout="upper"] .enemy-intent-card { top:150px; }
+}
+
+/* Main-menu shrine scene: keep the illustrated sanctuary as a living game
+   space instead of a static landing page.  These layers never intercept
+   controls, so keyboard and touch access remain unchanged. */
+.main-menu { isolation:isolate; }
+.main-menu .menu-ambient-layer {
+  position:fixed;
+  inset:0;
+  z-index:0;
+  overflow:hidden;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .7s ease;
+}
+.main-menu.open .menu-ambient-layer { opacity:1; }
+.menu-ambient-layer::before,
+.menu-ambient-layer::after {
+  content:"";
+  position:absolute;
+  inset:-14%;
+  pointer-events:none;
+}
+.menu-ambient-layer::before {
+  background:
+    radial-gradient(circle at 17% 20%,rgba(246,211,114,.23) 0 1px,transparent 2px) 0 0/166px 142px,
+    radial-gradient(circle at 82% 32%,rgba(129,230,180,.17) 0 1.5px,transparent 3px) 0 0/219px 185px,
+    radial-gradient(ellipse at 50% 22%,rgba(83,174,150,.17),transparent 42%),
+    radial-gradient(ellipse at 25% 78%,rgba(232,170,84,.08),transparent 35%);
+  filter:blur(.1px);
+  animation:menuLanternMotes 19s linear infinite;
+}
+.menu-ambient-layer::after {
+  background:
+    linear-gradient(112deg,transparent 24%,rgba(218,246,213,.065) 42%,transparent 57%),
+    radial-gradient(ellipse at 50% 100%,rgba(2,12,10,.72),transparent 56%);
+  mix-blend-mode:screen;
+  opacity:.72;
+  transform:translate3d(-4%,0,0);
+  animation:menuMoonBeam 13s ease-in-out infinite alternate;
+}
+.main-menu.open .shrine-menu-content { animation:menuShrineReveal .62s cubic-bezier(.16,.82,.25,1) both; }
+.menu-logo-seal { isolation:isolate; }
+.menu-logo-seal h2 {
+  animation:menuTitleGleam 4.8s ease-in-out infinite;
+  will-change:filter,text-shadow;
+}
+.menu-logo-seal h2 span { animation:menuTitleCharacterRise 4.8s ease-in-out infinite; }
+.menu-logo-seal .eyebrow,
+.menu-logo-seal small { animation:menuTitleBreath 4.8s ease-in-out infinite; }
+.shrine-menu-content .menu-spirit-parade {
+  transform-origin:center bottom;
+  animation:menuSpiritParadeFloat 6.4s ease-in-out infinite;
+  will-change:transform;
+}
+.menu-shrine-button {
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+}
+.menu-shrine-button > * { position:relative; z-index:1; }
+.menu-shrine-button::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:0;
+  background:linear-gradient(116deg,transparent 35%,rgba(243,212,126,.13) 48%,transparent 61%);
+  transform:translateX(-135%);
+  animation:menuHallShimmer 8.5s ease-in-out infinite;
+  pointer-events:none;
+}
+.menu-shrine-button:nth-child(2)::before { animation-delay:-4.2s; }
+.menu-journey-button {
+  isolation:isolate;
+  border-color:#e4b85e;
+  color:#fff0bd;
+  background:
+    radial-gradient(circle at 14% 38%,rgba(255,188,92,.2),transparent 25%),
+    linear-gradient(108deg,#70271e 0%,#8e3f26 48%,#411d19 100%);
+  box-shadow:
+    inset 0 0 0 4px rgba(30,8,7,.58),
+    inset 0 0 36px rgba(255,194,93,.11),
+    0 16px 34px rgba(0,0,0,.56),
+    0 0 22px rgba(185,72,42,.14);
+}
+.menu-journey-button .mode-glyph {
+  color:#ffe08a;
+  border-color:rgba(255,218,126,.78);
+  background:linear-gradient(180deg,rgba(72,20,16,.84),rgba(31,9,9,.8));
+  box-shadow:inset 0 0 16px rgba(255,181,82,.12);
+}
+.menu-journey-button small { color:#efc58e; }
+.menu-journey-button em { color:#e8cbb0; }
+.menu-journey-button > * { position:relative; z-index:1; }
+.menu-journey-button::before {
+  z-index:1;
+  animation:menuJourneyLine 2.7s ease-in-out infinite;
+}
+.menu-journey-button::after {
+  content:"";
+  position:absolute;
+  top:-18%;
+  bottom:-18%;
+  left:-26%;
+  z-index:0;
+  width:22%;
+  background:linear-gradient(90deg,transparent,rgba(255,237,169,.19),transparent);
+  transform:skewX(-20deg) translateX(-80%);
+  animation:menuJourneySweep 6.4s cubic-bezier(.23,.67,.48,.95) infinite;
+  pointer-events:none;
+}
+.menu-fullscreen-hint {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  max-width:100%;
+  min-height:30px;
+  padding:5px 10px;
+  border:1px solid rgba(141,193,166,.28);
+  border-radius:999px;
+  color:#abc5b8;
+  background:linear-gradient(100deg,rgba(5,22,18,.76),rgba(20,58,45,.52));
+  box-shadow:inset 0 0 16px rgba(113,228,172,.04);
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.01em;
+  line-height:1.3;
+  text-align:center;
+  animation:menuFullscreenHint 4.5s ease-in-out infinite;
+}
+.menu-fullscreen-hint kbd {
+  display:inline-grid;
+  place-items:center;
+  min-width:30px;
+  padding:2px 5px;
+  border:1px solid rgba(238,204,110,.64);
+  border-bottom-width:3px;
+  border-radius:5px;
+  color:#ffe5a4;
+  background:linear-gradient(180deg,rgba(69,79,52,.96),rgba(15,34,27,.96));
+  box-shadow:0 2px 7px rgba(0,0,0,.36),inset 0 1px 0 rgba(255,244,201,.18);
+  font:800 11px/1 ui-monospace,"SFMono-Regular",Consolas,monospace;
+}
+@keyframes menuShrineReveal {
+  from { opacity:0; transform:translateY(15px) scale(.985); filter:blur(3px); }
+  to { opacity:1; transform:none; filter:none; }
+}
+@keyframes menuLanternMotes { to { background-position:166px -142px,-219px 185px,0 0,0 0; } }
+@keyframes menuMoonBeam { to { opacity:.96; transform:translate3d(5%,1.5%,0); } }
+@keyframes menuTitleGleam {
+  0%,100% { filter:brightness(1); text-shadow:0 4px 18px #000,0 0 22px rgba(230,184,92,.14); }
+  48% { filter:brightness(1.12); text-shadow:0 4px 18px #000,0 0 30px rgba(245,202,103,.34); }
+}
+@keyframes menuTitleCharacterRise { 0%,100% { transform:translateY(0); } 48% { transform:translateY(-2px); } }
+@keyframes menuTitleBreath { 0%,100% { opacity:.76; } 48% { opacity:1; } }
+@keyframes menuSpiritParadeFloat { 0%,100% { transform:translateY(0) rotate(0deg); } 50% { transform:translateY(-5px) rotate(.35deg); } }
+@keyframes menuHallShimmer { 0%,63%,100% { transform:translateX(-135%); } 77% { transform:translateX(135%); } }
+@keyframes menuJourneyLine { 0%,100% { opacity:.58; transform:scaleX(.82); } 50% { opacity:1; transform:scaleX(1); } }
+@keyframes menuJourneySweep { 0%,66%,100% { transform:skewX(-20deg) translateX(-80%); } 82% { transform:skewX(-20deg) translateX(600%); } }
+@keyframes menuFullscreenHint { 0%,100% { border-color:rgba(141,193,166,.28); } 50% { border-color:rgba(235,203,109,.52); } }
+
+@media (max-width:600px) {
+  .menu-fullscreen-hint { max-width:min(100%,330px); padding:5px 8px; font-size:9px; }
+  .menu-fullscreen-hint kbd { min-width:28px; font-size:10px; }
+}
+
+@media (hover:none), (pointer:coarse) {
+  .menu-fullscreen-hint { display:none; }
+}
+
+/* The shrine sheet already calculates its height against the viewport.  Match
+   the outer padding to that calculation so a 720px desktop never acquires a
+   page-like scrollbar just for the menu chrome. */
+@media (min-width:601px) {
+  .main-menu { padding-block:14px; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .main-menu.open .shrine-menu-content,
+  .menu-ambient-layer::before,
+  .menu-ambient-layer::after,
+  .menu-logo-seal h2,
+  .menu-logo-seal h2 span,
+  .menu-logo-seal .eyebrow,
+  .menu-logo-seal small,
+  .shrine-menu-content .menu-spirit-parade,
+  .menu-shrine-button::before,
+  .menu-journey-button::before,
+  .menu-journey-button::after,
+  .menu-fullscreen-hint { animation:none!important; transition:none!important; }
+}
+
+/* A skill rail click should keep the decision next to the selected Jaryeong,
+   not make the player scan the other side of the combat HUD.  Coordinates are
+   supplied by the viewport-clamped anchor helper in game.js. */
+@media (min-width:761px) {
+  body.roguelike-mode .jaryeong-skill-inspector[data-anchored="true"] {
+    left:var(--jaryeong-inspector-left);
+    top:var(--jaryeong-inspector-top);
+    bottom:auto;
+    transform:none;
+  }
+  body.roguelike-mode .jaryeong-skill-inspector[data-anchored="true"]::after {
+    content:"";
+    position:absolute;
+    left:calc(var(--jaryeong-inspector-caret-left) - 7px);
+    z-index:0;
+    width:14px;
+    height:14px;
+    border-right:1px solid rgba(230,184,92,.68);
+    border-bottom:1px solid rgba(230,184,92,.68);
+    background:rgba(6,23,19,.98);
+    transform:rotate(45deg);
+  }
+  body.roguelike-mode .jaryeong-skill-inspector[data-anchor-position="above"]::after { bottom:-7px; }
+  body.roguelike-mode .jaryeong-skill-inspector[data-anchor-position="below"]::after { top:-7px; transform:rotate(225deg); }
+  body.roguelike-mode .jaryeong-skill-inspector[data-anchored="true"] .jaryeong-skill-inspector-card { z-index:1; }
+}
+
+/* Story tutorial spotlight -------------------------------------------------
+   The tutorial uses the exact combat party cards and inspector.  A visual-only
+   mask points at one existing control at a time without intercepting input. */
+.story-spotlight[hidden] { display:none!important; }
+.story-spotlight { position:fixed; inset:0; z-index:70; pointer-events:none; }
+.story-spotlight-hole {
+  position:fixed;
+  border:2px solid rgba(255,220,126,.96);
+  border-radius:12px;
+  box-shadow:0 0 0 200vmax rgba(1,7,6,.62),0 0 0 5px rgba(255,207,89,.15),0 0 30px rgba(255,205,88,.72);
+  animation:storySpotlightPulse 1.25s ease-in-out infinite alternate;
+}
+.story-spotlight-label {
+  position:fixed;
+  width:min(300px,calc(100vw - 16px));
+  display:grid;
+  gap:3px;
+  padding:10px 12px;
+  border:1px solid rgba(240,194,92,.75);
+  border-radius:9px;
+  color:#e9f1eb;
+  background:linear-gradient(135deg,rgba(70,43,14,.97),rgba(5,25,20,.98));
+  box-shadow:0 12px 32px rgba(0,0,0,.58),inset 0 0 18px rgba(240,194,92,.08);
+}
+.story-spotlight-label small { color:#edbd57; font-size:10px; font-weight:900; letter-spacing:.12em; }
+.story-spotlight-label strong { color:#fff0b9; font:800 16px/1.25 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
+.story-spotlight-label span { color:#c9d7ce; font-size:12px; line-height:1.48; }
+@keyframes storySpotlightPulse {
+  from { border-color:rgba(255,220,126,.75); filter:brightness(.95); }
+  to { border-color:#fff0a6; filter:brightness(1.18); }
+}
+
+body.puzzle-mode.story-skill-mode #jaryeong-panel {
+  position:relative;
+  inset:auto;
+  z-index:24;
+  width:min(650px,calc(100vw - 40px));
+  min-width:520px;
+  flex:0 0 auto;
+  align-self:center;
+  display:grid;
+  grid-template-columns:1fr;
+  gap:5px;
+  margin:0;
+  padding:7px;
+  border:1px solid rgba(230,184,92,.55);
+  border-radius:12px;
+  background:linear-gradient(145deg,rgba(7,25,21,.97),rgba(3,13,12,.98));
+  box-shadow:0 16px 38px rgba(0,0,0,.62),inset 0 0 0 2px rgba(16,63,49,.58);
+  transform:none;
+}
+body.puzzle-mode.story-skill-mode #jaryeong-panel .jaryeong-heading { display:flex; margin:0 2px 2px; }
+body.puzzle-mode.story-skill-mode #jaryeong-panel .jaryeong-heading > span { width:23px; height:23px; }
+body.puzzle-mode.story-skill-mode #jaryeong-panel .jaryeong-heading strong { font-size:12px; }
+body.puzzle-mode.story-skill-mode #jaryeong-panel .jaryeong-heading small { display:none; }
+body.puzzle-mode.story-skill-mode #jaryeong-panel .hud-party-button { display:none!important; }
+body.puzzle-mode.story-skill-mode #jaryeong-panel .jaryeong-party { grid-template-columns:repeat(5,minmax(0,1fr)); gap:6px; }
+body.puzzle-mode.story-skill-mode #jaryeong-panel .jaryeong-slot {
+  min-height:76px;
+  height:76px;
+  padding:0;
+  overflow:hidden;
+  border:1px dashed rgba(230,184,92,.48);
+  background:linear-gradient(145deg,rgba(7,23,20,.96),rgba(3,12,11,.92));
+}
+body.puzzle-mode.story-skill-mode #jaryeong-panel .jaryeong-inspector-trigger {
+  position:relative;
+  display:grid;
+  grid-template-rows:minmax(0,1fr) 27px;
+  place-items:center;
+  height:100%;
+}
+body.puzzle-mode.story-skill-mode #jaryeong-panel .jaryeong-avatar { width:48px; height:48px; }
+body.puzzle-mode.story-skill-mode #jaryeong-panel .jaryeong-slot-copy { display:none; }
+body.puzzle-mode.story-skill-mode #jaryeong-panel .jaryeong-rail-status {
+  z-index:1;
+  display:grid;
+  align-content:center;
+  width:100%;
+  min-height:27px;
+  padding:2px 3px;
+  overflow:hidden;
+  border-top:1px solid rgba(230,184,92,.2);
+  color:#e5d59f;
+  background:rgba(3,13,12,.88);
+  text-align:center;
+}
+body.puzzle-mode.story-skill-mode #jaryeong-panel .jaryeong-rail-status b { overflow:hidden; font-size:10px; text-overflow:ellipsis; white-space:nowrap; }
+body.puzzle-mode.story-skill-mode #jaryeong-panel .jaryeong-rail-status small { color:#a9c1b6; font-size:9px; font-weight:800; }
+body.puzzle-mode.story-skill-mode #jaryeong-panel .jaryeong-slot:not(.skill-ready) { opacity:.58; filter:saturate(.55); }
+body.puzzle-mode.story-skill-mode #jaryeong-panel .jaryeong-slot.skill-ready {
+  border-style:solid;
+  border-color:#ffbd68;
+  box-shadow:0 0 0 2px rgba(255,138,65,.3),0 0 25px rgba(255,104,51,.5),inset 0 0 18px rgba(255,94,40,.12);
+}
+body.puzzle-mode.story-skill-mode #jaryeong-panel .jaryeong-slot.skill-ready .jaryeong-rail-status { color:#311109; background:linear-gradient(180deg,#ffd18a,#ff8756); }
+body.puzzle-mode.story-skill-mode #jaryeong-panel .jaryeong-slot.skill-ready .jaryeong-rail-status b,
+body.puzzle-mode.story-skill-mode #jaryeong-panel .jaryeong-slot.skill-ready .jaryeong-rail-status small { color:#311109; }
+body.puzzle-mode.story-skill-mode #jaryeong-panel [data-jaryeong-inspector="fire-hwa"]::before {
+  content:"選 · 화령";
+  position:absolute;
+  z-index:3;
+  top:3px;
+  left:3px;
+  padding:3px 5px;
+  border-radius:999px;
+  color:#321006;
+  background:#ffd274;
+  font-size:8px;
+  font-weight:900;
+  box-shadow:0 0 10px rgba(255,177,74,.55);
+}
+body.puzzle-mode.story-skill-mode .story-training-hud.has-skill { min-height:96px; }
+body.puzzle-mode.story-skill-mode .story-training-skill-cta {
+  min-height:48px;
+  grid-template-columns:52px minmax(0,1fr) auto;
+  gap:9px;
+  padding:5px 10px;
+}
+body.puzzle-mode.story-skill-mode .story-training-caster-cue {
+  position:relative;
+  display:block;
+  width:50px;
+  height:50px;
+  overflow:visible;
+  filter:drop-shadow(0 4px 6px rgba(0,0,0,.55));
+}
+body.puzzle-mode.story-skill-mode .story-training-caster-cue .sprite-body { width:100%; height:100%; object-fit:contain; }
+body.puzzle-mode.story-skill-mode .story-training-caster-cue .tamed-talisman {
+  position:absolute;
+  left:var(--talisman-x,50%);
+  top:var(--talisman-y,48%);
+  width:var(--talisman-width,19%);
+  height:auto;
+  transform:translate(-50%,-50%) rotate(var(--talisman-rotate,0deg));
+}
+body.puzzle-mode.story-skill-mode .story-training-caster-cue kbd {
+  position:absolute;
+  top:-2px;
+  left:-3px;
+  width:22px;
+  height:22px;
+  font-size:11px;
+  box-shadow:0 0 0 2px rgba(255,138,65,.3),0 0 12px rgba(255,126,68,.7);
+}
+body.puzzle-mode.story-skill-mode .story-training-skill-cta b { font-size:12px; }
+body.puzzle-mode.story-skill-mode .story-training-skill-cta small { font-size:10px; }
+body.puzzle-mode.story-skill-mode .story-training-skill-cta em { font-size:10px; }
+
+@media (min-width:761px) {
+  /* Chapter 6 teaches one active caster. Keep the real Fire spirit beside the
+     enemy, clear of the intent card, while the five-card rail explains party order. */
+  body.puzzle-mode.story-skill-mode .jaryeong-squad-stage {
+    left:-12%;
+    bottom:-1px;
+    z-index:12;
+    width:150px;
+    height:112px;
+  }
+  body.puzzle-mode.story-skill-mode .jaryeong-squad-stage .squad-jaryeong:not([data-squad-jaryeong="fire-hwa"]) {
+    opacity:.14;
+    transform:scale(.68);
+    filter:saturate(.35);
+  }
+  body.puzzle-mode.story-skill-mode .jaryeong-squad-stage [data-squad-jaryeong="fire-hwa"] {
+    left:4px;
+    bottom:2px;
+    z-index:13;
+    width:98px;
+    height:98px;
+    filter:drop-shadow(0 0 14px rgba(255,105,53,.82)) drop-shadow(0 8px 6px rgba(0,0,0,.58));
+  }
+  body.puzzle-mode.story-skill-mode .jaryeong-skill-inspector[data-anchored="true"] {
+    left:var(--jaryeong-inspector-left);
+    top:var(--jaryeong-inspector-top);
+    bottom:auto;
+    transform:none;
+  }
+  body.puzzle-mode.story-skill-mode .jaryeong-skill-inspector[data-anchored="true"]::after {
+    content:"";
+    position:absolute;
+    left:calc(var(--jaryeong-inspector-caret-left) - 7px);
+    z-index:0;
+    width:14px;
+    height:14px;
+    border-right:1px solid rgba(230,184,92,.68);
+    border-bottom:1px solid rgba(230,184,92,.68);
+    background:rgba(6,23,19,.98);
+    transform:rotate(45deg);
+  }
+  body.puzzle-mode.story-skill-mode .jaryeong-skill-inspector[data-anchor-position="above"]::after { bottom:-7px; }
+  body.puzzle-mode.story-skill-mode .jaryeong-skill-inspector[data-anchor-position="below"]::after { top:-7px; transform:rotate(225deg); }
+  body.puzzle-mode.story-skill-mode .jaryeong-skill-inspector[data-anchored="true"] .jaryeong-skill-inspector-card { z-index:1; }
+}
+
+@media (max-width:760px) {
+  .story-spotlight-label { width:min(260px,calc(100vw - 16px)); padding:8px 9px; }
+  .story-spotlight-label small { font-size:8px; }
+  .story-spotlight-label strong { font-size:13px; }
+  .story-spotlight-label span { font-size:10px; }
+  body.puzzle-mode.story-skill-mode #jaryeong-panel {
+    position:relative;
+    inset:auto;
+    width:calc(100% - 10px);
+    min-width:0;
+    height:68px;
+    flex:0 0 68px;
+    align-self:center;
+    display:block;
+    margin:0 5px 3px;
+    padding:3px;
+    transform:none;
+  }
+  body.puzzle-mode.story-skill-mode #jaryeong-panel .jaryeong-heading { display:none; }
+  body.puzzle-mode.story-skill-mode #jaryeong-panel .jaryeong-party { height:100%; gap:3px; }
+  body.puzzle-mode.story-skill-mode #jaryeong-panel .jaryeong-slot { min-height:60px; height:60px; }
+  body.puzzle-mode.story-skill-mode #jaryeong-panel .jaryeong-inspector-trigger { grid-template-rows:minmax(0,1fr) 22px; }
+  body.puzzle-mode.story-skill-mode #jaryeong-panel .jaryeong-avatar { width:37px; height:37px; }
+  body.puzzle-mode.story-skill-mode #jaryeong-panel .jaryeong-rail-status { min-height:22px; }
+  body.puzzle-mode.story-skill-mode #jaryeong-panel .jaryeong-rail-status b { font-size:9px; }
+  body.puzzle-mode.story-skill-mode #jaryeong-panel .jaryeong-rail-status small { font-size:8px; }
+  body.puzzle-mode.story-skill-mode .story-training-hud.has-skill { min-height:84px; }
+  body.puzzle-mode.story-skill-mode .story-training-skill-cta { min-height:48px; grid-template-columns:42px minmax(0,1fr); padding:4px 7px; }
+  body.puzzle-mode.story-skill-mode .story-training-caster-cue { width:40px; height:40px; }
+  body.puzzle-mode.story-skill-mode .story-training-caster-cue kbd { width:19px; height:19px; font-size:10px; }
+  body.puzzle-mode.story-skill-mode .story-training-skill-cta b { font-size:10px; }
+  body.puzzle-mode.story-skill-mode .story-training-skill-cta small { font-size:8px; white-space:normal; }
+  body.puzzle-mode.story-skill-mode .story-training-skill-cta em { display:none; }
+  .menu-fullscreen-hint { display:none!important; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .story-spotlight-hole { animation:none!important; }
+}
+
+/* The board itself already previews the swap path. These duplicate release
+   prompts covered the lower tiles and distracted from the match. */
+#story-path-result,
+#drag-state-banner {
+  display:none!important;
 }

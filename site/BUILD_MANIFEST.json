@@ -24,8 +24,8 @@
     "https://fonts.googleapis.com (font stylesheet; system font fallback remains playable)",
     "https://fonts.gstatic.com (font files; system font fallback remains playable)"
   ],
-  "fileCount": 271,
-  "totalBytes": 70116055,
+  "fileCount": 274,
+  "totalBytes": 71949488,
   "files": [
     {
       "path": "assets/audio/bgm/act1-mistwood-loop.mp3",
@@ -1058,6 +1058,11 @@
       "sha256": "ae8faece677f88b83dd07a88d35292310a68dd2fd43075b84af12c2beba128b8"
     },
     {
+      "path": "assets/ui/reward-card-frame-v2/reward-card-frame.png",
+      "bytes": 1566128,
+      "sha256": "80d95eb118d980255415bb39ed2238345466a861d79e9f38f87aa94a31a0b097"
+    },
+    {
       "path": "assets/ui/route-node-seals-v2/route-seal-1.png",
       "bytes": 118741,
       "sha256": "d485dedb391dd6feb159a9aa754c74e2d6d410778ba24a08e54bed2f0698fda2"
@@ -1076,6 +1081,11 @@
       "path": "assets/ui/route-node-seals-v2/route-seal-4.png",
       "bytes": 118558,
       "sha256": "8d064c0703eeba00cf081d1dc2ccbaed4e6c207b771d90d82a93aebf536da3ff"
+    },
+    {
+      "path": "assets/ui/talisman-reward-v2/talisman-piece.png",
+      "bytes": 109109,
+      "sha256": "c7d0bd570507661d875c05ed161e730bb4e69cd1813991bdc6df1a34df766052"
     },
     {
       "path": "assets/ui/talismans/earth-mountain.png",
@@ -1249,13 +1259,13 @@
     },
     {
       "path": "game.js",
-      "bytes": 431439,
-      "sha256": "1e6a9bb986a9dacfd133d8fe8190239c5336fb849c550ae4d4dbee2be14ce3a8"
+      "bytes": 490021,
+      "sha256": "42936ee8c3e051892a19d6b0d66a19f121ba00b240326c627b6bf42ee2f45c82"
     },
     {
       "path": "index.html",
-      "bytes": 51476,
-      "sha256": "1630be8c89a6c3389c5eb3016cee27adccae7637c0542357c29490bfb9d32531"
+      "bytes": 81896,
+      "sha256": "c32220591a3e58e67ca3abd9442e4a02e177e05b9bf8a2b8ff60c1d909abd8a8"
     },
     {
       "path": "README.md",
@@ -1264,13 +1274,13 @@
     },
     {
       "path": "src/assets.js",
-      "bytes": 4012,
-      "sha256": "fc06e47f31f456e7ca54cddb5a0984a340173a4f7ce3066f2ffdc377a8d4000d"
+      "bytes": 3643,
+      "sha256": "e00f7119c529113bf8af9bc48338a787425dfd3c8eecfaa2f0bb26f7bda3de0c"
     },
     {
       "path": "src/audio.js",
-      "bytes": 16444,
-      "sha256": "58ce620c2be64166bffcf743c9b07a91073fc79bd390608860582cf9a93821b0"
+      "bytes": 16090,
+      "sha256": "25f94c3017f72ab9a9c50ee81745a3ca96eed3b9ab9b66d0732f5c9feec740f8"
     },
     {
       "path": "src/background-rotation.js",
@@ -1279,8 +1289,8 @@
     },
     {
       "path": "src/boss-patterns.js",
-      "bytes": 12516,
-      "sha256": "17236794ada0fbcaa1f030dbbc691c2e2ae19a611d9e4066f49d65d9591e00e2"
+      "bytes": 10305,
+      "sha256": "7349114f7adacb895730a70554695485fcbe0b191bff0f83d6f46b40a9184dc1"
     },
     {
       "path": "src/combat-objectives.js",
@@ -1289,8 +1299,8 @@
     },
     {
       "path": "src/content.js",
-      "bytes": 21411,
-      "sha256": "96b3a631b33903544d4130da47bf180864594dae42cc0979a2657d67b0fabc94"
+      "bytes": 21729,
+      "sha256": "f6fa6aac5ed23e02931528078e77891ea5ba284bf8f54f1c155cb8be52b20436"
     },
     {
       "path": "src/drag-path.js",
@@ -1319,13 +1329,18 @@
     },
     {
       "path": "src/jaryeong-meta.js",
-      "bytes": 20948,
-      "sha256": "60a2c7e45b1fdeaf05beaa69c8af009a87d25fcaa43b489633bb9da78b94c11a"
+      "bytes": 23999,
+      "sha256": "fdaf693f358709812c9b1d393878e173c2dbb416f9f6ce6c9c1a2a087572b705"
+    },
+    {
+      "path": "src/match-groups.js",
+      "bytes": 2448,
+      "sha256": "aef2b334007d2dfc6483b0577a551e0846235a0ae63f01e27d371303582098e2"
     },
     {
       "path": "src/presentation-settings.js",
-      "bytes": 1926,
-      "sha256": "adaed56ed642618c9bee323b946022fd9c99fcbf1fd9b7ec9ad6bc2759785101"
+      "bytes": 1888,
+      "sha256": "2b038f142e6216d1fcaf405e2fbced51578a6c0c21e94b4e975e474c86728efd"
     },
     {
       "path": "src/rare-encounters.js",
@@ -1354,13 +1369,13 @@
     },
     {
       "path": "src/save.js",
-      "bytes": 6196,
-      "sha256": "8bcfeeabbe726c0b805b68338994a9ce479ad69508a8e4c7461467df208267f1"
+      "bytes": 7580,
+      "sha256": "9877f5446cf1e2d534cfbf8b85cc146d7c05ac4b06daa3e3e0586f5fa96cb235"
     },
     {
       "path": "src/story-training.js",
-      "bytes": 6952,
-      "sha256": "3d8aff9cf07cefd0df64e5127d75d3575c2720394ec6ddf65d3aa602eb0a5627"
+      "bytes": 6807,
+      "sha256": "1ad4b3cca7ae64c452c1b209bd26922ae2f4dd09431f816b74211f1e53dcf860"
     },
     {
       "path": "src/talisman-anchors.js",
@@ -1369,13 +1384,13 @@
     },
     {
       "path": "styles-route-reward.css",
-      "bytes": 21553,
-      "sha256": "57becccdbf9e07d1609125d89c9274de478b882e18e2faa76271d4e2ba84d198"
+      "bytes": 20776,
+      "sha256": "3da8043e559e0a70f9a00cd56b657e2e047f89e7fff992964906cebc5abaf159"
     },
     {
       "path": "styles.css",
-      "bytes": 276880,
-      "sha256": "97a6aa5797b9b00bddfca6b20cdb2348b24de32e2e23d4ba33746689e934331b"
+      "bytes": 342767,
+      "sha256": "29f979a8ee4c95b83f4a153cfc6541634b068fb34b68659c8d761f7110c66ea6"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",

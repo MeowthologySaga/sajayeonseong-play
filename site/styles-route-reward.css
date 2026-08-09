@@ -362,11 +362,8 @@ button.idiom-comparison-card:focus-visible { outline:3px solid #ffe08a; outline-
   border:0;
   border-radius:0;
   color:#2c2518;
-  background:
-    radial-gradient(circle at 50% 16%,rgba(155,31,23,.98) 0 36px,rgba(86,15,13,.98) 37px 42px,transparent 43px),
-    linear-gradient(90deg,transparent 0 3%,rgba(245,225,181,.98) 4% 96%,transparent 97%),
-    linear-gradient(#f1dfb3,#c7a36a);
-  clip-path:polygon(9% 0,91% 0,100% 7%,96% 20%,100% 36%,96% 53%,100% 70%,96% 87%,88% 100%,10% 100%,0 91%,4% 74%,0 57%,4% 39%,0 21%);
+  background:transparent url("assets/ui/reward-card-frame-v2/reward-card-frame.png") center/100% 100% no-repeat;
+  clip-path:none;
   filter:drop-shadow(0 15px 18px rgba(0,0,0,.56));
 }
 #roguelike-reward-modal .reward-choice::before {
@@ -381,16 +378,7 @@ button.idiom-comparison-card:focus-visible { outline:3px solid #ffe08a; outline-
   text-shadow:0 2px 4px #3e0806;
 }
 #roguelike-reward-modal .reward-choice::after {
-  content:"";
-  position:absolute;
-  top:-18px;
-  left:50%;
-  width:22px;
-  height:32px;
-  border:3px solid #7e5827;
-  border-bottom:0;
-  border-radius:50% 50% 0 0;
-  transform:translateX(-50%);
+  content:none;
 }
 #roguelike-reward-modal .reward-choice:hover,
 #roguelike-reward-modal .reward-choice:focus-visible {

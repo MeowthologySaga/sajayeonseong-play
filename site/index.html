@@ -7,11 +7,15 @@
     <meta name="description" content="타일 하나를 누른 채 경로를 설계해 오행 콤보를 만들고, 모은 한자로 사자성어를 발동하는 HTML5 퍼즐·전투 게임" />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23091312'/%3E%3Crect x='8' y='8' width='48' height='48' rx='10' fill='%23e6b85c'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-size='34' font-family='serif' fill='%23111918'%3E%E5%9B%9B%3C/text%3E%3C/svg%3E" />
     <title>사자연성 — 색을 잇고 뜻을 깨우다</title>
-  <link rel="stylesheet" href="styles.css?v=20260809-loot-layer-v3" />
-  <link rel="stylesheet" href="styles-route-reward.css?v=20260808-combat-readability-1" />
+  <link rel="stylesheet" href="styles.css?v=20260809-menu-hud-v4" />
+  <link rel="stylesheet" href="styles-route-reward.css?v=20260809-reward-frame-v2" />
   </head>
   <body>
     <div class="grain" aria-hidden="true"></div>
+    <aside id="run-currency-hud" class="run-currency-hud" role="status" aria-live="polite" aria-atomic="true" hidden>
+      <span aria-hidden="true">墨</span>
+      <span><small>이번 행로의 먹</small><strong id="run-currency-value">0</strong><em>사건·선택 비용</em></span>
+    </aside>
     <main class="game-shell">
       <header class="masthead">
         <div>
@@ -165,6 +169,9 @@
             <div class="move-timer" id="move-timer"><span>이동</span><strong>5.0</strong><i></i></div>
             <div id="player-damage-float" class="player-damage-float" aria-live="assertive"></div>
           </div>
+          <div id="player-status" class="player-status-row" role="status" aria-live="polite" aria-atomic="true" aria-label="연성술사 상태">
+            <span class="status-pill muted">버프·약화 없음</span>
+          </div>
 
           <div class="board-wrap">
             <div class="board-aura" aria-hidden="true"></div>
@@ -282,7 +289,7 @@
           <span class="mode-glyph">行</span><span><small>MAIN RUN · 약 20분</small><strong id="menu-journey-label">연성행로 출발</strong><em>준비한 5자령과 함께 3막의 길을 엽니다</em></span><b>→</b>
         </button>
         <button id="menu-debug-entry" class="menu-debug-entry" type="button" hidden disabled aria-hidden="true" tabindex="-1"><span>⚒</span><strong>디버그 시험실</strong><small>전투·수집·저장 상태를 빠르게 시험합니다</small><b>→</b></button>
-        <div class="menu-foot"><span id="menu-guide-copy"><b>핵심 조작</b> · 타일 하나를 누른 채 여러 칸을 지나고, 원하는 곳에서 놓아 연성합니다.</span><div class="menu-foot-actions"><button id="glossary-button" class="text-button">卷 게임 용어 설명집</button><button id="codex-button" class="text-button">冊 한자·성어 도감</button><button id="menu-settings-button" class="text-button">⚙ 표시·음향 설정</button><button id="menu-debug-button" class="text-button debug-menu-button" type="button" hidden disabled aria-hidden="true" tabindex="-1">⚒ 디버그 시험실</button></div></div>
+        <div class="menu-foot"><span id="menu-guide-copy" class="menu-hint-chip"><b>조작</b> 타일을 누른 채 이동 → 놓아 연성</span><div class="menu-foot-actions"><button id="glossary-button" class="text-button"><b>遊</b><span>용어 도감</span></button><button id="codex-button" class="text-button"><b>冊</b><span>한자·성어 도감</span></button><button id="menu-settings-button" class="text-button"><b>⚙</b><span>설정</span></button><button id="menu-debug-button" class="text-button debug-menu-button" type="button" hidden disabled aria-hidden="true" tabindex="-1"><b>⚒</b><span>디버그 시험실</span></button></div></div>
       </div>
     </div>
 
@@ -351,6 +358,13 @@
         <div class="glossary-heading">
           <div><p class="eyebrow">鍊成用語錄 · GAME &amp; WORLD GUIDE</p><h2 id="glossary-title">사자연성 용어 설명집</h2><p>처음 보는 말부터 보스 대응법까지, 필요한 순서대로 풀어 썼습니다.</p></div>
           <button id="glossary-close" class="icon-button" type="button" aria-label="용어 설명집 닫기">×</button>
+        </div>
+        <div id="glossary-quick-grid" class="glossary-quick-grid" aria-label="핵심 용어 바로가기">
+          <button type="button" data-glossary-jump="경로 이동" data-glossary-jump-filter="alchemy"><b>↔</b><span><strong>타일 이동</strong><small>누른 채 지나가고 놓기</small></span></button>
+          <button type="button" data-glossary-jump="연성식" data-glossary-jump-filter="alchemy"><b>鍊</b><span><strong>연성식</strong><small>큐의 네 글자로 발동</small></span></button>
+          <button type="button" data-glossary-jump="자령 기술" data-glossary-jump-filter="jaryeong"><b>靈</b><span><strong>자령 기술</strong><small>기운 5/5에서 사용</small></span></button>
+          <button type="button" data-glossary-jump="먹" data-glossary-jump-filter="journey"><b>墨</b><span><strong>먹</strong><small>이번 행로의 선택 재화</small></span></button>
+          <button type="button" data-glossary-jump="행동 예고" data-glossary-jump-filter="boss"><b>警</b><span><strong>행동 예고</strong><small>다음 공격에 미리 대응</small></span></button>
         </div>
         <label class="glossary-search"><span>용어 찾기</span><input id="glossary-search" type="search" placeholder="예: 자령, 기운, 먹, 문자 큐, 봉인" autocomplete="off" /></label>
         <nav id="glossary-filters" class="glossary-filters" aria-label="용어 분류">
@@ -577,9 +591,11 @@
           <div><small>SAVED RUN · 자동 저장</small><strong id="roguelike-save-title">저장된 연성행로</strong><span id="roguelike-save-summary">-</span><em id="roguelike-save-seed">-</em></div>
           <button id="roguelike-resume-button" class="primary-button" type="button">저장된 행로 이어하기 <span>→</span></button>
         </div>
-        <button id="roguelike-start-button" class="primary-button">행로 출발 <span>→</span></button>
-        <button id="roguelike-help-return" class="primary-button" type="button" hidden>전투로 돌아가기 <span>↩</span></button>
-        <button id="roguelike-intro-menu" class="text-button">다른 모드 선택</button>
+        <div class="roguelike-intro-footer">
+          <button id="roguelike-start-button" class="primary-button">새 행로 출발 <span>→</span></button>
+          <button id="roguelike-help-return" class="primary-button" type="button" hidden>전투로 돌아가기 <span>↩</span></button>
+          <button id="roguelike-intro-menu" class="text-button">메인 메뉴로 돌아가기</button>
+        </div>
       </div>
     </div>
 
@@ -801,6 +817,6 @@
 
     <script src="data/sajayeonseong-hanja-v2.js?v=20260807-data-2"></script>
     <script src="data/hanja-hun-eum.js?v=20260807-hun-1"></script>
-    <script type="module" src="game.js?v=20260809-loot-layer-v3"></script>
+    <script type="module" src="game.js?v=20260809-menu-hud-v4"></script>
   </body>
 </html>

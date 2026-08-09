@@ -2354,37 +2354,56 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
   }
 
   function renderEnemyStatuses() {
-    const wrap = $("#enemy-status");
-    if (!wrap) return;
-    const entries = [];
-    if (state.enemyBurn) entries.push({ className: "status-burn", text: `🔥 화상 ${state.enemyBurn} × ${state.enemyBurnTurns || BURN_DURATION_TURNS}턴 · 총 ${state.enemyBurn * (state.enemyBurnTurns || BURN_DURATION_TURNS)}` });
-    if (state.delayed) entries.push({ className: "status-delay", text: `⌛ 행동 지연 ${state.delayed}턴` });
-    if (state.weakened) entries.push({ className: "status-weakened", text: `☄ 기력 약화 ${state.weakenedTurns || 1}회 · 내 피해 -25%` });
-    if (state.healReductionTurns) entries.push({ className: "status-weakened", text: `☄ 회복 약화 ${state.healReductionTurns}턴 · 회복 -${Math.round((state.healReductionRatio || 0) * 100)}%` });
-    if (state.enemyVulnerableTurns) entries.push({ className: "status-weakened", text: `◌ 취약 ${state.enemyVulnerableTurns}턴 · 피해 +${Math.round((state.enemyVulnerableRatio || 0) * 100)}%` });
-    if (state.enemySilenced) entries.push({ className: "status-delay", text: `🔇 침묵 ${state.enemySilenced}턴` });
-    if (state.boundEnemyIntentTurns) entries.push({ className: "status-delay", text: `⛓ 쇄맥 봉인 ${state.boundEnemyIntentTurns}턴` });
-    if (state.prepared) entries.push({ className: "status-prepared", text: "◈ 지피지기 대비 활성" });
-    if (state.nextEnemyDamageReduction) entries.push({ className: "status-shield", text: `☁ 다음 피해 -${Math.round(state.nextEnemyDamageReduction * 100)}%` });
-    if (state.healingFieldTurns) entries.push({ className: "status-prepared", text: `🌲 회복장 ${state.healingFieldTurns}턴 · +${state.healingFieldAmount}` });
-    if (state.phoenixRebirthReady) entries.push({ className: "status-burn", text: `🔥 봉염 귀환 · 반격 ${state.phoenixRebirthReady}` });
-    if (state.damageSplitHits) entries.push({ className: "status-shield", text: `谷 협곡 분류 ${state.damageSplitHits}회` });
-    if (state.deferredDamage) entries.push({ className: "status-weakened", text: `◌ 유예 피해 ${state.deferredDamage} · ${state.deferredDamageTicks}턴` });
-    if (!entries.length) {
-      const empty = document.createElement("span");
-      empty.className = "status-pill muted";
-      empty.textContent = "상태 없음";
-      wrap.replaceChildren(empty);
-      return;
+    const enemyWrap = $("#enemy-status");
+    const playerWrap = $("#player-status");
+    const enemyEntries = [];
+    const playerEntries = [];
+    if (state.enemyBurn) enemyEntries.push({ className: "status-burn", text: `🔥 화상 ${state.enemyBurn} × ${state.enemyBurnTurns || BURN_DURATION_TURNS}턴 · 총 ${state.enemyBurn * (state.enemyBurnTurns || BURN_DURATION_TURNS)}` });
+    if (state.delayed) enemyEntries.push({ className: "status-delay", text: `⌛ 행동 지연 ${state.delayed}턴` });
+    if (state.enemyVulnerableTurns) enemyEntries.push({ className: "status-weakened", text: `◌ 취약 ${state.enemyVulnerableTurns}턴 · 피해 +${Math.round((state.enemyVulnerableRatio || 0) * 100)}%` });
+    if (state.enemySilenced) enemyEntries.push({ className: "status-delay", text: `🔇 침묵 ${state.enemySilenced}턴` });
+    if (state.boundEnemyIntentTurns) enemyEntries.push({ className: "status-delay", text: `⛓ 쇄맥 봉인 ${state.boundEnemyIntentTurns}턴` });
+
+    if (state.weakened) playerEntries.push({ className: "status-negative", text: `☄ 기력 약화 ${state.weakenedTurns || 1}회 · 내 피해 -25%` });
+    if (state.healReductionTurns) playerEntries.push({ className: "status-negative", text: `☄ 회복 약화 ${state.healReductionTurns}턴 · 회복 -${Math.round((state.healReductionRatio || 0) * 100)}%` });
+    if (state.prepared) playerEntries.push({ className: "status-positive", text: "◈ 지피지기 대비 활성" });
+    if (state.nextEnemyDamageReduction) playerEntries.push({ className: "status-positive", text: `☁ 다음 적 공격 -${Math.round(state.nextEnemyDamageReduction * 100)}%` });
+    if (state.reflectNextEnemyAttack) {
+      const reflect = state.reflectNextEnemyAttack;
+      playerEntries.push({
+        className: "status-reflect",
+        text: `鏡 ${reflect.label || "자업자득"} · 다음 적 공격 ${Math.round((reflect.damageReduction || 0) * 100)}% 감소 · 감소 전 피해 ${Math.round((reflect.ratio || 0) * 100)}% 반사`
+      });
     }
-    const fragment = document.createDocumentFragment();
-    entries.forEach(({ className, text }) => {
-      const pill = document.createElement("span");
-      pill.className = `status-pill ${className}`;
-      pill.textContent = text;
-      fragment.appendChild(pill);
-    });
-    wrap.replaceChildren(fragment);
+    if (state.healingFieldTurns) playerEntries.push({ className: "status-positive", text: `🌲 회복장 ${state.healingFieldTurns}턴 · +${state.healingFieldAmount}` });
+    if (state.phoenixRebirthReady) playerEntries.push({ className: "status-positive", text: `🔥 봉염 귀환 · 부활 반격 ${state.phoenixRebirthReady}` });
+    if (state.damageSplitHits) playerEntries.push({ className: "status-positive", text: `谷 협곡 분류 ${state.damageSplitHits}회` });
+    if (state.deferredDamage) playerEntries.push({ className: "status-negative", text: `◌ 유예 피해 ${state.deferredDamage} · ${state.deferredDamageTicks}턴` });
+    if (state.idiomGrowthStacks) playerEntries.push({ className: "status-positive", text: `昇 일취월장 ${state.idiomGrowthStacks}중첩 · 성어 피해 +${state.idiomGrowthStacks * 4}%` });
+    if (state.nextMoveBonus) playerEntries.push({ className: "status-positive", text: `時 다음 이동 +${formatDefenseValue(state.nextMoveBonus)}초` });
+    if (state.nextPlayerDamageBonus) playerEntries.push({ className: "status-positive", text: `攻 다음 연성 피해 +${Math.round(state.nextPlayerDamageBonus * 100)}%` });
+    if (state.nextChargeBonus) playerEntries.push({ className: "status-positive", text: `靈 다음 자령 기운 +${state.nextChargeBonus}` });
+
+    const renderEntries = (wrap, entries, emptyText) => {
+      if (!wrap) return;
+      if (!entries.length) {
+        const empty = document.createElement("span");
+        empty.className = "status-pill muted";
+        empty.textContent = emptyText;
+        wrap.replaceChildren(empty);
+        return;
+      }
+      const fragment = document.createDocumentFragment();
+      entries.forEach(({ className, text }) => {
+        const pill = document.createElement("span");
+        pill.className = `status-pill ${className}`;
+        pill.textContent = text;
+        fragment.appendChild(pill);
+      });
+      wrap.replaceChildren(fragment);
+    };
+    renderEntries(enemyWrap, enemyEntries, "적 상태 없음");
+    renderEntries(playerWrap, playerEntries, "버프·약화 없음");
   }
 
   function renderDefenseHud() {
@@ -3180,7 +3199,40 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     filterGlossary();
   }
 
+  function prepareGlossaryEntries() {
+    document.querySelectorAll("#glossary-sections .glossary-entry").forEach((entry) => {
+      entry.setAttribute("role", "button");
+      entry.setAttribute("tabindex", "0");
+      if (!entry.hasAttribute("aria-expanded")) entry.setAttribute("aria-expanded", "false");
+    });
+  }
+
+  function toggleGlossaryEntry(entry, expanded = !entry.classList.contains("expanded")) {
+    if (!entry?.classList.contains("glossary-entry")) return;
+    entry.classList.toggle("expanded", expanded);
+    entry.setAttribute("aria-expanded", String(expanded));
+  }
+
+  function jumpToGlossaryTerm(button) {
+    const query = button?.dataset.glossaryJump || "";
+    if (!query) return;
+    setGlossaryFilter(button.dataset.glossaryJumpFilter || "all");
+    const search = $("#glossary-search");
+    if (search) search.value = query;
+    filterGlossary();
+    const visibleEntries = [...document.querySelectorAll("#glossary-sections .glossary-entry:not([hidden])")];
+    const normalizedQuery = normalizeGlossaryText(query);
+    const target = visibleEntries.find((entry) => normalizeGlossaryText(entry.querySelector("dt")?.textContent) === normalizedQuery)
+      || visibleEntries.find((entry) => normalizeGlossaryText(entry.dataset.glossaryTerms).split(" ").includes(normalizedQuery))
+      || visibleEntries[0];
+    if (!target) return;
+    toggleGlossaryEntry(target, true);
+    target.scrollIntoView({ behavior: "smooth", block: "center" });
+    window.setTimeout(() => target.focus({ preventScroll: true }), 180);
+  }
+
   function openGlossary() {
+    prepareGlossaryEntries();
     filterGlossary();
     $("#glossary-modal").classList.add("open");
     $("#glossary-search")?.focus({ preventScroll: true });
@@ -6514,7 +6566,22 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     return run;
   }
 
+  function renderRunCurrencyHud() {
+    const wallet = $("#run-currency-hud");
+    if (!wallet) return;
+    const active = state.mode === "roguelike" && Boolean(state.run);
+    wallet.hidden = !active;
+    if (!active) return;
+    const ink = Math.max(0, Number(state.run.ink) || 0);
+    const value = $("#run-currency-value");
+    if (value) value.textContent = String(ink);
+    const description = `이번 행로에서만 쓰는 먹 ${ink}. 사건·회복·특별 선택의 비용이며 새 행로를 시작하면 초기화됩니다.`;
+    wallet.setAttribute("aria-label", description);
+    wallet.title = description;
+  }
+
   function updateRoguelikeHud() {
+    renderRunCurrencyHud();
     const progress = $("#roguelike-progress");
     const build = $("#roguelike-build");
     if (!progress || !build) return;
@@ -8757,6 +8824,21 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     $("#glossary-filters").addEventListener("click", (event) => {
       const filter = event.target.closest("[data-glossary-filter]");
       if (filter) setGlossaryFilter(filter.dataset.glossaryFilter);
+    });
+    $("#glossary-quick-grid").addEventListener("click", (event) => {
+      const shortcut = event.target.closest("[data-glossary-jump]");
+      if (shortcut) jumpToGlossaryTerm(shortcut);
+    });
+    $("#glossary-sections").addEventListener("click", (event) => {
+      const entry = event.target.closest(".glossary-entry");
+      if (entry) toggleGlossaryEntry(entry);
+    });
+    $("#glossary-sections").addEventListener("keydown", (event) => {
+      if (!['Enter', ' '].includes(event.key)) return;
+      const entry = event.target.closest(".glossary-entry");
+      if (!entry) return;
+      event.preventDefault();
+      toggleGlossaryEntry(entry);
     });
     $("#hud-party-button")?.addEventListener("click", toggleCombatParty);
     document.querySelectorAll("[data-hud-drawer]").forEach((button) => button.addEventListener("click", () => setCombatHudDrawer(button.dataset.hudDrawer)));

@@ -7,15 +7,11 @@
     <meta name="description" content="타일 하나를 누른 채 경로를 설계해 오행 콤보를 만들고, 모은 한자로 사자성어를 발동하는 HTML5 퍼즐·전투 게임" />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23091312'/%3E%3Crect x='8' y='8' width='48' height='48' rx='10' fill='%23e6b85c'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-size='34' font-family='serif' fill='%23111918'%3E%E5%9B%9B%3C/text%3E%3C/svg%3E" />
     <title>사자연성 — 색을 잇고 뜻을 깨우다</title>
-  <link rel="stylesheet" href="styles.css?v=20260809-menu-hud-v4" />
-  <link rel="stylesheet" href="styles-route-reward.css?v=20260809-reward-frame-v2" />
+  <link rel="stylesheet" href="styles.css?v=20260809-combat-layout-v2" />
+  <link rel="stylesheet" href="styles-route-reward.css?v=20260809-reward-frame-v3" />
   </head>
   <body>
     <div class="grain" aria-hidden="true"></div>
-    <aside id="run-currency-hud" class="run-currency-hud" role="status" aria-live="polite" aria-atomic="true" hidden>
-      <span aria-hidden="true">墨</span>
-      <span><small>이번 행로의 먹</small><strong id="run-currency-value">0</strong><em>사건·선택 비용</em></span>
-    </aside>
     <main class="game-shell">
       <header class="masthead">
         <div>
@@ -24,6 +20,10 @@
         </div>
         <div class="header-actions">
           <div class="stage-chip"><span id="mode-kicker">PUZZLE MODE</span><strong id="mode-title">재앙의 문</strong></div>
+          <aside id="run-currency-hud" class="run-currency-hud" role="status" aria-live="polite" aria-atomic="true" hidden>
+            <span aria-hidden="true">墨</span>
+            <span><small>행로의 먹</small><strong id="run-currency-value">0</strong><em>사건·선택 비용</em></span>
+          </aside>
           <button id="menu-button" class="icon-button" aria-label="메인 메뉴로 돌아가기">⌂</button>
           <button id="settings-button" class="icon-button" aria-label="훈독 표시 설정">⚙</button>
           <button id="debug-button" class="icon-button debug-button" aria-label="디버그 설정" hidden disabled aria-hidden="true" tabindex="-1">⚒</button>
@@ -120,11 +120,6 @@
             <div><span class="section-number">壹</span><h2>연성식</h2></div>
             <small id="idiom-cycle-status">글자는 순서 없이 모입니다</small>
           </div>
-          <section id="jaryeong-panel" class="jaryeong-panel" aria-label="자령 편성">
-            <div class="jaryeong-heading"><span>字</span><div><small>JARYEONG PARTY</small><strong>자령 편성</strong></div><b id="jaryeong-party-label">0/5 편성</b></div>
-            <div id="jaryeong-party" class="jaryeong-party"></div>
-            <button id="hud-party-button" class="hud-party-button" type="button" aria-controls="jaryeong-panel" aria-expanded="false"><span>衆</span><strong>파티</strong></button>
-          </section>
           <div id="idiom-focus" class="idiom-focus" aria-label="현재 크게 보는 연성식" aria-live="polite"></div>
           <div id="idiom-cards" class="idiom-cards"></div>
           <div class="tip-card">
@@ -230,6 +225,12 @@
         </aside>
       </section>
 
+      <section id="jaryeong-panel" class="jaryeong-panel" aria-label="자령 편성">
+        <div class="jaryeong-heading"><span>字</span><div><small>JARYEONG PARTY</small><strong>자령 편성</strong></div><b id="jaryeong-party-label">0/5 편성</b></div>
+        <div id="jaryeong-party" class="jaryeong-party"></div>
+        <button id="hud-party-button" class="hud-party-button" type="button" aria-controls="jaryeong-panel" aria-expanded="false"><span>衆</span><strong>파티</strong></button>
+      </section>
+
       <nav id="combat-hud-dock" class="combat-hud-dock" aria-label="전투 보조 정보">
         <button id="hud-relic-button" class="hud-dock-button" type="button" data-hud-drawer="relics" aria-controls="hud-secondary-drawer" aria-expanded="false"><span>寶</span><strong>유물</strong><small id="hud-relic-count">0</small></button>
         <button id="hud-log-button" class="hud-dock-button" type="button" data-hud-drawer="log" aria-controls="hud-secondary-drawer" aria-expanded="false"><span>記</span><strong>전투 기록</strong><small id="hud-log-count">0</small></button>
@@ -322,6 +323,13 @@
           <div class="idiom-speed-options" role="radiogroup" aria-label="사자성어 발동 연출 속도">
             <button type="button" class="idiom-speed-option" data-idiom-speed="slow" aria-pressed="false"><b>천천히</b><small>학습·읽기 권장</small></button>
             <button type="button" class="idiom-speed-option" data-idiom-speed="fast" aria-pressed="false"><b>빠르게</b><small>기존 속도</small></button>
+          </div>
+        </div>
+        <div class="combat-layout-setting">
+          <div class="setting-copy"><strong>문자 큐 배치</strong><small>전투판 아래 또는 순환 연성식 위의 남는 공간을 사용합니다. 모바일은 안전한 하단 배치로 표시됩니다.</small></div>
+          <div class="combat-layout-options" role="radiogroup" aria-label="문자 큐 배치 방식">
+            <button type="button" class="combat-layout-option" role="radio" data-combat-layout="bottom" aria-checked="false" tabindex="-1"><b>하단형</b><small>기본 · 보드 아래 전투 도크</small></button>
+            <button type="button" class="combat-layout-option" role="radio" data-combat-layout="upper" aria-checked="false" tabindex="-1"><b>위쪽형</b><small>순환 연성식 위 2줄</small></button>
           </div>
         </div>
         <div class="battle-display-setting">
@@ -817,6 +825,6 @@
 
     <script src="data/sajayeonseong-hanja-v2.js?v=20260807-data-2"></script>
     <script src="data/hanja-hun-eum.js?v=20260807-hun-1"></script>
-    <script type="module" src="game.js?v=20260809-menu-hud-v4"></script>
+    <script type="module" src="game.js?v=20260809-combat-layout-v2"></script>
   </body>
 </html>

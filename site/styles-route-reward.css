@@ -14,19 +14,48 @@
   font-size:10px;
 }
 #roguelike-reward-modal .reward-glyph.has-relic-art {
-  width:112px;
-  height:92px;
-  margin:-74px auto 4px;
+  position:relative;
+  flex:none;
+  width:84px;
+  height:64px;
+  margin:0 auto 12px;
   display:grid;
   place-items:center;
   border:0;
   background:none;
 }
-#roguelike-reward-modal .reward-glyph.has-relic-art img { width:100%; height:100%; object-fit:contain; filter:drop-shadow(0 7px 6px rgba(49,31,12,.38)); }
+#roguelike-reward-modal .reward-glyph.has-relic-art img {
+  position:absolute;
+  inset:0;
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  filter:drop-shadow(0 7px 6px rgba(49,31,12,.38));
+}
 #roguelike-reward-modal .idiom-reward-choice { padding-top:74px; }
-#roguelike-reward-modal .idiom-reward-art { position:absolute; top:73px; left:50%; width:158px; height:92px; transform:translateX(-50%); opacity:.42; pointer-events:none; }
-#roguelike-reward-modal .idiom-reward-art img { width:100%; height:100%; object-fit:contain; }
-#roguelike-reward-modal .idiom-reward-choice .roguelike-choice-glyphs { position:relative; z-index:1; margin-top:10px; }
+#roguelike-reward-modal .idiom-reward-art {
+  position:relative;
+  z-index:0;
+  align-self:center;
+  flex:none;
+  display:grid;
+  place-items:center;
+  width:104px;
+  height:42px;
+  margin:0 auto 8px;
+  opacity:.18;
+  pointer-events:none;
+}
+#roguelike-reward-modal .idiom-reward-art img {
+  position:absolute;
+  inset:0;
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+#roguelike-reward-modal .idiom-reward-choice .roguelike-choice-glyphs { position:relative; z-index:1; margin:0 0 12px; }
 #roguelike-reward-modal .reward-synergy {
   width:100%;
   display:grid;
@@ -479,15 +508,19 @@ button.idiom-comparison-card:focus-visible { outline:3px solid #ffe08a; outline-
   }
   #roguelike-reward-modal .reward-choice,
   #roguelike-reward-modal .roguelike-choice-grid.has-four .reward-choice {
-    min-height:238px;
-    padding:62px 10px 11px;
+    min-height:300px;
+    padding:74px 32px 24px;
+    overflow:hidden;
   }
   #roguelike-reward-modal .reward-choice::before { top:25px; font-size:21px; }
   #roguelike-reward-modal .reward-choice .roguelike-choice-meta strong { font-size:15px; }
   #roguelike-reward-modal .reward-choice .roguelike-choice-meta small,
   #roguelike-reward-modal .reward-choice .roguelike-choice-desc,
-  #roguelike-reward-modal .reward-choice .reward-idiom-effect { font-size:9px; line-height:1.4; }
+  #roguelike-reward-modal .reward-choice .reward-idiom-effect { color:#3d2b18; font-size:10px; font-weight:700; line-height:1.45; }
   #roguelike-reward-modal .reward-choice .reward-effect-label { font-size:9px; }
+  #roguelike-reward-modal .idiom-reward-art { width:90px; height:36px; margin-bottom:6px; opacity:.16; }
+  #roguelike-reward-modal .reward-glyph.has-relic-art { width:70px; height:54px; margin:0 auto 10px; }
+  #roguelike-reward-modal .idiom-reward-choice .roguelike-choice-glyphs { margin-bottom:8px; }
   #roguelike-reward-modal .reward-synergy { gap:2px; margin-top:6px; padding:4px 5px; border-radius:5px; }
   #roguelike-reward-modal .reward-synergy-title { font-size:10px; }
   #roguelike-reward-modal .reward-synergy-note { gap:3px; }
@@ -502,4 +535,45 @@ button.idiom-comparison-card:focus-visible { outline:3px solid #ffe08a; outline-
   #roguelike-route-modal .route-choice:focus-visible,
   #roguelike-reward-modal .reward-choice:hover,
   #roguelike-reward-modal .reward-choice:focus-visible { transform:none; }
+}
+
+/* Reward-frame safe area. The illustrated parchment has ornamental rails on
+   both sides and a deep lower flourish, so copy must stay inside its center. */
+@media (min-width:621px) {
+  #roguelike-reward-modal .roguelike-choice-grid { width:min(1120px,94%); }
+  #roguelike-reward-modal .reward-choice {
+    min-width:0;
+    min-height:390px;
+    padding:92px 40px 34px;
+    overflow:hidden;
+  }
+  #roguelike-reward-modal .reward-choice > :not(.idiom-reward-art) {
+    position:relative;
+    z-index:1;
+    width:100%;
+    min-width:0;
+    max-width:100%;
+  }
+  #roguelike-reward-modal .reward-choice .roguelike-choice-meta,
+  #roguelike-reward-modal .reward-choice .roguelike-choice-desc,
+  #roguelike-reward-modal .reward-choice .reward-synergy {
+    overflow-wrap:anywhere;
+    word-break:keep-all;
+  }
+  #roguelike-reward-modal .reward-choice .roguelike-choice-meta strong {
+    line-height:1.2;
+  }
+  #roguelike-reward-modal .reward-choice .roguelike-choice-glyphs { margin:0 0 12px; }
+  #roguelike-reward-modal .idiom-reward-art {
+    width:104px;
+    height:42px;
+    margin-bottom:8px;
+    opacity:.16;
+  }
+  #roguelike-reward-modal .reward-glyph.has-relic-art {
+    width:84px;
+    height:64px;
+    margin:0 auto 12px;
+  }
+  #roguelike-reward-modal .reward-synergy { margin-top:12px; }
 }

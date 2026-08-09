@@ -1049,7 +1049,7 @@ body.puzzle-mode .enemy-kind-label { display:inline-flex; }
 .damage-float.from-effect { color:#e8cbff; text-shadow:0 2px 3px #000,0 0 15px #9d66d9; }
 .bar.damage-pulse { animation:barDamagePulse .46s ease; }
 .puzzle-panel { position:relative; }
-.puzzle-panel.player-hit { animation:playerPanelHit .5s ease; }
+.board-wrap.player-hit { animation:playerPanelHit .5s ease; }
 .player-damage-float {
   position:absolute;
   left:50%;
@@ -4215,4 +4215,496 @@ body > .battle-loot-overlay { z-index:2147483000; }
 
 @media (prefers-reduced-motion:reduce) {
   .enemy-intent-card.is-imminent-turn .enemy-attack-countdown,.multi-enemy-countdown.imminent,.multi-enemy-aura.active,.multi-enemy-unit.attacking,.multi-enemy-unit.aoe-hit,.multi-enemy-damage { animation:none!important; }
+}
+
+/* Queue readability: keep every collected character on its own talisman.
+   Narrow screens scroll this one rail instead of crushing twenty glyphs. */
+.queue-area { min-width:0; }
+.letter-queue,
+body.roguelike-mode .letter-queue,
+body.puzzle-mode .letter-queue {
+  grid-template-columns:repeat(var(--queue-size,20),minmax(32px,1fr));
+  gap:4px;
+  min-height:34px;
+  padding:2px 1px 5px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  overscroll-behavior-x:contain;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(104,217,177,.62) rgba(4,18,16,.72);
+  scroll-snap-type:x proximity;
+}
+.letter-queue::-webkit-scrollbar { height:5px; }
+.letter-queue::-webkit-scrollbar-track { border-radius:999px; background:rgba(4,18,16,.72); }
+.letter-queue::-webkit-scrollbar-thumb { border-radius:999px; background:rgba(104,217,177,.62); }
+.queue-slot,
+body.roguelike-mode .queue-slot,
+body.puzzle-mode .queue-slot {
+  box-sizing:border-box;
+  min-width:32px;
+  min-height:32px;
+  aspect-ratio:auto;
+  padding:2px 2px 8px;
+  overflow:hidden;
+  contain:paint;
+  scroll-snap-align:start;
+  border-radius:6px;
+  font-size:clamp(17px,1.18vw,21px);
+  line-height:1;
+  text-shadow:0 1px 3px rgba(0,0,0,.9);
+}
+.queue-slot.filled {
+  border-color:rgba(112,224,184,.7);
+  background:linear-gradient(180deg,rgba(67,152,122,.2),rgba(9,40,33,.66));
+  box-shadow:inset 0 0 0 1px rgba(191,255,228,.06),0 2px 5px rgba(0,0,0,.28);
+}
+.queue-slot:not(.filled) { border-color:rgba(86,111,101,.5); background:rgba(4,18,16,.25); }
+.queue-life { right:3px; bottom:2px; left:3px; gap:2px; }
+.queue-life i { width:3px; height:3px; }
+
+@media (max-width:760px), (max-height:760px) {
+  .letter-queue,
+  body.roguelike-mode .letter-queue,
+  body.puzzle-mode .letter-queue { grid-template-columns:repeat(var(--queue-size,20),32px); gap:4px; min-height:34px; }
+  .queue-slot,
+  body.roguelike-mode .queue-slot,
+  body.puzzle-mode .queue-slot { min-width:32px; min-height:32px; font-size:17px; }
+}
+
+/* 2026-08-09 approved combat HUD: two persisted queue layouts, a centered
+   spirit skill deck and tiles that reserve a real reading band. */
+.combat-layout-setting {
+  display:grid;
+  grid-template-columns:minmax(140px,.85fr) 1.15fr;
+  align-items:center;
+  gap:12px;
+  margin:-6px 0 14px;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:8px;
+  background:rgba(255,255,255,.02);
+  text-align:left;
+}
+.combat-layout-options { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; }
+.combat-layout-option {
+  display:grid;
+  gap:3px;
+  min-height:52px;
+  padding:8px 10px;
+  border:1px solid var(--line);
+  border-radius:8px;
+  color:#cfc6af;
+  background:rgba(255,255,255,.025);
+  cursor:pointer;
+}
+.combat-layout-option b { color:#ead7a3; font:800 12px/1.2 "Gowun Batang","Batang","Noto Serif CJK KR","AppleMyungjo",serif; }
+.combat-layout-option small { color:#71877e; font-size:8px; line-height:1.3; }
+.combat-layout-option:hover,.combat-layout-option.selected { border-color:rgba(87,214,176,.62); color:#ecf9ef; background:rgba(87,214,176,.09); box-shadow:0 0 15px rgba(87,214,176,.08); }
+.combat-layout-option:focus-visible { outline:3px solid #ffe08a; outline-offset:2px; }
+
+@media (min-width:761px) {
+  body.roguelike-mode[data-combat-layout="bottom"] .main-grid { bottom:132px; }
+  body.roguelike-mode[data-combat-layout="upper"] .main-grid { bottom:105px; }
+
+  body.roguelike-mode .run-currency-hud {
+    position:static;
+    z-index:auto;
+    min-width:118px;
+    height:34px;
+    gap:6px;
+    padding:3px 8px 3px 4px;
+    border-radius:18px;
+    pointer-events:none;
+  }
+  body.roguelike-mode .run-currency-hud > span:first-child { width:26px; height:26px; font-size:16px; }
+  body.roguelike-mode .run-currency-hud > span:last-child { column-gap:6px; }
+  body.roguelike-mode .run-currency-hud small { font-size:8px; }
+  body.roguelike-mode .run-currency-hud strong { font-size:19px; }
+  body.roguelike-mode .run-currency-hud em { display:none; }
+
+  body.roguelike-mode .enemy-copy {
+    position:fixed;
+    top:55px;
+    left:calc(50% - min(195px,17vw));
+    z-index:17;
+    width:min(390px,34vw);
+    margin:0;
+    padding:0 10px 4px;
+    border:0;
+    background:linear-gradient(90deg,transparent,rgba(3,15,13,.72) 18% 82%,transparent);
+    box-shadow:none;
+    text-align:center;
+    transform:none;
+  }
+  body.roguelike-mode .enemy-copy h2 {
+    position:static;
+    top:auto;
+    left:auto;
+    width:auto;
+    max-width:100%;
+    transform:none;
+  }
+  body.roguelike-mode .enemy-copy .wave-line { justify-content:center; }
+  body.roguelike-mode .enemy-copy h2 { margin:2px 0; font-size:20px; }
+  body.roguelike-mode .enemy-copy .enemy-kind-label-anchor { position:absolute; left:-132px; top:-3px; }
+  body.roguelike-mode .enemy-copy .enemy-kind-label { position:relative; top:auto; left:auto; width:76px; min-height:76px; display:grid; grid-template-columns:1fr; place-items:center; padding:5px; }
+  body.roguelike-mode .enemy-copy .enemy-kind-label > b { width:auto; height:auto; font-size:38px; }
+  body.roguelike-mode .enemy-copy .enemy-kind-label > span strong { font-size:9px; }
+  body.roguelike-mode .enemy-copy .enemy-kind-label > span small { display:none; }
+
+  body.roguelike-mode .enemy-vitals {
+    position:fixed;
+    top:104px;
+    left:50%;
+    z-index:17;
+    width:min(390px,34vw);
+    padding:4px 8px 6px;
+    background:linear-gradient(90deg,transparent,rgba(3,15,13,.86) 12% 88%,transparent);
+    transform:translateX(-50%);
+  }
+  body.roguelike-mode .enemy-vitals .vital-row { font-size:9px; }
+  body.roguelike-mode .enemy-vitals .status-row,
+  body.roguelike-mode .enemy-vitals .enemy-affinity { display:none; }
+
+  body.roguelike-mode .enemy-intent-card {
+    position:fixed;
+    top:145px;
+    left:calc(50% + 170px);
+    right:auto;
+    z-index:18;
+    width:min(390px,calc(50vw - 210px));
+    min-height:52px;
+    grid-template-columns:minmax(0,1fr) 66px;
+    grid-template-rows:auto auto;
+    gap:2px 8px;
+    padding:7px 9px;
+    border-radius:8px;
+  }
+  body.roguelike-mode[data-combat-layout="upper"] .enemy-intent-card { top:170px; right:var(--combat-edge); left:auto; width:min(350px,calc(36vw - 30px)); }
+  body.roguelike-mode .enemy-intent-card .intent-kicker { grid-column:1; grid-row:1; }
+  body.roguelike-mode .enemy-intent-card > strong { grid-column:1; grid-row:2; font-size:14px; }
+  body.roguelike-mode .enemy-intent-card > span,
+  body.roguelike-mode .enemy-intent-card > p { display:none; }
+  body.roguelike-mode .enemy-intent-card .enemy-attack-countdown { grid-column:2; grid-row:1 / 3; min-width:62px; }
+
+  body.roguelike-mode .jaryeong-squad-stage {
+    position:fixed;
+    left:clamp(360px,27vw,520px);
+    top:268px;
+    bottom:auto;
+    z-index:16;
+    width:430px;
+    height:78px;
+    padding:0 8px;
+    border-bottom:2px solid rgba(230,184,92,.26);
+    background:linear-gradient(180deg,transparent 52%,rgba(4,18,15,.62));
+  }
+  body.roguelike-mode .squad-jaryeong { left:calc(var(--slot) * 18% + 8px); bottom:3px; width:68px; height:68px; }
+  body.roguelike-mode .squad-jaryeong:nth-child(1) { width:82px; height:82px; }
+
+  body.roguelike-mode #jaryeong-panel:not(.hud-expanded) {
+    position:fixed;
+    left:50%;
+    right:auto;
+    bottom:6px;
+    z-index:24;
+    width:min(650px,calc(100vw - 610px));
+    min-width:520px;
+    grid-template-columns:minmax(0,1fr) 68px;
+    gap:7px;
+    margin:0;
+    padding:0;
+    border:0;
+    background:transparent;
+    box-shadow:none;
+    transform:translateX(-50%);
+  }
+  body.roguelike-mode #jaryeong-panel:not(.hud-expanded) .jaryeong-party { grid-template-columns:repeat(5,minmax(0,1fr)); gap:6px; }
+  body.roguelike-mode #jaryeong-panel:not(.hud-expanded) .jaryeong-slot { min-height:76px; height:76px; }
+  body.roguelike-mode #jaryeong-panel:not(.hud-expanded) .jaryeong-avatar { width:48px; height:48px; }
+  body.roguelike-mode #jaryeong-panel:not(.hud-expanded) .hud-party-button { min-height:76px; height:76px; }
+  body.roguelike-mode #jaryeong-panel.hud-expanded { left:var(--combat-edge); bottom:96px; width:min(520px,calc(100vw - 32px)); min-width:0; transform:none; }
+  body.roguelike-mode .jaryeong-skill-inspector { left:50%; bottom:104px; transform:translateX(-50%); }
+
+  body.roguelike-mode .puzzle-panel { position:relative; }
+  body.roguelike-mode .puzzle-panel > .queue-area {
+    position:fixed;
+    z-index:23;
+    display:block;
+    margin:0;
+    padding:7px 9px 8px;
+    border:1px solid rgba(87,214,176,.42);
+    border-radius:9px;
+    background:linear-gradient(180deg,rgba(5,25,21,.96),rgba(3,15,13,.96));
+    box-shadow:0 10px 28px rgba(0,0,0,.46),inset 0 0 16px rgba(87,214,176,.035);
+  }
+  body.roguelike-mode .queue-title { display:flex; justify-content:space-between; align-items:center; gap:12px; margin:0 0 4px; font-size:9px; }
+  body.roguelike-mode .queue-title small { font-size:8px; white-space:nowrap; }
+  body.roguelike-mode[data-combat-layout="bottom"] .puzzle-panel > .queue-area {
+    left:50%;
+    bottom:88px;
+    width:min(850px,calc(100vw - 520px));
+    display:grid;
+    grid-template-columns:auto minmax(0,1fr);
+    align-items:center;
+    gap:8px;
+    transform:translateX(-50%);
+  }
+  body.roguelike-mode[data-combat-layout="bottom"] .queue-title { display:grid; gap:1px; min-width:112px; margin:0; }
+  body.roguelike-mode[data-combat-layout="bottom"] .queue-title small { white-space:normal; }
+  body.roguelike-mode[data-combat-layout="bottom"] .letter-queue { grid-template-columns:repeat(var(--queue-size,20),minmax(32px,1fr)); }
+  body.roguelike-mode[data-combat-layout="upper"] .puzzle-panel > .queue-area {
+    top:62px;
+    right:var(--combat-edge);
+    width:min(520px,calc(50vw - var(--combat-edge) - 212px));
+  }
+  body.roguelike-mode[data-combat-layout="upper"] .letter-queue {
+    grid-template-columns:repeat(var(--queue-columns,10),minmax(32px,1fr));
+    grid-auto-rows:32px;
+    overflow-x:auto;
+    overflow-y:hidden;
+  }
+  body.roguelike-mode .letter-queue { min-height:32px; padding:0; }
+  body.roguelike-mode .queue-slot { min-height:32px; font-size:18px; }
+
+  body.roguelike-mode .board-wrap { flex:1 1 auto; min-height:0; }
+  body.roguelike-mode .board { gap:5px; padding:6px; }
+  body.roguelike-mode .tile {
+    grid-template-rows:minmax(0,1fr) minmax(16px,24%);
+    align-content:stretch;
+    padding:3px 2px 0;
+    border:1px solid rgba(255,238,195,.23);
+    border-radius:10px;
+  }
+  body.roguelike-mode .tile .hanja { align-self:center; margin:0; font-size:clamp(25px,2.25vw,38px); line-height:1; }
+  body.roguelike-mode .tile-reading {
+    position:relative;
+    left:auto;
+    right:auto;
+    bottom:auto;
+    grid-row:2;
+    align-self:stretch;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:calc(100% + 4px);
+    min-width:0;
+    margin:0 -2px;
+    padding:2px 1px;
+    overflow:visible;
+    border-radius:0 0 8px 8px;
+    color:#fff5d7;
+    background:rgba(3,13,12,.46);
+    font-size:clamp(9px,.72vw,12px);
+    font-weight:800;
+    letter-spacing:-.06em;
+    line-height:1.05;
+    text-overflow:clip;
+    white-space:nowrap;
+  }
+  body.roguelike-mode .tile.reading-long .tile-reading { font-size:clamp(8px,.62vw,10px); letter-spacing:-.1em; }
+  body.roguelike-mode .tile.reading-xlong .tile-reading { font-size:clamp(7px,.54vw,9px); letter-spacing:-.13em; }
+}
+
+@media (min-width:761px) and (max-height:820px) {
+  body.roguelike-mode[data-combat-layout="bottom"] .main-grid { bottom:106px; }
+  body.roguelike-mode[data-combat-layout="upper"] .main-grid { bottom:78px; }
+  body.roguelike-mode .enemy-copy { top:42px; }
+  body.roguelike-mode .enemy-vitals { top:80px; }
+  body.roguelike-mode .enemy-intent-card { top:118px; }
+  body.roguelike-mode[data-combat-layout="upper"] .enemy-intent-card { top:135px; }
+  body.roguelike-mode .jaryeong-squad-stage { left:clamp(300px,26vw,410px); top:137px; width:350px; height:65px; }
+  body.roguelike-mode .squad-jaryeong { width:53px; height:53px; }
+  body.roguelike-mode .squad-jaryeong:nth-child(1) { width:64px; height:64px; }
+  body.roguelike-mode #jaryeong-panel:not(.hud-expanded) { bottom:6px; width:min(590px,calc(100vw - 500px)); min-width:500px; }
+  body.roguelike-mode #jaryeong-panel:not(.hud-expanded) .jaryeong-slot,
+  body.roguelike-mode #jaryeong-panel:not(.hud-expanded) .hud-party-button { min-height:56px; height:56px; }
+  body.roguelike-mode #jaryeong-panel:not(.hud-expanded) .jaryeong-avatar { width:38px; height:38px; }
+  body.roguelike-mode[data-combat-layout="bottom"] .puzzle-panel > .queue-area { bottom:62px; }
+  body.roguelike-mode[data-combat-layout="upper"] .puzzle-panel > .queue-area { top:43px; right:18px; width:min(410px,calc(50vw - 230px)); }
+  body.roguelike-mode .puzzle-panel > .queue-area { padding:4px 7px 5px; }
+  body.roguelike-mode .queue-title { margin-bottom:2px; }
+  body.roguelike-mode .queue-slot { min-height:30px; }
+  body.roguelike-mode[data-combat-layout="upper"] .letter-queue { grid-template-columns:repeat(var(--queue-columns,10),minmax(30px,1fr)); grid-auto-rows:30px; }
+  body.roguelike-mode[data-combat-layout="upper"] .queue-slot { min-width:30px; }
+}
+
+/* The live path already shows the grabbed tile and remaining time. The extra
+   release-to-resolve pill covers the bottom row, so keep it for story lessons
+   only and remove it from normal roguelike combat. */
+body.roguelike-mode .drag-state-banner { display:none!important; }
+
+/* All fixed recipes use one collected-state language. Older compact rules
+   painted cards 2-4 solid jade, making the same queue state look different. */
+body.roguelike-mode .fixed-set .idiom-card:nth-child(n+2) .idiom-slot.collected {
+  border:1px solid rgba(230,184,92,.72);
+  color:#fff2c7;
+  background:linear-gradient(180deg,rgba(230,184,92,.2),rgba(87,214,176,.09));
+  box-shadow:none;
+  text-shadow:0 0 9px rgba(230,184,92,.5);
+}
+
+@media (max-width:760px) {
+  .combat-layout-setting { grid-template-columns:1fr; gap:7px; margin-bottom:12px; padding:9px; }
+  .combat-layout-options { grid-template-columns:1fr 1fr; }
+  .combat-layout-option { min-height:48px; padding:6px; }
+  body.roguelike-mode .run-currency-hud { position:static; min-width:0; height:31px; padding:3px 6px; }
+  body.roguelike-mode .run-currency-hud > span:first-child { width:24px; height:24px; font-size:15px; }
+  body.roguelike-mode .run-currency-hud small,
+  body.roguelike-mode .run-currency-hud em { display:none; }
+  body.roguelike-mode .run-currency-hud strong { grid-column:1; grid-row:1; font-size:17px; }
+  body.roguelike-mode .enemy-intent-card {
+    max-height:60px;
+    grid-template-columns:minmax(0,1fr) 56px;
+    grid-template-rows:auto auto;
+    gap:1px 4px;
+    padding:4px 5px;
+    overflow:hidden;
+  }
+  body.roguelike-mode .enemy-intent-card > strong { font-size:13px; }
+  body.roguelike-mode .enemy-intent-card > span,
+  body.roguelike-mode .enemy-intent-card > p { display:none; }
+  body.roguelike-mode .enemy-intent-card .enemy-attack-countdown { grid-column:2; grid-row:1 / 3; min-width:52px; padding:2px 3px; }
+  body.roguelike-mode #jaryeong-panel {
+    position:fixed;
+    top:198px;
+    left:5px;
+    right:5px;
+    width:calc(100vw - 10px);
+    height:52px;
+    z-index:22;
+    display:grid;
+    grid-template-columns:1fr;
+    margin:0;
+    padding:3px;
+    border:1px solid rgba(230,184,92,.28);
+    border-radius:8px;
+    background:rgba(3,15,13,.9);
+  }
+  body.roguelike-mode #jaryeong-panel .jaryeong-heading,
+  body.roguelike-mode #jaryeong-panel .hud-party-button { display:none!important; }
+  body.roguelike-mode #jaryeong-panel .jaryeong-party { grid-template-columns:repeat(5,minmax(0,1fr)); gap:3px; }
+  body.roguelike-mode #jaryeong-panel .jaryeong-party { height:100%; }
+  body.roguelike-mode #jaryeong-panel .jaryeong-slot { min-height:46px; height:46px; }
+  body.roguelike-mode .puzzle-panel > .queue-area { position:static; width:auto; margin:0; padding-top:4px; transform:none; }
+  body.roguelike-mode .letter-queue { grid-template-columns:repeat(var(--queue-size,20),32px); overflow-x:auto; overflow-y:hidden; }
+  body.roguelike-mode .queue-slot { min-width:32px; min-height:32px; font-size:17px; }
+  body.roguelike-mode .tile { grid-template-rows:minmax(0,1fr) minmax(14px,23%); padding:2px 1px 0; }
+  body.roguelike-mode .tile .hanja { margin:0; font-size:clamp(20px,6.7vw,28px); }
+  body.roguelike-mode .tile-reading { position:relative; left:auto; right:auto; bottom:auto; grid-row:2; width:calc(100% + 2px); margin:0 -1px; padding:1px 0; overflow:visible; background:rgba(3,13,12,.46); font-size:clamp(7px,2.25vw,9px); line-height:1; text-overflow:clip; white-space:nowrap; }
+  body.roguelike-mode .tile.reading-long .tile-reading { font-size:clamp(6px,1.9vw,8px); letter-spacing:-.11em; }
+  body.roguelike-mode .tile.reading-xlong .tile-reading { font-size:clamp(5.5px,1.65vw,7px); letter-spacing:-.14em; }
+
+  /* Phones keep every recipe reachable in one horizontal rail. */
+  body[data-idiom-display="all-large"].roguelike-mode .idiom-cards > .rotating-set,
+  body[data-idiom-display="all-large"].roguelike-mode .rotating-set .idiom-card-grid { display:contents!important; }
+  body[data-idiom-display="all-large"].roguelike-mode .rotating-set .idiom-set-heading { display:none; }
+  body[data-idiom-display="all-large"].roguelike-mode .rotating-set .idiom-card {
+    flex:0 0 clamp(132px,38vw,156px);
+    height:100%;
+    min-height:0;
+    max-height:none;
+    display:grid;
+    grid-template-rows:auto minmax(54px,1fr) auto;
+    gap:4px;
+    padding:6px;
+    overflow:hidden;
+  }
+  body[data-idiom-display="all-large"].roguelike-mode .rotating-set .idiom-slots { height:54px; min-height:54px; }
+  body[data-idiom-display="all-large"].roguelike-mode .rotating-set .idiom-slot b { display:block; font-size:23px; }
+  body[data-idiom-display="all-large"].roguelike-mode .rotating-set .idiom-slot small { display:block; font-size:9px; line-height:1.08; }
+  body[data-idiom-display="all-large"].roguelike-mode .rotating-set .idiom-effect { display:block; min-height:25px; overflow:visible; font-size:9px; line-height:1.25; }
+}
+
+@media (min-width:761px) and (max-width:1360px) {
+  body[data-idiom-display="all-large"].roguelike-mode .chronicle-panel,
+  body[data-idiom-display="all-large"].roguelike-mode .roguelike-rotating-panel,
+  body[data-idiom-display="all-large"].roguelike-mode .roguelike-rotating-cards,
+  body[data-idiom-display="all-large"].roguelike-mode .roguelike-rotating-cards .idiom-card {
+    min-width:0;
+    max-width:100%;
+    width:100%;
+    box-sizing:border-box;
+  }
+}
+
+@media (min-width:1241px) {
+  body.roguelike-mode .jaryeong-skill-inspector {
+    left:var(--combat-edge);
+    bottom:154px;
+    width:410px;
+    transform:none;
+  }
+  body.roguelike-mode .jaryeong-skill-inspector-card {
+    grid-template-columns:92px minmax(0,1fr) 104px;
+  }
+  body.roguelike-mode .jaryeong-skill-inspector-art { width:84px; height:84px; }
+}
+
+@media (min-width:1241px) and (max-width:1360px) {
+  body[data-idiom-display="all-large"].roguelike-mode .main-grid {
+    grid-template-columns:minmax(420px,.94fr) minmax(470px,1.55fr) minmax(210px,.51fr);
+    gap:10px;
+  }
+}
+
+@media (min-width:761px) and (max-width:1240px) {
+  body.roguelike-mode .main-grid {
+    grid-template-columns:minmax(250px,.68fr) minmax(440px,1.32fr);
+  }
+  body.roguelike-mode .chronicle-panel { display:none!important; }
+  body.roguelike-mode .idiom-cards > .rotating-set { display:grid!important; }
+  body.roguelike-mode .rotating-set .idiom-card-grid { grid-template-columns:1fr; }
+  body.roguelike-mode .jaryeong-skill-inspector {
+    left:8px;
+    bottom:154px;
+    width:280px;
+    transform:none;
+  }
+  body.roguelike-mode .jaryeong-skill-inspector-card {
+    grid-template-columns:70px minmax(0,1fr);
+    gap:8px;
+    min-height:0;
+    padding:10px;
+  }
+  body.roguelike-mode .jaryeong-skill-inspector-art { width:64px; height:64px; }
+  body.roguelike-mode .jaryeong-skill-inspector-cast { grid-column:1 / -1; min-height:44px; }
+  body.roguelike-mode #jaryeong-panel:not(.hud-expanded) {
+    left:8px;
+    width:calc(100vw - 300px);
+    min-width:0;
+    transform:none;
+  }
+  body.roguelike-mode[data-combat-layout="upper"] .main-grid { bottom:132px; }
+  body.roguelike-mode[data-combat-layout="upper"] .puzzle-panel > .queue-area {
+    top:auto;
+    right:auto;
+    bottom:88px;
+    left:16px;
+    width:calc(100vw - 32px);
+    display:grid;
+    grid-template-columns:auto minmax(0,1fr);
+    align-items:center;
+    gap:8px;
+    transform:none;
+  }
+  body.roguelike-mode[data-combat-layout="upper"] .queue-title { display:grid; gap:1px; min-width:112px; margin:0; }
+  body.roguelike-mode[data-combat-layout="upper"] .letter-queue {
+    grid-template-columns:repeat(var(--queue-size,20),32px);
+    grid-auto-rows:32px;
+    overflow-x:auto;
+    overflow-y:hidden;
+  }
+  body[data-idiom-display="all-large"].roguelike-mode .roguelike-rotating-panel { display:none!important; }
+  body[data-idiom-display="all-large"].roguelike-mode .idiom-cards > .rotating-set { display:grid!important; }
+  body[data-idiom-display="all-large"].roguelike-mode .rotating-set .idiom-card-grid { grid-template-columns:1fr; }
+}
+
+@media (min-width:761px) and (max-width:1240px) and (max-height:820px) {
+  body.roguelike-mode[data-combat-layout="upper"] .main-grid { bottom:106px; }
+  body.roguelike-mode[data-combat-layout="upper"] .puzzle-panel > .queue-area { bottom:62px; }
+}
+
+@media (min-width:1241px) and (max-height:820px) {
+  body.roguelike-mode[data-combat-layout="upper"] .enemy-intent-card { top:150px; }
 }

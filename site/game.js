@@ -11,6 +11,7 @@ import { decodeRunSave, describeRunSaveStage, encodeRunSave, RUN_SAVE_KEY } from
 import { buildReviveCharacterPool, passesReviveTrace, scoreReviveTrace } from "./src/revive.js?v=20260807-revive-3";
 import { chooseEmergencyIdiom, claimRunTrigger, findRunRelicEffect, RUNTIME_RELIC_EFFECT_TYPES } from "./src/relics.js?v=20260807-relics-1";
 import { createRewardBuildSnapshot, evaluateRewardSynergy } from "./src/reward-synergy.js?v=20260808-reward-synergy-2";
+import { COMBAT_LAYOUT_STORAGE_KEY, normalizeCombatLayoutMode } from "./src/combat-layout-settings.js?v=20260809-combat-layout-1";
 import { awardTalismanPieces, createDefaultJaryeongMetaState, exchangeTalismanPiecesForSummonTicket, getJaryeongRarity, getPreparedJaryeongParty, JARYEONG_SUMMON_RARITY_WEIGHTS, resetTargetFragmentPity, sanitizeJaryeongMetaState, setEquippedJaryeongParty, summonRandomJaryeong, TALISMAN_PIECES_PER_SUMMON_TICKET } from "./src/jaryeong-meta.js?v=20260809-random-summon-1";
 import { selectBackgroundForScene } from "./src/background-rotation.js?v=20260807-background-rotation-1";
 import { applyCombatObjectiveEvent, COMBAT_OBJECTIVE_EVENT, COMBAT_OBJECTIVE_TYPE, isCombatObjectiveComplete, normalizeCombatObjectiveState, resolveCombatObjectiveReward, selectCombatObjective } from "./src/combat-objectives.js?v=20260808-turn-resilience-1";
@@ -962,7 +963,7 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     mode: null, pangRunning: false, pangScore: 0, pangBestCombo: 0,
     pangMoves: 0, pangTimeLeft: PANG_SECONDS, pangTimerId: null,
     pangLastTick: 0, pangOrigin: null, pangTarget: null, pangMoved: false,
-    pangEndPending: false, dragPreview: null, readingMode: "large", idiomSpeed: "slow", battleDisplayMode: "slow", idiomDisplayMode: "all-large", swapAnimationUntil: 0, audioContext: null,
+    pangEndPending: false, dragPreview: null, readingMode: "large", idiomSpeed: "slow", battleDisplayMode: "slow", idiomDisplayMode: "all-large", combatLayoutMode: "bottom", swapAnimationUntil: 0, audioContext: null,
     enemyPlan: createEnemyPlan(), stageIdiomIds: [], usedStageIdiomIds: new Set(), rotatingIdiomIds: [], usedRotatingIdiomIds: new Set(), readyIdiomIds: new Set(), run: null,
     nextIdiomRecipeTurn: 0, idiomRecipeInterval: 0, recipeSupplyUntilTurn: 0, idiomDetailId: null, focusedIdiomId: null, jaryeongInspectorId: null,
     nextMoveBonus: 0, enemyMovePenalty: 0, currentChargeBonus: 0, nextChargeBonus: 0, nextPlayerDamageBonus: 0, nextWeaknessDamageBonus: 0,
@@ -3143,11 +3144,49 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     options[next].focus({ preventScroll: true });
   }
 
+  function updateCombatLayoutButtons() {
+    document.querySelectorAll("[data-combat-layout]").forEach((button) => {
+      const selected = button.dataset.combatLayout === state.combatLayoutMode;
+      button.classList.toggle("selected", selected);
+      button.setAttribute("aria-checked", String(selected));
+      button.tabIndex = selected ? 0 : -1;
+    });
+  }
+
+  function setCombatLayoutMode(mode, persist = true) {
+    state.combatLayoutMode = normalizeCombatLayoutMode(mode);
+    document.body.dataset.combatLayout = state.combatLayoutMode;
+    updateCombatLayoutButtons();
+    if (persist) {
+      try { localStorage.setItem(COMBAT_LAYOUT_STORAGE_KEY, state.combatLayoutMode); } catch {}
+    }
+  }
+
+  function loadCombatLayoutMode() {
+    let saved = "bottom";
+    try { saved = localStorage.getItem(COMBAT_LAYOUT_STORAGE_KEY) || "bottom"; } catch {}
+    setCombatLayoutMode(saved, false);
+  }
+
+  function handleCombatLayoutKeydown(event) {
+    const option = event.target.closest?.("[data-combat-layout]");
+    if (!option || !["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+    const options = [...document.querySelectorAll("[data-combat-layout]")];
+    const current = Math.max(0, options.indexOf(option));
+    const next = event.key === "Home" ? 0
+      : event.key === "End" ? options.length - 1
+        : (current + (event.key === "ArrowRight" ? 1 : -1) + options.length) % options.length;
+    event.preventDefault();
+    setCombatLayoutMode(options[next].dataset.combatLayout);
+    options[next].focus({ preventScroll: true });
+  }
+
   function openSettings() {
     updateReadingModeButtons();
     updateIdiomSpeedButtons();
     updateBattleDisplayButtons();
     updateIdiomDisplayButtons();
+    updateCombatLayoutButtons();
     syncAudioControls();
     const modal = $("#settings-modal");
     modal.inert = false;
@@ -3926,6 +3965,8 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     const tileElementMeta = ELEMENTS.find((element) => element.id === tile?.element) || ELEMENTS[0];
     const tileChar = typeof tile?.char === "string" && tile.char ? tile.char : "?";
     const tileReading = HANJA_READINGS[tileChar] || "훈음 미상";
+    button.classList.toggle("reading-long", tileReading.length >= 4);
+    button.classList.toggle("reading-xlong", tileReading.length >= 6);
     button.setAttribute("aria-label", `${tileElementMeta.label} 속성, ${tileChar}, ${tileReading}${lockTurns ? `, ${lockTurns}턴 봉인` : ""}`);
     button.title = `${tileChar} · ${tileReading}`;
     if (changed || contentChanged) button.innerHTML = `<span class="hanja">${tileChar}</span><small class="tile-reading">${tileReading}</small>`;
@@ -4010,6 +4051,8 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
       return counts;
     }, new Map());
     wrap.style.setProperty("--queue-size", queueMax);
+    wrap.style.setProperty("--queue-columns", Math.ceil(queueMax / 2));
+    wrap.dataset.queueMax = String(queueMax);
     for (let i = 0; i < queueMax; i++) {
       const entry = state.queue[i];
       const slot = document.createElement("span");
@@ -4031,6 +4074,7 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
     $("#queue-limit").textContent = queueMax;
     const queueTitle = $(".queue-title small");
     if (queueTitle) queueTitle.lastChild.textContent = ` · 최대 ${getQueueLife()}턴 보존`;
+    if (state.queue.length) requestAnimationFrame(() => { wrap.scrollLeft = wrap.scrollWidth; });
   }
 
   function idiomAvailability(idiom, pool = state.queue) {
@@ -4841,7 +4885,7 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
 
   function showPlayerHitFeedback(damage, absorbed = 0, secondaryDamage = 0) {
     const value = $("#player-damage-float");
-    const panel = $("#puzzle-panel");
+    const panel = document.querySelector("#puzzle-panel .board-wrap");
     const totalDamage = Math.max(0, damage) + Math.max(0, secondaryDamage);
     if (value) {
       value.textContent = totalDamage > 0
@@ -8918,6 +8962,10 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
       button.addEventListener("click", () => setIdiomDisplayMode(button.dataset.idiomDisplay));
       button.addEventListener("keydown", handleIdiomDisplayKeydown);
     });
+    document.querySelectorAll("[data-combat-layout]").forEach((button) => {
+      button.addEventListener("click", () => setCombatLayoutMode(button.dataset.combatLayout));
+      button.addEventListener("keydown", handleCombatLayoutKeydown);
+    });
     $("#result-menu").addEventListener("click", returnToMenu);
     $("#pang-result-menu").addEventListener("click", returnToMenu);
     $("#roguelike-result-menu").addEventListener("click", returnToMenu);
@@ -9130,6 +9178,7 @@ import { STORY_TRAINING_CHAPTERS, STORY_TRAINING_EVENT, STORY_TRAINING_IDIOM_TAR
   loadIdiomSpeed();
   loadBattleDisplayMode();
   loadIdiomDisplayMode();
+  loadCombatLayoutMode();
   syncAudioControls();
   syncRunSaveControls();
   renderVolumeOptions();
